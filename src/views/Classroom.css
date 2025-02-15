@@ -1,6 +1,7 @@
 .classroom {
   padding: 20px;
   height: calc(100vh - 60px); /* Adjust based on the height of your Navbar */
+  overflow-y: auto;
 }
 
 .grid-container {
