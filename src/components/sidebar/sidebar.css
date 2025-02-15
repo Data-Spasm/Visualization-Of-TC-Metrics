@@ -23,6 +23,13 @@
     cursor: pointer;
     transition: background 0.3s;
   }
+
+  .sidebar-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    width: 100%;
+  }
   
   .sidebar-item:hover {
     background: #f0f0f0;
