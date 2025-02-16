@@ -1,0 +1,44 @@
+.classroom {
+  padding: 20px;
+  height: calc(100vh - 60px); /* adjustable based on the height of our Navbar */
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  flex: 1;
+}
+
+.long-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 50%;
+  width: 100%;
+  flex: 1;
+}
+
+/* Media query for tablet screens */
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card, .long-card {
+    height: auto;
+    flex: 1;
+  }
+}
