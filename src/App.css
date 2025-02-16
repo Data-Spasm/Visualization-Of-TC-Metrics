@@ -1,33 +1,22 @@
 .container {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .main-content {
-    display: flex;
-    flex: 1;
-  }
-  
-  .sidebar {
-    width: 250px; /* Adjust the width as needed */
-  }
-  
-  .classroom {
-    flex: 1;
-    padding: 20px;
-  }
-  
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-  
-  .card {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+}
+
+.sidebar {
+  width: 250px; 
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+.content.full {
+  margin-left: 0;
+}
