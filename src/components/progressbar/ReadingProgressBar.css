@@ -1,0 +1,48 @@
+.progressbar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80%;
+    max-width: 600px;
+  }
+  
+  .progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .progress-bar {
+    width: 100%; /* Make it take the full container width */
+    height: 12px; /* Slightly taller for visibility */
+    border-radius: 3px;
+    background-color: #e5e7eb;
+    overflow: hidden;
+    border: 1px solid #ccc;
+  }  
+  
+  .progress-fill {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+  }
+  
+  .progress-label {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .reading-attempts-card {
+    margin-top: 15px;
+    text-align: center;
+  }
+  
+  .reading-attempts-title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
