@@ -2,18 +2,21 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
 import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
+import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import "./Classroom.css";
 
 const Classroom = ({ student }) => {
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
+  const [timeOnTaskData, setTimeOnTaskData] = useState([]);
 
   useEffect(() => {
     if (student && student.overallPerformance) {
-      const performanceData = {
+      setOverallPerformanceData({
         accuracy: student.overallPerformance.accuracy,
         fluency: student.overallPerformance.fluency,
-      };
-      setOverallPerformanceData(performanceData);
+      });
+
+      setTimeOnTaskData([{ name: student.username, timeOnTask: student.overallPerformance.timeOnTask }]);
     }
   }, [student]);
 
@@ -27,6 +30,7 @@ const Classroom = ({ student }) => {
           </CardContent>
         </Card>
 
+        
         <Card className="card">
           <CardContent>
             <Typography gutterBottom variant="h6" component="div">
@@ -37,6 +41,13 @@ const Classroom = ({ student }) => {
             </Typography>
           </CardContent>
         </Card>
+
+        <Card className="card">
+          <CardContent>
+            <TimeOnTaskChart data={timeOnTaskData} />
+          </CardContent>
+        </Card>
+
 
         <Card className="card">
           <CardContent>
