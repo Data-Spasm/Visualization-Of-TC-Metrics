@@ -1,69 +1,76 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
-import OverallAccuracyFluencyChart from '../components/linegraphs/OverallAccuracyFluencyChart';
-import './Classroom.css';
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, Typography } from "@mui/material";
+import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
+import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
+import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
+import "./Classroom.css";
 
 const Classroom = ({ student }) => {
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
+  const [timeOnTaskData, setTimeOnTaskData] = useState([]);
 
   useEffect(() => {
     if (student && student.overallPerformance) {
-      const performanceData = [{
+      setOverallPerformanceData({
         accuracy: student.overallPerformance.accuracy,
         fluency: student.overallPerformance.fluency,
-      }];
-      setOverallPerformanceData(performanceData);
+      });
+
+      setTimeOnTaskData([{ name: student.username, timeOnTask: student.overallPerformance.timeOnTask }]);
     }
   }, [student]);
 
   return (
     <div className="classroom">
-
+      {/* Top Grid with 3 Visualization Cards */}
       <div className="grid-container">
-        {/* Card 1: Overall Accuracy and Fluency */}
         <Card className="card">
           <CardContent>
-            {/* <Typography gutterBottom variant="h6" component="div">
-              Overall Accuracy and Fluency
-            </Typography> */}
             <OverallAccuracyFluencyChart data={overallPerformanceData} />
           </CardContent>
         </Card>
 
-        {/* Card 2: Placeholder for another visualization */}
+        
         <Card className="card">
           <CardContent>
             <Typography gutterBottom variant="h6" component="div">
               Visualization 2
             </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               Data visualization content goes here.
             </Typography>
           </CardContent>
         </Card>
 
-        {/* Card 3: Placeholder for another visualization */}
+        <Card className="card">
+          <CardContent>
+            <TimeOnTaskChart data={timeOnTaskData} />
+          </CardContent>
+        </Card>
+
+
         <Card className="card">
           <CardContent>
             <Typography gutterBottom variant="h6" component="div">
               Visualization 3
             </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               Data visualization content goes here.
             </Typography>
           </CardContent>
         </Card>
       </div>
 
-      {/* Long card for additional visualization */}
+      {/* Bottom Card: Progress Bar on Left, Reading Attempts on Right */}
       <Card className="long-card">
-        <CardContent>
+        <CardContent className="long-card-content">
           <Typography gutterBottom variant="h6" component="div">
-            Additional Insights
+            Progress Overview
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Data visualization content goes here.
-          </Typography>
+          <div className="progress-reading-container">
+            {/* Left Side: Progress Bar */}
+            <ReadingProgressBar performance={student?.overallPerformance} />
+          </div>
         </CardContent>
       </Card>
     </div>
