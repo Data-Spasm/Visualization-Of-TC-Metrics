@@ -5,13 +5,15 @@ import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
+import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";  // Import the graph
 import "./Classroom.css";
 
-const Classroom = ({ student }) => {
+const Classroom = ({ student, readingAttempts }) => {
   const [students, setStudents] = useState([]); // Added students state
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
   const [timeOnTaskData, setTimeOnTaskData] = useState([]);
   const [misreadData, setMisreadData] = useState([]);
+  const [readingAssessmentData, setReadingAssessmentData] = useState({});
 
   useEffect(() => {
     console.log("useEffect triggered");
@@ -39,7 +41,14 @@ const Classroom = ({ student }) => {
     } else {
       console.log("No misread words found");
     }
-  }, [student]);
+
+    // Calculate and update reading assessment data
+    if (readingAttempts && readingAttempts.length > 0) {
+      const assessmentData = calculateReadingAssessmentData(readingAttempts);
+      setReadingAssessmentData(assessmentData);
+    }
+
+  }, [student, readingAttempts]);
 
   return (
     <div className="classroom">
@@ -51,8 +60,10 @@ const Classroom = ({ student }) => {
           </CardContent>
         </Card>
 
+        {/* Second card in the second row: Reading Assessment Data Line Graph */}
         <Card className="card">
           <CardContent>
+            <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
           </CardContent>
         </Card>
 
@@ -67,7 +78,6 @@ const Classroom = ({ student }) => {
             <TopMisreadWordsChart data={misreadData} />
           </CardContent>
         </Card>
-
 
         <Card className="card">
           <CardContent>
