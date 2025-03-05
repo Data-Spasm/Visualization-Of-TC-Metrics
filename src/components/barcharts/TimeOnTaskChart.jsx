@@ -19,15 +19,15 @@ const groupTimeOnTask = (students) => {
 const getColor = (range) => {
   switch (range) {
     case "0-200":
-      return "#4caf50"; // Green
+      return "green"; // Green
     case "200-400":
-      return "#ffeb3b"; // Yellow
+      return "yellow"; // Yellow
     case "400-600":
-      return "#ff9800"; // Orange
+      return "orange"; // Orange
     case "600-800":
       return "#ff5722"; // Deep Orange
     case "800-1000":
-      return "#f44336"; // Red
+      return "red"; // Red
     default:
       return "#ccc"; // Default color
   }

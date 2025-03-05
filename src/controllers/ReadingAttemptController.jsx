@@ -6,6 +6,8 @@ export class ReadingAttemptController {
   }
 
   addReadingAttempt(attemptData) {
+    console.log("Adding reading attempt:", attemptData);
+
     const readingActionRecords = attemptData.readingAttempts.map(record => {
       const details = record.readingActionRecords.map(detail => new ReadingActionRecordDetails(
         detail.readingContent,
@@ -39,6 +41,7 @@ export class ReadingAttemptController {
     );
 
     this.readingAttempts.push(readingAttempt);
+    console.log("Reading attempt added:", readingAttempt);
   }
 
   getReadingAttemptById(id) {
