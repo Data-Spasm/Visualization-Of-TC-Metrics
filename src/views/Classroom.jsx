@@ -4,9 +4,11 @@ import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccurac
 import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
+import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
 import "./Classroom.css";
 
 const Classroom = ({ student }) => {
+  const [students, setStudents] = useState([]); // Added students state
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
   const [timeOnTaskData, setTimeOnTaskData] = useState([]);
   const [misreadData, setMisreadData] = useState([]);
@@ -23,6 +25,12 @@ const Classroom = ({ student }) => {
       }]);
 
       setTimeOnTaskData([{ name: student.username, timeOnTask: student.overallPerformance.timeOnTask }]);
+
+      // Update students state to include the current student (if not already present)
+      setStudents((prevStudents) => {
+        const exists = prevStudents.some((s) => s.username === student.username);
+        return exists ? prevStudents : [...prevStudents, student];
+      });
     }
 
     if (student && student.misreadWords) {
@@ -35,7 +43,6 @@ const Classroom = ({ student }) => {
 
   return (
     <div className="classroom">
-      {/* Top Grid with 3 Visualization Cards */}
       <div className="grid-container">
 
         <Card className="card">
@@ -61,9 +68,27 @@ const Classroom = ({ student }) => {
           </CardContent>
         </Card>
 
+
+        <Card className="card">
+          <CardContent>
+            <Typography gutterBottom variant="h6" component="div">
+              Visualization 4
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              Data visualization content goes here.
+            </Typography>
+          </CardContent>
+        </Card>
+
+        {/* Class Wide Reading Performance Card */}
+        <Card className="card">
+          <CardContent>
+            <ClassWideReadingPerformance students={students} />
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Bottom Card: Progress Bar on Left, Reading Attempts on Right */}
+      {/* Bottom Card: Progress Bar */}
       <Card className="long-card">
         <CardContent className="long-card-content">
           <Typography gutterBottom variant="h6" component="div">
