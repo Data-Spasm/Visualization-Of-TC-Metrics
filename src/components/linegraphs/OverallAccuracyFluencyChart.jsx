@@ -1,80 +1,72 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React, { useEffect, useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './OverallAccuracyFluencyChart.css';
 
-const OverallAccuracyFluencyChart = ({ data = [] }) => {
-  // Ensure data is always an array
-  let formattedData = [];
+const OverallAccuracyFluencyChart = ({ data = [], onDataProcessed }) => {
+  const [chartData, setChartData] = useState([]);
 
-  if (Array.isArray(data)) {
-    formattedData = data;
-  } else if (typeof data === 'object' && data !== null) {
-    formattedData = [data]; // Convert single object into an array
-  } else {
-    console.error("Invalid data format:", data);
-    return <p className="no-data">No data available</p>;
-  }
+  useEffect(() => {
+    // Mock data for presentation
+    const mockData = [
+      // { week: "Week 1", accuracy: 0.12, fluency: 10 },
+      { week: "Week 2", accuracy: 0.24, fluency: 13 },
+      { week: "Week 3", accuracy: 0.16, fluency: 5 },
+      { week: "Week 4", accuracy: 0.2, fluency: 6 },
+      { week: "Week 5", accuracy: 0.3, fluency: 12 },
+    ];
 
-  console.log("Processed Data for Chart:", formattedData);
+    // Combine provided data with mock data
+    const combinedData = [...data,...mockData];
 
-  const chartData = formattedData.map((performance, index) => ({
-    week: `Week ${index + 1}`,
-    accuracy: performance.accuracy * 100, // Convert to percentage
-    fluency: performance.fluency,
-  }));
+    console.log("Processed Data for Chart:", combinedData);
+
+    const processedData = combinedData.map((performance, index) => ({
+      week: `Week ${index + 1}`,
+      accuracy: performance.accuracy * 100, // Convert to percentage
+      fluency: performance.fluency,
+    }));
+
+    setChartData(processedData);
+
+    // Call the parent function with the processed data
+    if (onDataProcessed) {
+      onDataProcessed(processedData);
+    }
+  }, [data, onDataProcessed]);
+
+  // Calculate the maximum value for the Y-axis
+  const maxYValue = Math.max(...chartData.map(d => Math.max(d.accuracy, d.fluency)));
+  // Generate ticks for the Y-axis in increments of 5
+  const yAxisTicks = Array.from({ length: Math.ceil(maxYValue / 5) + 1 }, (_, i) => i * 5);
 
   return (
     <div className="chart-container">
-      <h3 className="chart-title">Overall Accuracy & Fluency Trend</h3>
-      <ResponsiveContainer width="100%" height={420}>
-        <LineChart
-          data={chartData}
-          margin={{
-            top: 20, right: 50, left: 50, bottom: 30,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
-          <XAxis dataKey="week" tick={{ fontSize: 14, fill: '#333' }} />
+      <div className="chart-title">Overall Accuracy & Fluency Trend</div>
+      <ResponsiveContainer width="100%" height={380}>
+        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="week" label={{ value: "Week", position: "insideBottom", offset: -10 }} />
           <YAxis 
-            tick={{ fontSize: 14, fill: '#333' }}
-            label={{ value: 'Performance Metrics', angle: -90, position: 'insideLeft', fontSize: 14 }}
+            label={{ value: "Performance Metrics", angle: -90, position: "insideLeft", dy: -10 }} 
+            ticks={yAxisTicks} // Set the ticks explicitly
+            domain={[0, 'dataMax']} 
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: '#ffffff',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '13px',
-              padding: '10px'
-            }}
-            itemStyle={{ color: '#555' }}
-          />
-          <Legend 
-            verticalAlign="bottom" 
-            align="center" 
-            wrapperStyle={{ fontSize: '13px', paddingTop: '10px' }}
-          />
-          <Line 
-            type="monotone" 
-            dataKey="accuracy" 
-            stroke="#ff7300" 
-            strokeWidth={3} 
-            dot={{ fill: '#ff7300', r: 6 }} 
-            activeDot={{ r: 8 }}
-            name="Accuracy (%)"
-          />
-          <Line 
-            type="monotone" 
-            dataKey="fluency" 
-            stroke="#4caf50" 
-            strokeWidth={3} 
-            strokeDasharray="5 5"
-            dot={{ fill: '#4caf50', r: 6 }} 
-            activeDot={{ r: 8 }}
-            name="Fluency (WPM)"
-          />
+          <Tooltip />
+          <Line type="monotone" dataKey="accuracy" stroke="#ff7300" name="Accuracy (%)" />
+          <Line type="monotone" dataKey="fluency" stroke="#4caf50" name="Fluency (WPM)" />
         </LineChart>
       </ResponsiveContainer>
+      <div className="key-container">
+        <div className="key-item">
+          <div className="key-color" style={{ backgroundColor: '#ff7300' }}></div>
+          <span>Accuracy (%)</span>
+        </div>
+        <div className="key-item">
+          <div className="key-color" style={{ backgroundColor: '#4caf50' }}></div>
+          <span>Fluency (WPM)</span>
+        </div>
+      </div>
+      {chartData.length === 0 && <div className="no-data">No data available</div>}
     </div>
   );
 };
