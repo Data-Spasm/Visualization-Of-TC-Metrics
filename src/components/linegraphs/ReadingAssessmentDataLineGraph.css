@@ -1,26 +1,34 @@
 .chart-container {
   width: 100%;
-  height: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, #f7f7f7, #e6e6e6);
-  border-radius: 10px;
-  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  margin: 0 auto;
 }
 
 .chart-title {
   text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.key-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.key-item {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.key-color {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
 }
 
 .no-data {
   text-align: center;
-  font-size: 14px;
   color: red;
+  margin-top: 20px;
 }

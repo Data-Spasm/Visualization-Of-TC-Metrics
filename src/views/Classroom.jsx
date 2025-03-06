@@ -60,10 +60,14 @@ const Classroom = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
-        {/* Second card in the second row: Reading Assessment Data Line Graph */}
         <Card className="card">
           <CardContent>
-            <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
+            <Typography gutterBottom variant="h6" component="div">
+              Visualization 2
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              Data visualization content goes here.
+            </Typography>
           </CardContent>
         </Card>
 
@@ -81,12 +85,7 @@ const Classroom = ({ student, readingAttempts }) => {
 
         <Card className="card">
           <CardContent>
-            <Typography gutterBottom variant="h6" component="div">
-              Visualization 4
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Data visualization content goes here.
-            </Typography>
+            <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
           </CardContent>
         </Card>
 
