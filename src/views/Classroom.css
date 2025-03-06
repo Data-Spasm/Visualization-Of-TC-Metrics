@@ -30,13 +30,13 @@
   background-color: white;
 }
 
-/* Second card in the second row: Reading Assessment Data Line Graph */
-.card .reading-assessment-graph {
+/* Second card in the second row: Class Engagement Bubble Chart */
+.card .bubble-chart-card {
   padding: 20px;
-  text-align: center; /* Center-align the graph title */
+  text-align: center; /* Center-align the bubble chart */
 }
 
-.reading-assessment-graph h2 {
+.bubble-chart-card h2 {
   margin-bottom: 15px;
   font-size: 18px;
   color: #333;
