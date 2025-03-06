@@ -5,11 +5,12 @@ import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
-import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";  // Import the graph
+import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph"; 
+import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart"; 
 import "./Classroom.css";
 
 const Classroom = ({ student, readingAttempts }) => {
-  const [students, setStudents] = useState([]); // Added students state
+  const [students, setStudents] = useState([]); 
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
   const [timeOnTaskData, setTimeOnTaskData] = useState([]);
   const [misreadData, setMisreadData] = useState([]);
@@ -60,14 +61,10 @@ const Classroom = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
+        {/* Bubble Chart Card as the second card */}
         <Card className="card">
           <CardContent>
-            <Typography gutterBottom variant="h6" component="div">
-              Visualization 2
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Data visualization content goes here.
-            </Typography>
+            <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
           </CardContent>
         </Card>
 
