@@ -5,31 +5,30 @@ import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
-import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph"; 
-import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart"; 
+import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
+import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
 import "./Classroom.css";
 
 const Classroom = ({ student, readingAttempts }) => {
-  const [students, setStudents] = useState([]); 
+  const [students, setStudents] = useState([]);
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
   const [timeOnTaskData, setTimeOnTaskData] = useState([]);
   const [misreadData, setMisreadData] = useState([]);
   const [readingAssessmentData, setReadingAssessmentData] = useState({});
 
   useEffect(() => {
-    console.log("useEffect triggered");
-    console.log("Student data:", student);
-
     if (student && student.overallPerformance) {
-      console.log("Processing overall performance data");
-      setOverallPerformanceData([{
-        accuracy: student.overallPerformance.accuracy,
-        fluency: student.overallPerformance.fluency,
-      }]);
+      setOverallPerformanceData([
+        {
+          accuracy: student.overallPerformance.accuracy,
+          fluency: student.overallPerformance.fluency,
+        },
+      ]);
 
-      setTimeOnTaskData([{ name: student.username, timeOnTask: student.overallPerformance.timeOnTask }]);
+      setTimeOnTaskData([
+        { name: student.username, timeOnTask: student.overallPerformance.timeOnTask },
+      ]);
 
-      // Update students state to include the current student (if not already present)
       setStudents((prevStudents) => {
         const exists = prevStudents.some((s) => s.username === student.username);
         return exists ? prevStudents : [...prevStudents, student];
@@ -37,31 +36,38 @@ const Classroom = ({ student, readingAttempts }) => {
     }
 
     if (student && student.misreadWords) {
-      console.log("Misread words:", student.misreadWords);
       setMisreadData(student.misreadWords);
-    } else {
-      console.log("No misread words found");
     }
 
-    // Calculate and update reading assessment data
     if (readingAttempts && readingAttempts.length > 0) {
       const assessmentData = calculateReadingAssessmentData(readingAttempts);
       setReadingAssessmentData(assessmentData);
     }
-
   }, [student, readingAttempts]);
 
   return (
     <div className="classroom">
+      {/* Top Card: Progress Bar */}
+      <div className="long-card">
+        <Card className="long-card">
+          <CardContent className="long-card-content">
+            <Typography gutterBottom variant="h4" component="div">
+              Progress Overview
+            </Typography>
+            <div className="progress-reading-container">
+              <ReadingProgressBar performance={student?.overallPerformance} />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
       <div className="grid-container">
-
         <Card className="card">
           <CardContent>
             <OverallAccuracyFluencyChart data={overallPerformanceData} />
           </CardContent>
         </Card>
 
-        {/* Bubble Chart Card as the second card */}
         <Card className="card">
           <CardContent>
             <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
@@ -86,26 +92,12 @@ const Classroom = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
-        {/* Class Wide Reading Performance Card */}
         <Card className="card">
           <CardContent>
             <ClassWideReadingPerformance students={students} />
           </CardContent>
         </Card>
       </div>
-
-      {/* Bottom Card: Progress Bar */}
-      <Card className="long-card">
-        <CardContent className="long-card-content">
-          <Typography gutterBottom variant="h6" component="div">
-            Progress Overview
-          </Typography>
-          <div className="progress-reading-container">
-            {/* Left Side: Progress Bar */}
-            <ReadingProgressBar performance={student?.overallPerformance} />
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'; // Import Navigate
 import Navbar from './components/navbar/navbar';
 import Sidebar from './components/sidebar/sidebar';
 import Classroom from './views/Classroom';
@@ -39,6 +39,10 @@ const App = () => {
           {isSidebarVisible && <Sidebar />}
           <div className={isSidebarVisible ? 'content' : 'content full'}>
             <Routes>
+              {/* Redirect from "/" to "/classroom" */}
+              <Route 
+                path="/" 
+                element={<Navigate to="/classroom" replace />} />
               <Route 
                 path="/classroom" 
                 element={student ? <Classroom student={student} /> : <h2>Loading...</h2>} 

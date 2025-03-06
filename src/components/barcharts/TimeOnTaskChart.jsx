@@ -44,7 +44,7 @@ const TimeOnTaskChart = ({ data }) => {
   return (
     <div className="chart-container">
       <h3 className="chart-title">Overall Time On Task</h3>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={420}>
         <BarChart data={processedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="range" label={{ value: "Time on Task (Seconds)", position: "insideBottom", offset: -5 }} />

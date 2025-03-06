@@ -6,7 +6,7 @@ const getColor = (count) => {
   if (count > 5) return "red"; // Red for high counts
   if (count > 3) return "orange"; // Orange for medium counts
   if (count > 1) return "yellow"; // Yellow for low counts
-  return "green"; // Yellow for low counts
+  return "green"; // Green for very low counts
 };
 
 const TopMisreadWordsChart = ({ data }) => {
@@ -25,7 +25,7 @@ const TopMisreadWordsChart = ({ data }) => {
   return (
     <div className="chart-container">
       <h3 className="chart-title">Top Misread Words by Students</h3>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={460}>
         <BarChart data={formattedData} layout="vertical" margin={{ top: 20, right: 30, left: 70, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" label={{ value: "Number of Times Misread", position: "insideBottom", offset: -5 }} tick={{ fontSize: 14 }} />
