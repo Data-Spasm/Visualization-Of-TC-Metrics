@@ -1,48 +1,109 @@
-.progressbar-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 80%;
-    max-width: 600px;
+/* Container for the progress, reading attempts, and legend sections */
+.progress-reading-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+}
+
+/* First Section: Progress Bar */
+.progress-bar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 33%; /* Takes up 1/3 of the card */
+}
+
+/* Styling for the progress bar */
+.progress-bar {
+  width: 100%; /* Full container width */
+  height: 12px; /* Slightly taller for visibility */
+  border-radius: 3px;
+  background-color: #e5e7eb;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+/* Progress fill animation */
+.progress-fill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Second Section: Reading Attempts and Errors */
+.performance-section {
+  width: 33%; /* Takes up 1/3 of the card */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.reading-attempts-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.errors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.error-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.error-label {
+  font-weight: bold;
+}
+
+/* Third Section: Legend */
+.legend-section {
+  width: 33%; /* Takes up 1/3 of the card */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Color box for legend items */
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+/* Layout adjustments for responsiveness */
+@media (max-width: 768px) {
+  .progress-reading-container {
+    flex-direction: column; /* Stacks the sections on smaller screens */
+    gap: 20px;
   }
-  
-  .progress-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  .progress-bar-section, .performance-section, .legend-section {
+    width: 100%; /* Each section takes up full width on mobile */
   }
-  
-  .progress-bar {
-    width: 100%; /* Make it take the full container width */
-    height: 12px; /* Slightly taller for visibility */
-    border-radius: 3px;
-    background-color: #e5e7eb;
-    overflow: hidden;
-    border: 1px solid #ccc;
-  }  
-  
-  .progress-fill {
-    height: 100%;
-    transition: width 0.5s ease-in-out;
-  }
-  
-  .progress-label {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .reading-attempts-card {
-    margin-top: 15px;
-    text-align: center;
-  }
-  
-  .reading-attempts-title {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
+}
