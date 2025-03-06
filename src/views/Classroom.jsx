@@ -5,13 +5,16 @@ import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
+import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph"; 
+import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart"; 
 import "./Classroom.css";
 
-const Classroom = ({ student }) => {
-  const [students, setStudents] = useState([]); // Added students state
+const Classroom = ({ student, readingAttempts }) => {
+  const [students, setStudents] = useState([]); 
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
   const [timeOnTaskData, setTimeOnTaskData] = useState([]);
   const [misreadData, setMisreadData] = useState([]);
+  const [readingAssessmentData, setReadingAssessmentData] = useState({});
 
   useEffect(() => {
     console.log("useEffect triggered");
@@ -39,7 +42,14 @@ const Classroom = ({ student }) => {
     } else {
       console.log("No misread words found");
     }
-  }, [student]);
+
+    // Calculate and update reading assessment data
+    if (readingAttempts && readingAttempts.length > 0) {
+      const assessmentData = calculateReadingAssessmentData(readingAttempts);
+      setReadingAssessmentData(assessmentData);
+    }
+
+  }, [student, readingAttempts]);
 
   return (
     <div className="classroom">
@@ -51,8 +61,10 @@ const Classroom = ({ student }) => {
           </CardContent>
         </Card>
 
+        {/* Bubble Chart Card as the second card */}
         <Card className="card">
           <CardContent>
+            <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
           </CardContent>
         </Card>
 
@@ -68,15 +80,9 @@ const Classroom = ({ student }) => {
           </CardContent>
         </Card>
 
-
         <Card className="card">
           <CardContent>
-            <Typography gutterBottom variant="h6" component="div">
-              Visualization 4
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Data visualization content goes here.
-            </Typography>
+            <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
           </CardContent>
         </Card>
 
