@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import './OverallAccuracyFluencyChart.css';
 
 const OverallAccuracyFluencyChart = ({ data = [] }) => {
-  // Ensure `data` is always an array
+  // Ensure data is always an array
   let formattedData = [];
 
   if (Array.isArray(data)) {
@@ -26,7 +26,7 @@ const OverallAccuracyFluencyChart = ({ data = [] }) => {
   return (
     <div className="chart-container">
       <h3 className="chart-title">Overall Accuracy & Fluency Trend</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={420}>
         <LineChart
           data={chartData}
           margin={{
