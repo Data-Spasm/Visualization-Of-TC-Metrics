@@ -1,124 +1,105 @@
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, Typography } from '@mui/material'
-import PassageController from '../controllers/PassageController'
-import OverallAccuracyFluencyChart from '../components/barcharts/OverallAccuracyFluencyChart'
-import ReadingAssessmentController from '../controllers/ReadingAssessmentController'
-import ReadingAssessmentData from '../components/linegraphs/ReadingAssessmentDataLineGraph'
-import './Classroom.css'
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, Typography } from "@mui/material";
+import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
+import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
+import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
+import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
+import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
+import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
+import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
+import "./Classroom.css";
 
-const Classroom = () => {
-  const [passages, setPassages] = useState([])
-  const [readingAssessmentData, setReadingAssessmentData] = useState([])
+const Classroom = ({ student, readingAttempts }) => {
+  const [students, setStudents] = useState([]);
+  const [overallPerformanceData, setOverallPerformanceData] = useState([]);
+  const [timeOnTaskData, setTimeOnTaskData] = useState([]);
+  const [misreadData, setMisreadData] = useState([]);
+  const [readingAssessmentData, setReadingAssessmentData] = useState({});
 
-  // Fetch data for Overall Accuracy and Fluency
   useEffect(() => {
-    const passageController = new PassageController()
-    const data = passageController.getPassageData()
-    setPassages(data)
-  }, [])
+    if (student && student.overallPerformance) {
+      setOverallPerformanceData([
+        {
+          accuracy: student.overallPerformance.accuracy,
+          fluency: student.overallPerformance.fluency,
+        },
+      ]);
 
-  // Fetch data for Reading Assessment
-  useEffect(() => {
-    const controller = new ReadingAssessmentController()
-    const data = controller.getPassageData()
-    setReadingAssessmentData(data)
-  }, [])
+      setTimeOnTaskData([
+        { name: student.username, timeOnTask: student.overallPerformance.timeOnTask },
+      ]);
 
-  const data = passages.map(passage => ({
-    week: passage.week,
-    passage1Accuracy: passage.passage1Accuracy,
-    passage1Fluency: passage.passage1Fluency,
-    passage2Accuracy: passage.passage2Accuracy,
-    passage2Fluency: passage.passage2Fluency,
-    passage3Accuracy: passage.passage3Accuracy,
-    passage3Fluency: passage.passage3Fluency,
-  }))
+      setStudents((prevStudents) => {
+        const exists = prevStudents.some((s) => s.username === student.username);
+        return exists ? prevStudents : [...prevStudents, student];
+      });
+    }
+
+    if (student && student.misreadWords) {
+      setMisreadData(student.misreadWords);
+    }
+
+    if (readingAttempts && readingAttempts.length > 0) {
+      const assessmentData = calculateReadingAssessmentData(readingAttempts);
+      setReadingAssessmentData(assessmentData);
+    }
+  }, [student, readingAttempts]);
 
   return (
     <div className="classroom">
-      <div className="grid-container">
-        {/* Card 1: Overall Accuracy and Fluency */}
-        <Card className="card">
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Overall Accuracy and Fluency
+      {/* Top Card: Progress Bar */}
+      <div className="long-card">
+        <Card className="long-card">
+          <CardContent className="long-card-content">
+            <Typography gutterBottom variant="h4" component="div">
+              Progress Overview
             </Typography>
-            <OverallAccuracyFluencyChart data={data} />
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Placeholder for another visualization */}
-        <Card className="card">
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Visualization 2
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Data visualization content goes here.
-            </Typography>
-          </CardContent>
-        </Card>
-
-        {/* Card 3: Placeholder for another visualization */}
-        <Card className="card">
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Visualization 3
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Data visualization content goes here.
-            </Typography>
-          </CardContent>
-        </Card>
-
-        {/* Card 4: Placeholder for another visualization */}
-        <Card className="card">
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Visualization 4
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Data visualization content goes here.
-            </Typography>
-          </CardContent>
-        </Card>
-
-        {/* Card 1: Overall Accuracy and Fluency */}
-        <Card className="card">
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Reading Assessment Data
-            </Typography>
-            <ReadingAssessmentData data={readingAssessmentData} />
-          </CardContent>
-        </Card>
-
-        {/* Card 6: Placeholder for another visualization */}
-        <Card className="card">
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Visualization 6
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Data visualization content goes here.
-            </Typography>
+            <div className="progress-reading-container">
+              <ReadingProgressBar performance={student?.overallPerformance} />
+            </div>
           </CardContent>
         </Card>
       </div>
+      
+      <div className="grid-container">
+        <Card className="card">
+          <CardContent>
+            <OverallAccuracyFluencyChart data={overallPerformanceData} />
+          </CardContent>
+        </Card>
 
-      {/* Long card for additional visualization or data */}
-      <Card className="long-card">
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            Long Visualization
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Data visualization content goes here.
-          </Typography>
-        </CardContent>
-      </Card>
+        <Card className="card">
+          <CardContent>
+            <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
+          </CardContent>
+        </Card>
+
+        <Card className="card">
+          <CardContent>
+            <TimeOnTaskChart data={timeOnTaskData} />
+          </CardContent>
+        </Card>
+
+        <Card className="card">
+          <CardContent>
+            <TopMisreadWordsChart data={misreadData} />
+          </CardContent>
+        </Card>
+
+        <Card className="card">
+          <CardContent>
+            <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
+          </CardContent>
+        </Card>
+
+        <Card className="card">
+          <CardContent>
+            <ClassWideReadingPerformance students={students} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Classroom
+export default Classroom;
