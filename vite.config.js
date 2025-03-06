@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',   // Allows external connections
     port: process.env.PORT || 5173,  // Use Render's assigned port
-    strictPort: true
+    strictPort: true,
+    allowedHosts: ['visualization-of-tc-metrics.onrender.com']  // Add your custom domain here
   }
 });
