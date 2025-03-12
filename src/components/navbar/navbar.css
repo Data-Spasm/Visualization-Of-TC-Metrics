@@ -5,6 +5,7 @@
   justify-content: space-between;
   background: #465a65; /* Primary color */
   padding: 15px 4%;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -12,6 +13,7 @@
   cursor: pointer;
 }
 
+/* Header Centered */
 .header {
   flex: 1;
   text-align: center;
@@ -21,9 +23,10 @@
   font-size: 24px;
   font-weight: bold;
   margin: 0;
-  color: #FFFFFF; /* Background color */
+  color: #FFFFFF;
 }
 
+/* Navigation Links */
 .nav-links {
   flex: 1;
   list-style: none;
@@ -35,15 +38,26 @@
   margin: 10px 20px;
   font-size: 18px;
   cursor: pointer;
-  color: #FFFFFF; /* Background color */
+  color: #FFFFFF;
+  transition: color 0.3s ease-in-out;
 }
 
+.nav-item:hover {
+  color: #FFD700; /* Highlight color on hover */
+}
+
+/* Search Bar */
 .search {
   display: flex;
   align-items: center;
-  background: #607D8B; /* Secondary color */
-  padding: 5px 20px;
-  border-radius: 60px;
+  background: #607D8B;
+  padding: 5px 15px;
+  border-radius: 30px;
+  transition: all 0.3s ease-in-out;
+}
+
+.search:hover {
+  background: #546E7A;
 }
 
 .search-input {
@@ -51,17 +65,50 @@
   background: transparent;
   border: 0;
   outline: 0;
-  color: #FFFFFF; /* Background color */
-  font-size: 18px;
-  max-width: 200px;
+  color: #FFFFFF;
+  font-size: 16px;
+  width: 180px;
+  transition: all 0.3s ease-in-out;
 }
 
 .search-input::placeholder {
-  color: #B0BFC6; /* Light color */
+  color: #B0BFC6;
 }
 
 .search-icon {
   width: 20px;
   cursor: pointer;
-  color: #FFFFFF; /* Background color */
+  margin-left: 8px;
+}
+
+/* Reset User Button & User ID */
+.reset-user-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 20px;
+}
+
+.reset-user-button {
+  background-color: #ff4b4b;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background 0.3s ease-in-out;
+}
+
+.reset-user-button:hover {
+  background-color: #d13b3b;
+}
+
+.user-id {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  border-radius: 5px;
 }

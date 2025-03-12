@@ -9,6 +9,16 @@ import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAsse
 import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
 import "./Classroom.css";
 
+// Google Analytics Event Tracking Function
+const trackEvent = (eventName, eventLabel) => {
+  if (window.gtag) {
+    window.gtag("event", eventName, {
+      event_category: "User Interaction",
+      event_label: eventLabel,
+    });
+  }
+};
+
 const Classroom = ({ student, readingAttempts }) => {
   const [students, setStudents] = useState([]);
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
@@ -49,7 +59,10 @@ const Classroom = ({ student, readingAttempts }) => {
     <div className="classroom">
       {/* Top Card: Progress Bar */}
       <div className="long-card">
-        <Card className="long-card">
+        <Card 
+          className="long-card"
+          onClick={() => trackEvent("click_progress_overview", "User clicked on Progress Overview Card")}
+        >
           <CardContent className="long-card-content">
             <Typography gutterBottom variant="h4" component="div">
               Progress Overview
@@ -62,37 +75,55 @@ const Classroom = ({ student, readingAttempts }) => {
       </div>
       
       <div className="grid-container">
-        <Card className="card">
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
+        >
           <CardContent>
             <OverallAccuracyFluencyChart data={overallPerformanceData} />
           </CardContent>
         </Card>
 
-        <Card className="card">
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_class_engagement", "User clicked on Class Engagement Bubble Chart")}
+        >
           <CardContent>
             <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
           </CardContent>
         </Card>
 
-        <Card className="card">
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_time_on_task", "User clicked on Time On Task Chart")}
+        >
           <CardContent>
             <TimeOnTaskChart data={timeOnTaskData} />
           </CardContent>
         </Card>
 
-        <Card className="card">
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
+        >
           <CardContent>
             <TopMisreadWordsChart data={misreadData} />
           </CardContent>
         </Card>
 
-        <Card className="card">
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
+        >
           <CardContent>
             <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
           </CardContent>
         </Card>
 
-        <Card className="card">
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_class_wide_performance", "User clicked on Class-Wide Reading Performance")}
+        >
           <CardContent>
             <ClassWideReadingPerformance students={students} />
           </CardContent>
