@@ -9,10 +9,10 @@ import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAsse
 import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
 import "./Classroom.css";
 
-// Google Analytics Event Tracking Function
-const trackEvent = (eventName, eventLabel) => {
+// Google Analytics Event Tracking Function for Clicks & Hovers
+const trackEvent = (eventName, eventLabel, eventType = "click") => {
   if (window.gtag) {
-    window.gtag("event", eventName, {
+    window.gtag("event", eventType, {
       event_category: "User Interaction",
       event_label: eventLabel,
     });
@@ -62,6 +62,7 @@ const Classroom = ({ student, readingAttempts }) => {
         <Card 
           className="long-card"
           onClick={() => trackEvent("click_progress_overview", "User clicked on Progress Overview Card")}
+          onMouseEnter={() => trackEvent("hover_progress_overview", "User hovered over Progress Overview Card", "hover")}
         >
           <CardContent className="long-card-content">
             <Typography gutterBottom variant="h4" component="div">
@@ -78,6 +79,7 @@ const Classroom = ({ student, readingAttempts }) => {
         <Card 
           className="card"
           onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
+          onMouseEnter={() => trackEvent("hover_accuracy_fluency", "User hovered over Overall Accuracy & Fluency Chart", "hover")}
         >
           <CardContent>
             <OverallAccuracyFluencyChart data={overallPerformanceData} />
@@ -87,6 +89,7 @@ const Classroom = ({ student, readingAttempts }) => {
         <Card 
           className="card"
           onClick={() => trackEvent("click_class_engagement", "User clicked on Class Engagement Bubble Chart")}
+          onMouseEnter={() => trackEvent("hover_class_engagement", "User hovered over Class Engagement Bubble Chart", "hover")}
         >
           <CardContent>
             <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
@@ -96,6 +99,7 @@ const Classroom = ({ student, readingAttempts }) => {
         <Card 
           className="card"
           onClick={() => trackEvent("click_time_on_task", "User clicked on Time On Task Chart")}
+          onMouseEnter={() => trackEvent("hover_time_on_task", "User hovered over Time On Task Chart", "hover")}
         >
           <CardContent>
             <TimeOnTaskChart data={timeOnTaskData} />
@@ -105,6 +109,7 @@ const Classroom = ({ student, readingAttempts }) => {
         <Card 
           className="card"
           onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
+          onMouseEnter={() => trackEvent("hover_misread_words", "User hovered over Top Misread Words Chart", "hover")}
         >
           <CardContent>
             <TopMisreadWordsChart data={misreadData} />
@@ -114,6 +119,7 @@ const Classroom = ({ student, readingAttempts }) => {
         <Card 
           className="card"
           onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
+          onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
         >
           <CardContent>
             <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
@@ -123,6 +129,7 @@ const Classroom = ({ student, readingAttempts }) => {
         <Card 
           className="card"
           onClick={() => trackEvent("click_class_wide_performance", "User clicked on Class-Wide Reading Performance")}
+          onMouseEnter={() => trackEvent("hover_class_wide_performance", "User hovered over Class-Wide Reading Performance", "hover")}
         >
           <CardContent>
             <ClassWideReadingPerformance students={students} />

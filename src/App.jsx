@@ -8,16 +8,17 @@ import { loadStudentData, loadReadingAttempts, loadReadingSkills } from './utils
 import './App.css';
 
 // Google Analytics Event Tracking Function
-const trackEvent = (eventName, eventParams = {}) => {
+const trackEvent = (eventName, eventParams = {}, eventType = "click") => {
   if (window.gtag) {
-    window.gtag('event', eventName, {
-      event_category: 'User Interaction',
+    window.gtag("event", eventType, {
+      event_category: "User Interaction",
       event_label: eventParams.label || '',
       value: eventParams.value || '',
       ...eventParams,
     });
   }
 };
+
 
 const App = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
