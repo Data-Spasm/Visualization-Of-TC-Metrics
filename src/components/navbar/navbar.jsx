@@ -22,6 +22,9 @@ const Navbar = ({ toggleSidebar }) => {
 
   useEffect(() => {
     localStorage.setItem("userId", userId);
+    if (window.gtag) {
+      window.gtag('set', { user_id: userId });  // Ensure GA is using the correct user ID
+    }
   }, [userId]);
 
   // Reset user function
@@ -29,6 +32,12 @@ const Navbar = ({ toggleSidebar }) => {
     const newUserId = generateUserID();
     setUserId(newUserId);
     localStorage.setItem("userId", newUserId);
+
+    // Immediately update Google Analytics with new user ID
+    if (window.gtag) {
+      window.gtag('set', { user_id: newUserId });
+    }
+
     trackEvent("reset_user", "User reset session", newUserId);
     alert(`New user started: ${newUserId}`);
   };
