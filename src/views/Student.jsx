@@ -78,6 +78,7 @@ const Student = ({ student, readingAttempts }) => {
           onMouseEnter={() => trackEvent("hover_accuracy_fluency", "User hovered over Overall Accuracy & Fluency Chart", "hover")}
         >
           <CardContent>
+            <OverallAccuracyFluencyChart data={overallPerformanceData} />
           </CardContent>
         </Card>
 
