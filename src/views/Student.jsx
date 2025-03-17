@@ -84,10 +84,20 @@ const Student = ({ student, readingAttempts }) => {
 
         <Card 
           className="card"
+          onClick={() => trackEvent("click_class_engagement", "User clicked on Class Engagement Bubble Chart")}
+          onMouseEnter={() => trackEvent("hover_class_engagement", "User hovered over Class Engagement Bubble Chart", "hover")}
+        >
+          <CardContent>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="card"
           onClick={() => trackEvent("click_time_on_task", "User clicked on Time On Task Chart")}
           onMouseEnter={() => trackEvent("hover_time_on_task", "User hovered over Time On Task Chart", "hover")}
         >
           <CardContent>
+            <TimeOnTaskChart data={timeOnTaskData} />
           </CardContent>
         </Card>
 
