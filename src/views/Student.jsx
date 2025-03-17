@@ -1,7 +1,115 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, Typography } from "@mui/material";
+import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
+import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
+import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
+import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
+import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
+import "./Classroom.css";
 
-const Students = () => {
-  return <div>Students Page</div>
-}
+// Google Analytics Event Tracking Function for Clicks & Hovers
+const trackEvent = (eventName, eventLabel, eventType = "click") => {
+  if (window.gtag) {
+    window.gtag("event", eventType, {
+      event_category: "User Interaction",
+      event_label: eventLabel,
+    });
+  }
+};
 
-export default Students
+const Student = ({ student, readingAttempts }) => {
+  const [overallPerformanceData, setOverallPerformanceData] = useState([]);
+  const [timeOnTaskData, setTimeOnTaskData] = useState([]);
+  const [misreadData, setMisreadData] = useState([]);
+  const [readingAssessmentData, setReadingAssessmentData] = useState({});
+
+  useEffect(() => {
+    if (student) {
+      console.log(`Loading data for student ID: ${student.id}`);
+
+      if (student.overallPerformance) {
+        setOverallPerformanceData([
+          {
+            accuracy: student.overallPerformance.accuracy,
+            fluency: student.overallPerformance.fluency,
+          },
+        ]);
+
+        setTimeOnTaskData([
+          { name: student.username, timeOnTask: student.overallPerformance.timeOnTask },
+        ]);
+      }
+
+      if (student.misreadWords) {
+        setMisreadData(student.misreadWords);
+      }
+
+      if (readingAttempts && readingAttempts.length > 0) {
+        const assessmentData = calculateReadingAssessmentData(readingAttempts);
+        setReadingAssessmentData(assessmentData);
+      }
+    }
+  }, [student, readingAttempts]);
+
+  return (
+    <div className="classroom">
+      {/* Top Card: Progress Bar */}
+      <div className="long-card">
+        <Card 
+          className="long-card"
+          onClick={() => trackEvent("click_progress_overview", "User clicked on Progress Overview Card")}
+          onMouseEnter={() => trackEvent("hover_progress_overview", "User hovered over Progress Overview Card", "hover")}
+        >
+          <CardContent className="long-card-content">
+            <Typography gutterBottom variant="h4" component="div">
+              Progress Overview
+            </Typography>
+            <div className="progress-reading-container">
+        
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid-container">
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
+          onMouseEnter={() => trackEvent("hover_accuracy_fluency", "User hovered over Overall Accuracy & Fluency Chart", "hover")}
+        >
+          <CardContent>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_time_on_task", "User clicked on Time On Task Chart")}
+          onMouseEnter={() => trackEvent("hover_time_on_task", "User hovered over Time On Task Chart", "hover")}
+        >
+          <CardContent>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
+          onMouseEnter={() => trackEvent("hover_misread_words", "User hovered over Top Misread Words Chart", "hover")}
+        >
+          <CardContent>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
+          onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
+        >
+          <CardContent>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Student;
