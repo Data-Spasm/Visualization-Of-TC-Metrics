@@ -1,82 +1,98 @@
 import React, { useEffect, useState } from "react";
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { calculateClassEngagement } from "../../utils/calculateClassEngagement"; // Importing the function
-import './ClassEngagementBubbleChart.css';
+import Chart from "react-apexcharts";
+import "./ClassEngagementBubbleChart.css";
 
 const ClassEngagementBubbleChart = ({ readingAttempts }) => {
   const [engagementData, setEngagementData] = useState([]);
 
-  // Mock data for testing
-  const mockData = [
-    { title: "Passage 1", quit: false },
-    { title: "Passage 1", quit: false },
-    { title: "Passage 1", quit: true },
-    { title: "Passage 1", quit: false },
-    { title: "Passage 2", quit: false },
-    { title: "Passage 2", quit: true },
-    { title: "Passage 2", quit: true },
-    { title: "Passage 3", quit: false },
-    { title: "Passage 3", quit: false },
-    { title: "Passage 3", quit: false },
-    { title: "Passage 3", quit: true },
-    { title: "Passage 4", quit: false },
-    { title: "Passage 4", quit: false },
-    { title: "Passage 5", quit: true },
-    { title: "Passage 5", quit: true },
-    { title: "Passage 5", quit: false }
-  ];
-
   useEffect(() => {
-    // Use mock data if no readingAttempts is passed
+    const mockData = [
+      { passageTitle: "Passage 1", attempts: [{} , {} , {}] },
+      { passageTitle: "Passage 2", attempts: [{} , {} , {} , {} , {}] },
+      { passageTitle: "Passage 3", attempts: [{}] },
+      { passageTitle: "Passage 4", attempts: [{} , {} , {} , {} , {} , {} , {} , {}] },
+      { passageTitle: "Passage 5", attempts: [{} , {}] }
+    ];
+
     const dataToUse = readingAttempts && readingAttempts.length > 0 ? readingAttempts : mockData;
 
-    if (dataToUse && dataToUse.length > 0) {
-      const engagement = calculateClassEngagement(dataToUse);
-      setEngagementData(engagement);
-    }
+    const passageMapping = {
+      "Passage 1": 10,
+      "Passage 2": 30,
+      "Passage 3": 50,
+      "Passage 4": 70,
+      "Passage 5": 90
+    };
+
+    const engagement = Object.keys(passageMapping).map(passageTitle => {
+      const attempts = dataToUse.find(item => item.passageTitle === passageTitle)?.attempts || [];
+      const attemptFrequency = attempts.length;
+
+      return {
+        name: passageTitle,
+        data: [{
+          x: passageMapping[passageTitle],
+          y: attemptFrequency, //Use frequency as y-axis value
+          z: Math.sqrt(attemptFrequency) * 10 //Bubble size scales with attempt frequency
+        }]
+      };
+    });
+
+    setEngagementData(engagement);
   }, [readingAttempts]);
 
+  const chartOptions = {
+    chart: {
+      type: "bubble",
+      height: 400,
+      toolbar: { show: false }
+    },
+    xaxis: {
+      labels: {
+        style: { fontSize: "12px" },
+        formatter: (val) => {
+          if (val < 20) return "Passage 1";
+          if (val < 40) return "Passage 2";
+          if (val < 60) return "Passage 3";
+          if (val < 80) return "Passage 4";
+          return "Passage 5";
+        },
+      },
+      tickAmount: 4,
+    },
+    yaxis: {
+      title: {
+        text: "Number of Attempts",
+        style: { fontSize: "14px", fontWeight: "normal" },
+      },
+      labels: {
+        style: { fontSize: "12px" },
+      },
+    },
+    tooltip: {
+      enabled: true,
+      custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+        const passageTitle = w.globals.seriesNames[seriesIndex];
+        const numberOfAttempts = series[seriesIndex][dataPointIndex];
+        return `<div style="padding: 5px;">${passageTitle}<br/>Number of Attempts: ${numberOfAttempts}</div>`;
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    colors: ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF"],
+  };
+
   return (
-    <div className="chart-container">
-      <h3 className="chart-title">Class Engagement with Reading Passages</h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <ScatterChart margin={{ top: 20, right: 20, left: 20, bottom: 30 }}>
-          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
-          <XAxis 
-            dataKey="passageTitle" 
-            name="Passage Title" 
-            tick={{ fontSize: 14, fill: '#333' }} 
-          />
-          <YAxis 
-            dataKey="completionRate" 
-            name="Completion Rate (%)" 
-            tick={{ fontSize: 14, fill: '#333' }}
-            label={{ value: 'Completion Rate (%)', angle: -90, position: 'insideLeft', fontSize: 14 }}
-          />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '13px',
-              padding: '10px'
-            }}
-            itemStyle={{ color: '#555' }}
-          />
-          <Legend 
-            verticalAlign="bottom" 
-            align="center" 
-            wrapperStyle={{ fontSize: '13px', paddingTop: '10px' }}
-          />
-          <Scatter 
-            name="Class Engagement"
-            data={engagementData}
-            fill="#8884d8"
-            shape="circle"
-            sizeKey="bubbleSize" // Bubbles will vary in size based on the number of attempts
-          />
-        </ScatterChart>
-      </ResponsiveContainer>
+    <div className="chart-card grey-background">
+      <div className="chart-title">Class Engagement with Reading Passages</div>
+      <Chart
+        options={chartOptions}
+        series={engagementData}
+        type="bubble"
+        height={400}
+      />
+      {engagementData.length === 0 && <div className="no-data">No data available</div>}
     </div>
   );
 };
