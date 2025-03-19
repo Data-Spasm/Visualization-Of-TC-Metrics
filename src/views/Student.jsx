@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
 import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
-import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
+import ReadingProgressBarCard from "../components/progressbar/ReadingProgressBarStudent";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
@@ -11,7 +11,6 @@ import "./Classroom.css";
 
 import StudentWideReadingPerformance from "../components/textbase/StudentWideReadingPerformance";
 import "../components/textbase/ClassWideReadingPerformance.css";  
-
 
 // Google Analytics Event Tracking Function for Clicks & Hovers
 const trackEvent = (eventName, eventLabel, eventType = "click") => {
@@ -57,7 +56,6 @@ const Student = ({ student, readingAttempts }) => {
     }
   }, [student, readingAttempts]);
 
-
   return (
     <div className="classroom">
       {/* Top Card: Progress Bar */}
@@ -72,14 +70,15 @@ const Student = ({ student, readingAttempts }) => {
               Progress Overview
             </Typography>
             <div className="progress-reading-container">
-              <ReadingProgressBar student={student} />
+              <ReadingProgressBarCard />
             </div>
           </CardContent>
         </Card>
       </div>
       
       <div className="grid-container">
-        <Card className="card"
+        <Card 
+          className="card"
           onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
           onMouseEnter={() => trackEvent("hover_accuracy_fluency", "User hovered over Overall Accuracy & Fluency Chart", "hover")}
         >
@@ -88,7 +87,8 @@ const Student = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
-        <Card className="card"
+        <Card 
+          className="card"
           onClick={() => trackEvent("click_class_engagement", "User clicked on Class Engagement Bubble Chart")}
           onMouseEnter={() => trackEvent("hover_class_engagement", "User hovered over Class Engagement Bubble Chart", "hover")}
         >
@@ -107,7 +107,8 @@ const Student = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
-        <Card className="card"
+        <Card 
+          className="card"
           onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
           onMouseEnter={() => trackEvent("hover_misread_words", "User hovered over Top Misread Words Chart", "hover")}
         >
@@ -116,7 +117,8 @@ const Student = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
-        <Card className="card"
+        <Card 
+          className="card"
           onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
           onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
         >
@@ -125,7 +127,9 @@ const Student = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
-        <Card className="card">
+        <Card 
+          className="card"
+        >
           <CardContent>
             <StudentWideReadingPerformance student={student} />
           </CardContent>
