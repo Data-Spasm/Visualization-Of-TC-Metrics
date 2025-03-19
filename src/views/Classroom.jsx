@@ -7,6 +7,7 @@ import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
 import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
 import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
+import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
 import "./Classroom.css";
 
 // Google Analytics Event Tracking Function for Clicks & Hovers
@@ -98,11 +99,11 @@ const Classroom = ({ student, readingAttempts }) => {
 
         <Card 
           className="card"
-          onClick={() => trackEvent("click_time_on_task", "User clicked on Time On Task Chart")}
-          onMouseEnter={() => trackEvent("hover_time_on_task", "User hovered over Time On Task Chart", "hover")}
+          onClick={() => trackEvent("click_word_accuracy_distribution", "User clicked on Word Accuracy Distribution Chart")}
+          onMouseEnter={() => trackEvent("hover_word_accuracy_distribution", "User hovered over Word Accuracy Distribution Chart", "hover")}
         >
           <CardContent>
-            <TimeOnTaskChart data={timeOnTaskData} />
+            <WordAccuracyDistributionChart students={students} />
           </CardContent>
         </Card>
 
@@ -135,6 +136,8 @@ const Classroom = ({ student, readingAttempts }) => {
             <ClassWideReadingPerformance students={students} />
           </CardContent>
         </Card>
+
+        
       </div>
     </div>
   );
