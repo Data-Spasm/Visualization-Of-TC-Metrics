@@ -5,7 +5,7 @@ import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngageme
 import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
-import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
+import ReadingAssessmentDataLineGraphStudent from "../components/linegraphs/ReadingAssessmentDataLineGraphStudent";
 import "./Classroom.css";
 
 // Google Analytics Event Tracking Function for Clicks & Hovers
@@ -65,9 +65,7 @@ const Student = ({ student, readingAttempts }) => {
             <Typography gutterBottom variant="h4" component="div">
               Progress Overview
             </Typography>
-            <div className="progress-reading-container">
-        
-            </div>
+            <div className="progress-reading-container"></div>
           </CardContent>
         </Card>
       </div>
@@ -89,7 +87,7 @@ const Student = ({ student, readingAttempts }) => {
           onMouseEnter={() => trackEvent("hover_class_engagement", "User hovered over Class Engagement Bubble Chart", "hover")}
         >
           <CardContent>
-          <ClassEngagementBubbleChart data={overallPerformanceData} />
+            <ClassEngagementBubbleChart data={overallPerformanceData} />
           </CardContent>
         </Card>
 
@@ -119,6 +117,7 @@ const Student = ({ student, readingAttempts }) => {
           onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
         >
           <CardContent>
+            <ReadingAssessmentDataLineGraphStudent />
           </CardContent>
         </Card>
 
