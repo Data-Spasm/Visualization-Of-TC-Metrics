@@ -97,7 +97,7 @@ const Student = ({ student, readingAttempts }) => {
           onMouseEnter={() => trackEvent("hover_time_on_task", "User hovered over Time On Task Chart", "hover")}
         >
           <CardContent>
-            <TimeOnTaskChart data={timeOnTaskData} />
+
           </CardContent>
         </Card>
 
