@@ -6,8 +6,12 @@ import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
+import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
+import "./Classroom.css";
+
 import StudentWideReadingPerformance from "../components/textbase/StudentWideReadingPerformance";
 import "../components/textbase/ClassWideReadingPerformance.css";  
+
 
 // Google Analytics Event Tracking Function for Clicks & Hovers
 const trackEvent = (eventName, eventLabel, eventType = "click") => {
@@ -53,6 +57,7 @@ const Student = ({ student, readingAttempts }) => {
     }
   }, [student, readingAttempts]);
 
+
   return (
     <div className="classroom">
       {/* Top Card: Progress Bar */}
@@ -92,12 +97,13 @@ const Student = ({ student, readingAttempts }) => {
           </CardContent>
         </Card>
 
-        <Card className="card"
-          onClick={() => trackEvent("click_time_on_task", "User clicked on Time On Task Chart")}
-          onMouseEnter={() => trackEvent("hover_time_on_task", "User hovered over Time On Task Chart", "hover")}
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_word_accuracy_distribution", "User clicked on Word Accuracy Distribution Chart")}
+          onMouseEnter={() => trackEvent("hover_word_accuracy_distribution", "User hovered over Word Accuracy Distribution Chart", "hover")}
         >
           <CardContent>
-            <TimeOnTaskChart data={timeOnTaskData} />
+            <WordAccuracyDistributionChart student={student} />
           </CardContent>
         </Card>
 
