@@ -109,6 +109,7 @@ const Student = ({ student, readingAttempts }) => {
           onMouseEnter={() => trackEvent("hover_misread_words", "User hovered over Top Misread Words Chart", "hover")}
         >
           <CardContent>
+            <TopMisreadWordsChart data={misreadData} />
           </CardContent>
         </Card>
 
@@ -116,6 +117,15 @@ const Student = ({ student, readingAttempts }) => {
           className="card"
           onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
           onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
+        >
+          <CardContent>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="card"
+          onClick={() => trackEvent("click_class_wide_performance", "User clicked on Class-Wide Reading Performance")}
+          onMouseEnter={() => trackEvent("hover_class_wide_performance", "User hovered over Class-Wide Reading Performance", "hover")}
         >
           <CardContent>
           </CardContent>
