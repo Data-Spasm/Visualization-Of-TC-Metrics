@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
-import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
+import StudentEngagementBubbleChart from "../components/bubblecharts/StudentEngagementBubbleChart";
 import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
@@ -89,11 +89,11 @@ const Student = ({ student, readingAttempts }) => {
         </Card>
 
         <Card className="card"
-          onClick={() => trackEvent("click_class_engagement", "User clicked on Class Engagement Bubble Chart")}
-          onMouseEnter={() => trackEvent("hover_class_engagement", "User hovered over Class Engagement Bubble Chart", "hover")}
+          onClick={() => trackEvent("click_student_engagement", "User clicked on Student Engagement Bubble Chart")}
+          onMouseEnter={() => trackEvent("hover_student_engagement", "User hovered over Student Engagement Bubble Chart", "hover")}
         >
           <CardContent>
-            <ClassEngagementBubbleChart data={readingAttempts} />
+            <StudentEngagementBubbleChart student={student} readingAttempts={readingAttempts} />
           </CardContent>
         </Card>
 
