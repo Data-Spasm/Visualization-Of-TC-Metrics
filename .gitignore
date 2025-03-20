@@ -14,3 +14,6 @@ yarn-error.log*
 dist/
 # Local Netlify folder
 .netlify
+# Ignore JSON data files
+src/data/*.json
+
