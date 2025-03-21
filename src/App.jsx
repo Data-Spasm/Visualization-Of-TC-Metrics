@@ -4,8 +4,9 @@ import Navbar from './components/navbar/navbar';
 import Sidebar from './components/sidebar/sidebar';
 import Classroom from './views/Classroom';
 import Students from './views/Student';
-import { loadStudentData, loadReadingAttempts, loadReadingSkills } from './utils/loadData';
-import './App.css';
+import UserController from './controllers/User';
+import ReadingAttemptController from './controllers/ReadingAttempt';
+import "./App.css";
 
 // Google Analytics Event Tracking Function
 const trackEvent = (eventName, eventParams = {}, eventType = "click") => {
@@ -19,31 +20,40 @@ const trackEvent = (eventName, eventParams = {}, eventType = "click") => {
   }
 };
 
-
 const App = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
-  const [student, setStudent] = useState(null);
+  const [students, setStudents] = useState([]);
   const [readingAttempts, setReadingAttempts] = useState([]);
-  const [readingSkills, setReadingSkills] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [loading, setLoading] = useState(true); // Add a loading state
 
   useEffect(() => {
-    // Load student data
-    const studentData = loadStudentData();
-    console.log("Loaded Student Data:", studentData);
-    setStudent(studentData);
-    trackEvent('load_student_data', { label: 'Student Data Loaded' });
+    console.log("Fetching classroom data...");
 
-    // Load reading attempts
-    const attemptsData = loadReadingAttempts();
-    console.log("Loaded Reading Attempts:", attemptsData);
-    setReadingAttempts(attemptsData);
-    trackEvent('load_reading_attempts', { label: 'Reading Attempts Loaded' });
+    try {
+      // Fetch all students
+      const studentData = UserController.getAllStudents();
+      console.log("Fetched Students:", studentData);
+      setStudents(studentData);
 
-    // Load reading skills
-    const skillsData = loadReadingSkills();
-    console.log("Loaded Reading Skills:", skillsData);
-    setReadingSkills(skillsData);
-    trackEvent('load_reading_skills', { label: 'Reading Skills Loaded' });
+      // Fetch all reading attempts
+      const attemptsData = ReadingAttemptController.getAllAttempts();
+      console.log("Fetched Reading Attempts:", attemptsData);
+      setReadingAttempts(attemptsData);
+
+      // Ensure selectedStudent is set only when students exist
+      if (studentData.length > 0) {
+        setSelectedStudent(studentData[0]); // Default to first student
+      }
+
+      setLoading(false); // Data is loaded
+      trackEvent('load_students', { label: 'Students Loaded' });
+      trackEvent('load_reading_attempts', { label: 'Reading Attempts Loaded' });
+      
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    }
   }, []);
 
   const toggleSidebar = () => {
@@ -59,18 +69,30 @@ const App = () => {
         <div className="main-content">
           {isSidebarVisible && <Sidebar />}
           <div className={isSidebarVisible ? 'content' : 'content full'}>
-            <Routes>
-              {/* Redirect from "/" to "/classroom" */}
-              <Route path="/" element={<Navigate to="/classroom" replace />} />
-              <Route 
-                path="/classroom" 
-                element={student ? <Classroom student={student} /> : <h2>Loading...</h2>} 
-              />
-              <Route 
-                path="/students" 
-                element={student ? <Students student={student} readingSkills={readingSkills} /> : <h2>Loading...</h2>} 
-              />
-            </Routes>
+            {loading ? (
+              <h2>Loading classroom data...</h2> // Display loading while fetching data
+            ) : (
+              <Routes>
+                {/* Redirect from "/" to "/classroom" */}
+                <Route path="/" element={<Navigate to="/classroom" replace />} />
+                <Route 
+                  path="/classroom" 
+                  element={students.length > 0 ? (
+                    <Classroom students={students} readingAttempts={readingAttempts} />
+                  ) : (
+                    <h2>No students found.</h2>
+                  )}
+                />
+                <Route 
+                  path="/students" 
+                  element={selectedStudent ? (
+                    <Students student={selectedStudent} />
+                  ) : (
+                    <h2>No student selected.</h2>
+                  )}
+                />
+              </Routes>
+            )}
           </div>
         </div>
       </div>
