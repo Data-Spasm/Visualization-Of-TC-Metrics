@@ -1,7 +1,7 @@
 // src/models/ReadingAttemptModel.js
 // This file is used to interact with the reading assessment attempts data
 import { readingAssessmentAttempts } from '../utils/loadData';
-//import { extractMisreadWords } from '../utils/misreadWordsProcessor';
+import { extractMisreadWords } from '../utils/misreadWordsProcessor';
 
 class ReadingAttempt {
   static getAttemptById(id) {
@@ -20,9 +20,9 @@ class ReadingAttempt {
     return readingAssessmentAttempts;
   }
 
-  // static getMisreadWords() {
-  //   return extractMisreadWords(readingAssessmentAttempts);
-  // }
+  static getMisreadWords() {
+    return extractMisreadWords(readingAssessmentAttempts);
+  }
 }
 
 export default ReadingAttempt;
