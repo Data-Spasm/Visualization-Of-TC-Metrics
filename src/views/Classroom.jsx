@@ -8,69 +8,24 @@ import ClassWideReadingPerformance from "../components/textbase/ClassWideReading
 import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
 import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
 import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
-import User from "../controllers/User";
-import ReadingAttempt from "../controllers/ReadingAttempt";
 import "./Classroom.css";
 
-const Classroom = () => {
-  const [students, setStudents] = useState([]);
-  const [overallPerformanceData, setOverallPerformanceData] = useState([]);
-  const [timeOnTaskData, setTimeOnTaskData] = useState([]);
-  const [misreadData, setMisreadData] = useState([]);
-  const [readingAssessmentData, setReadingAssessmentData] = useState([]);
-  const [readingAttempts, setReadingAttempts] = useState([]);
+const Classroom = ({ students, readingAttempts, misreadWords }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("Fetching classroom data...");
 
-    // Fetch all students
-    const studentData = User.getAllStudents();
-    console.log("Fetched Students:", studentData);
-    setStudents(studentData);
-
-    // Fetch all reading attempts
     try {
-      console.log("Calling ReadingAttempt.getAllAttempts()...");
-      const attempts = ReadingAttempt.getAllAttempts();
-      console.log("Fetched Reading Attempts:", attempts);
-      if (!attempts || attempts.length === 0) {
-        console.warn("Warning: No reading attempts found!");
-      }
-      setReadingAttempts(attempts);
+      console.log("Fetched Students:", students);
+      console.log("Fetched Reading Attempts:", readingAttempts);
+      console.log("Fetched Misread Words:", misreadWords);
     } catch (error) {
-      console.error("Error fetching reading attempts:", error);
-    }
-
-    if (studentData.length > 0) {
-      // Aggregate overall classroom performance
-      const aggregatedPerformance = studentData.map(student => ({
-        name: student.username,
-        accuracy: student.student?.reading?.overallPerformance?.overallAccuracy || 0,
-        fluency: student.student?.reading?.overallPerformance?.overallFluency || 0,
-        timeOnTask: student.student?.reading?.overallPerformance?.overallTimeOnTask || 0,
-      }));
-      console.log("Aggregated Performance Data:", aggregatedPerformance);
-      setOverallPerformanceData(aggregatedPerformance);
-
-      // Aggregate time on task
-      const timeData = aggregatedPerformance.map(({ name, timeOnTask }) => ({ name, timeOnTask }));
-      console.log("Aggregated Time on Task Data:", timeData);
-      setTimeOnTaskData(timeData);
-
-      // Aggregate misread words across students
-      const misreadWords = studentData.flatMap(student => student.student?.misreadWords || []);
-      console.log("Aggregated Misread Words Data:", misreadWords);
-      setMisreadData(misreadWords);
-
-      // Aggregate reading assessment data
-      const assessmentData = readingAttempts.length > 0 ? calculateReadingAssessmentData(readingAttempts) : [];
-      console.log("Aggregated Reading Assessment Data:", assessmentData);
-      setReadingAssessmentData(assessmentData);
+      console.error("Error fetching data:", error);
     }
 
     setLoading(false);
-  }, []);
+  }, [students, readingAttempts, misreadWords]);
 
   if (loading) {
     return <h2>Loading classroom data...</h2>;
@@ -93,7 +48,7 @@ const Classroom = () => {
               Classroom Progress Overview
             </Typography>
             <div className="progress-reading-container">
-              <ReadingProgressBar performance={overallPerformanceData} />
+              <ReadingProgressBar />
             </div>
           </CardContent>
         </Card>
@@ -102,7 +57,7 @@ const Classroom = () => {
       <div className="grid-container">
         <Card className="card">
           <CardContent>
-            <OverallAccuracyFluencyChart data={overallPerformanceData} />
+            {/* <OverallAccuracyFluencyChart /> */}
           </CardContent>
         </Card>
 
@@ -120,13 +75,13 @@ const Classroom = () => {
 
         <Card className="card">
           <CardContent>
-            <TopMisreadWordsChart data={misreadData} />
+            <TopMisreadWordsChart data={misreadWords} />
           </CardContent>
         </Card>
 
         <Card className="card">
           <CardContent>
-            <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
+            <ReadingAssessmentDataLineGraph />
           </CardContent>
         </Card>
 

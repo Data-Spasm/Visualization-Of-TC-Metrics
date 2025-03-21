@@ -24,6 +24,7 @@ const App = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
   const [students, setStudents] = useState([]);
   const [readingAttempts, setReadingAttempts] = useState([]);
+  const [misreadWords, setMisreadWords] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(true); // Add a loading state
 
@@ -40,6 +41,12 @@ const App = () => {
       const attemptsData = ReadingAttemptController.getAllAttempts();
       console.log("Fetched Reading Attempts:", attemptsData);
       setReadingAttempts(attemptsData);
+
+      // Fetch misread words from reading attempts
+      console.log("Extracting misread words...");
+      const misreads = ReadingAttemptController.getMisreadWords();
+      console.log("Fetched Misread Words:", misreads);
+      setMisreadWords(misreads);
 
       // Ensure selectedStudent is set only when students exist
       if (studentData.length > 0) {
@@ -78,7 +85,7 @@ const App = () => {
                 <Route 
                   path="/classroom" 
                   element={students.length > 0 ? (
-                    <Classroom students={students} readingAttempts={readingAttempts} />
+                    <Classroom students={students} readingAttempts={readingAttempts} misreadWords={misreadWords} />
                   ) : (
                     <h2>No students found.</h2>
                   )}
