@@ -1,16 +1,16 @@
 // src/controllers/AvatarController.js
-import Avatar from '../models/Avatar';
+import AvatarModel from '../models/Avatar';
 
-class Avatar {
+class AvatarController {
   // Get avatar by ID
   static getAvatarById(id) {
-    return Avatar.getAvatarById(id);
+    return AvatarModel.getAvatarById(id);
   }
 
   // Get all available avatars
   static getAllAvatars() {
-    return Avatar.getAllAvatars();
+    return AvatarModel.getAllAvatars();
   }
 }
 
-export default Avatar;
+export default AvatarController;
