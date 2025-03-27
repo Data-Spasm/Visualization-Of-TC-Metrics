@@ -4,6 +4,7 @@ import Navbar from './components/navbar/navbar';
 import Sidebar from './components/sidebar/sidebar';
 import Classroom from './views/Classroom';
 import Students from './views/Student';
+import StudentList from './views/StudentList';
 import UserController from './controllers/User';
 import ReadingAttemptController from './controllers/ReadingAttempt';
 import "./App.css";
@@ -34,14 +35,14 @@ const App = () => {
     try {
       // Fetch all students
       // Hardcoded teacher username for testing
-      const teacherUsername = "arima2"; // Or whatever teacher you'd like to test with
+      const teacherUsername = "arima2";
       const studentData = UserController.getStudentsByTeacher(teacherUsername);
       console.log(`Fetched Students for Teacher "${teacherUsername}":`, studentData);
       setStudents(studentData);
 
 
       // Get the usernames of the teacher's students
-      const studentUsernames = studentData.map(student => student.username);
+      const studentUsernames = studentData.map(s => s.username);
 
       // Fetch and filter reading attempts
       const allAttempts = ReadingAttemptController.getAllAttempts();
@@ -68,7 +69,7 @@ const App = () => {
       setLoading(false); // Data is loaded
       trackEvent('load_students', { label: 'Students Loaded' });
       trackEvent('load_reading_attempts', { label: 'Reading Attempts Loaded' });
-      
+
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
@@ -94,21 +95,27 @@ const App = () => {
               <Routes>
                 {/* Redirect from "/" to "/classroom" */}
                 <Route path="/" element={<Navigate to="/classroom" replace />} />
-                <Route 
-                  path="/classroom" 
+                <Route
+                  path="/classroom"
                   element={students.length > 0 ? (
-                    <Classroom students={students} readingAttempts={readingAttempts} misreadWords={misreadWords} />
-                  ) : (
-                    <h2>No students found.</h2>
-                  )}
+                      <Classroom students={students} readingAttempts={readingAttempts} misreadWords={misreadWords} />
+                    ) : (
+                      <h2>No students found.</h2>
+                    )}
                 />
-                <Route 
-                  path="/students" 
+                <Route
+                  path="/student-list"
+                  element={
+                    <StudentList students={students} readingAttempts={readingAttempts} onSelectStudent={setSelectedStudent} />
+                  }
+                />
+                <Route
+                  path="/students"
                   element={selectedStudent ? (
-                    <Students student={selectedStudent} />
-                  ) : (
-                    <h2>No student selected.</h2>
-                  )}
+                      <Students student={selectedStudent} />
+                    ) : (
+                      <h2>No student selected.</h2>
+                    )}
                 />
               </Routes>
             )}
@@ -122,7 +129,7 @@ const App = () => {
 // Component to track route changes and send data to Google Analytics
 const RouteChangeTracker = () => {
   const location = useLocation();
-  
+
   useEffect(() => {
     if (window.gtag) {
       window.gtag('event', 'page_view', {
