@@ -21,10 +21,15 @@ class ReadingAttemptController {
     return ReadingAttempt.getAttemptsByAssessment(assessmentId);
   }
 
-  // Get all misread words
-  static getMisreadWords() {
-    return ReadingAttempt.getMisreadWords();
+  // Get all misread words (updated to accept optional readingAttempts)
+  static getMisreadWords(readingAttempts = null) {
+    if (readingAttempts) {
+      return ReadingAttempt.getMisreadWords(readingAttempts); // pass to model
+    }
+    const allAttempts = ReadingAttempt.getAllAttempts();
+    return ReadingAttempt.getMisreadWords(allAttempts);
   }
+
 }
 
 export default ReadingAttemptController;
