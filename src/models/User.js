@@ -1,4 +1,4 @@
-// src/models/UserModel.js
+// src/models/UserModel.js 
 // This file is used to interact with the users data
 import { users, roles } from '../utils/loadData';
 
@@ -17,6 +17,14 @@ class User {
     return users.filter(user =>
       user.roles.some(userRole => userRole.$id.$oid === role._id.$oid)
     );
+  }
+
+  static getStudentsByTeacher(teacherUsername) {
+    const teacher = users.find(u => u.username === teacherUsername && u.teacher);
+    if (!teacher) return [];
+
+    const studentUsernames = teacher.teacher.studentNames;
+    return users.filter(u => studentUsernames.includes(u.username));
   }
 }
 

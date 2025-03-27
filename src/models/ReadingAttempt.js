@@ -20,9 +20,11 @@ class ReadingAttempt {
     return readingAssessmentAttempts;
   }
 
-  static getMisreadWords() {
-    return extractMisreadWords(readingAssessmentAttempts);
+  static getMisreadWords(attempts = null) {
+    const dataToUse = attempts || readingAssessmentAttempts;
+    return extractMisreadWords(dataToUse);
   }
+  
 }
 
 export default ReadingAttempt;

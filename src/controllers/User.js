@@ -19,6 +19,10 @@ class UserController {
     return User.getUsersByRole("ROLE_TEACHER");
   }
 
+  static getStudentsByTeacher(username) {
+    return User.getStudentsByTeacher(username);
+  }
+
   // Fetch reading attempts and related assessments for a student
   static getStudentReadingData(username) {
     const attempts = ReadingAttempt.getAttemptsByStudent(username);

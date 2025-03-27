@@ -33,20 +33,32 @@ const App = () => {
 
     try {
       // Fetch all students
-      const studentData = UserController.getAllStudents();
-      console.log("Fetched Students:", studentData);
+      // Hardcoded teacher username for testing
+      const teacherUsername = "arima2"; // Or whatever teacher you'd like to test with
+      const studentData = UserController.getStudentsByTeacher(teacherUsername);
+      console.log(`Fetched Students for Teacher "${teacherUsername}":`, studentData);
       setStudents(studentData);
 
-      // Fetch all reading attempts
-      const attemptsData = ReadingAttemptController.getAllAttempts();
-      console.log("Fetched Reading Attempts:", attemptsData);
-      setReadingAttempts(attemptsData);
 
-      // Fetch misread words from reading attempts
+      // Get the usernames of the teacher's students
+      const studentUsernames = studentData.map(student => student.username);
+
+      // Fetch and filter reading attempts
+      const allAttempts = ReadingAttemptController.getAllAttempts();
+      const filteredAttempts = allAttempts.filter(attempt =>
+        studentUsernames.includes(attempt.studentUsername)
+      );
+
+      console.log("Filtered Reading Attempts:", filteredAttempts);
+      setReadingAttempts(filteredAttempts);
+
+
+      // Extract misread words from filtered reading attempts
       console.log("Extracting misread words...");
-      const misreads = ReadingAttemptController.getMisreadWords();
+      const misreads = ReadingAttemptController.getMisreadWords(filteredAttempts);
       console.log("Fetched Misread Words:", misreads);
       setMisreadWords(misreads);
+
 
       // Ensure selectedStudent is set only when students exist
       if (studentData.length > 0) {
