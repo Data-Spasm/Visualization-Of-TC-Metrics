@@ -7,6 +7,7 @@ import Students from './views/Student';
 import StudentList from './views/StudentList';
 import UserController from './controllers/User';
 import ReadingAttemptController from './controllers/ReadingAttempt';
+import ReadingAssessmentController from './controllers/ReadingAssessment';
 import "./App.css";
 
 // Google Analytics Event Tracking Function
@@ -26,25 +27,21 @@ const App = () => {
   const [students, setStudents] = useState([]);
   const [readingAttempts, setReadingAttempts] = useState([]);
   const [misreadWords, setMisreadWords] = useState([]);
+  const [assessments, setAssessments] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("Fetching classroom data...");
 
     try {
-      // Fetch all students
-      // Hardcoded teacher username for testing
       const teacherUsername = "arima2";
       const studentData = UserController.getStudentsByTeacher(teacherUsername);
       console.log(`Fetched Students for Teacher "${teacherUsername}":`, studentData);
       setStudents(studentData);
 
-
-      // Get the usernames of the teacher's students
       const studentUsernames = studentData.map(s => s.username);
 
-      // Fetch and filter reading attempts
       const allAttempts = ReadingAttemptController.getAllAttempts();
       const filteredAttempts = allAttempts.filter(attempt =>
         studentUsernames.includes(attempt.studentUsername)
@@ -53,20 +50,20 @@ const App = () => {
       console.log("Filtered Reading Attempts:", filteredAttempts);
       setReadingAttempts(filteredAttempts);
 
-
-      // Extract misread words from filtered reading attempts
       console.log("Extracting misread words...");
       const misreads = ReadingAttemptController.getMisreadWords(filteredAttempts);
       console.log("Fetched Misread Words:", misreads);
       setMisreadWords(misreads);
 
+      const allAssessments = ReadingAssessmentController.getAllAssessments();
+      console.log("Fetched Reading Assessments:", allAssessments);
+      setAssessments(allAssessments);
 
-      // Ensure selectedStudent is set only when students exist
       if (studentData.length > 0) {
-        setSelectedStudent(studentData[0]); // Default to first student
+        setSelectedStudent(studentData[0]);
       }
 
-      setLoading(false); // Data is loaded
+      setLoading(false);
       trackEvent('load_students', { label: 'Students Loaded' });
       trackEvent('load_reading_attempts', { label: 'Reading Attempts Loaded' });
 
@@ -90,18 +87,22 @@ const App = () => {
           {isSidebarVisible && <Sidebar />}
           <div className={isSidebarVisible ? 'content' : 'content full'}>
             {loading ? (
-              <h2>Loading classroom data...</h2> // Display loading while fetching data
+              <h2>Loading classroom data...</h2>
             ) : (
               <Routes>
-                {/* Redirect from "/" to "/classroom" */}
                 <Route path="/" element={<Navigate to="/classroom" replace />} />
                 <Route
                   path="/classroom"
                   element={students.length > 0 ? (
-                      <Classroom students={students} readingAttempts={readingAttempts} misreadWords={misreadWords} />
-                    ) : (
-                      <h2>No students found.</h2>
-                    )}
+                    <Classroom
+                      students={students}
+                      readingAttempts={readingAttempts}
+                      misreadWords={misreadWords}
+                      assessments={assessments}
+                    />
+                  ) : (
+                    <h2>No students found.</h2>
+                  )}
                 />
                 <Route
                   path="/student-list"
@@ -112,10 +113,10 @@ const App = () => {
                 <Route
                   path="/students"
                   element={selectedStudent ? (
-                      <Students student={selectedStudent} />
-                    ) : (
-                      <h2>No student selected.</h2>
-                    )}
+                    <Students student={selectedStudent} />
+                  ) : (
+                    <h2>No student selected.</h2>
+                  )}
                 />
               </Routes>
             )}
@@ -126,7 +127,6 @@ const App = () => {
   );
 };
 
-// Component to track route changes and send data to Google Analytics
 const RouteChangeTracker = () => {
   const location = useLocation();
 
