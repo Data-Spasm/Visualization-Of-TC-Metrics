@@ -18,6 +18,10 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
 
     try {
       console.log("Fetched Students:", students);
+      students.forEach((student, i) => {
+        console.log(`Student ${i + 1}:`, student.username, student.student?.reading?.overallPerformance);
+      });
+
       console.log("Fetched Reading Attempts:", readingAttempts);
       console.log("Fetched Misread Words:", misreadWords);
       console.log("Fetched Assessments:", assessments);
@@ -53,7 +57,7 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
               Classroom Progress Overview
             </Typography>
             <div className="progress-reading-container">
-              <ReadingProgressBar />
+              <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
             </div>
           </CardContent>
         </Card>

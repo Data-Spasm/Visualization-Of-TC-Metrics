@@ -16,4 +16,5 @@ dist/
 .netlify
 # Ignore JSON data files
 src/data/*.json
-
+# Ignore all files in the utils directory
+src/utils/
