@@ -2,7 +2,7 @@
 import ReadingAssessment from '../models/ReadingAssessment';
 import ReadingAttempt from '../models/ReadingAttempt';
 
-class ReadingAssessment {
+class ReadingAssessmentController {
   // Get a reading assessment by ID
   static getAssessmentById(id) {
     return ReadingAssessment.getAssessmentById(id);
@@ -19,4 +19,4 @@ class ReadingAssessment {
   }
 }
 
-export default ReadingAssessment;
+export default ReadingAssessmentController;

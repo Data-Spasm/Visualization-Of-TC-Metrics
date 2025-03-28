@@ -5,12 +5,12 @@ import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
 import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
-import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
+import ReadingAssessmentDataTileView from "../components/tileSquareChart/ReadingAssessmentDataTileSquare";
 import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
 import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
 import "./Classroom.css";
 
-const Classroom = ({ students, readingAttempts, misreadWords }) => {
+const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,12 +20,13 @@ const Classroom = ({ students, readingAttempts, misreadWords }) => {
       console.log("Fetched Students:", students);
       console.log("Fetched Reading Attempts:", readingAttempts);
       console.log("Fetched Misread Words:", misreadWords);
+      console.log("Fetched Assessments:", assessments);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
 
     setLoading(false);
-  }, [students, readingAttempts, misreadWords]);
+  }, [students, readingAttempts, misreadWords, assessments]);
 
   if (loading) {
     return <h2>Loading classroom data...</h2>;
@@ -37,6 +38,10 @@ const Classroom = ({ students, readingAttempts, misreadWords }) => {
 
   if (!readingAttempts || readingAttempts.length === 0) {
     return <h2>No reading attempts found.</h2>;
+  }
+
+  if (!assessments || assessments.length === 0) {
+    return <h2>No reading assessments found.</h2>;
   }
 
   return (
@@ -53,7 +58,7 @@ const Classroom = ({ students, readingAttempts, misreadWords }) => {
           </CardContent>
         </Card>
       </div>
-      
+
       <div className="grid-container">
         <Card className="card">
           <CardContent>
@@ -81,7 +86,11 @@ const Classroom = ({ students, readingAttempts, misreadWords }) => {
 
         <Card className="card">
           <CardContent>
-            <ReadingAssessmentDataLineGraph />
+            <ReadingAssessmentDataTileView
+              readingAttempts={readingAttempts}
+              assessments={assessments}
+              students={students}
+            />
           </CardContent>
         </Card>
 
