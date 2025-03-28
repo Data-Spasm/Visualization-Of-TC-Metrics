@@ -7,6 +7,7 @@ import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
 import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
 import StudentWideReadingPerformance from "../components/textbase/StudentWideReadingPerformance";
+import WordAccuracyStudent from "../components/barcharts/WordAccuracyStudent";
 import { assessAttempt } from "../utils/assessAttempt";
 import "../components/textbase/ClassWideReadingPerformance.css";
 import "./Classroom.css";
@@ -137,7 +138,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
           onMouseEnter={() => trackEvent("hover_word_accuracy_distribution", "User hovered over Word Accuracy Distribution Chart", "hover")}
         >
           <CardContent>
-            <WordAccuracyDistributionChart student={student} />
+            <WordAccuracyStudent student={student} miscues={miscueData} />
           </CardContent>
         </Card>
 

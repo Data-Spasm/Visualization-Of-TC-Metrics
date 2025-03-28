@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, useParams, useNavigate } from 'react-router-dom';
 import Navbar from './components/navbar/navbar';
 import Sidebar from './components/sidebar/sidebar';
 import Classroom from './views/Classroom';
@@ -8,7 +8,7 @@ import StudentList from './views/StudentList';
 import UserController from './controllers/User';
 import ReadingAttemptController from './controllers/ReadingAttempt';
 import ReadingAssessmentController from './controllers/ReadingAssessment';
-import {assessAttempt} from './utils/assessAttempt';
+import { assessAttempt } from './utils/assessAttempt';
 import './App.css';
 
 const trackEvent = (eventName, eventParams = {}, eventType = "click") => {
@@ -29,7 +29,6 @@ const App = () => {
   const [misreadWords, setMisreadWords] = useState([]);
   const [assessments, setAssessments] = useState([]);
   const [miscueData, setMiscueData] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,17 +59,12 @@ const App = () => {
       console.log("Fetched Reading Assessments:", allAssessments);
       setAssessments(allAssessments);
 
-      // Calculate miscues from raw passage data using assessAttempt
       const miscues = filteredAttempts.map(attempt => {
         const { expected, actual } = attempt;
         const results = assessAttempt(expected, actual);
-        return { passageId: attempt.passageId, miscues: results.miscues };
+        return { passageId: attempt.passageId, studentUsername: attempt.studentUsername, miscues: results.miscues };
       });
       setMiscueData(miscues);
-
-      if (studentData.length > 0) {
-        setSelectedStudent(studentData[0]);
-      }
 
       setLoading(false);
       trackEvent('load_students', { label: 'Students Loaded' });
@@ -116,29 +110,36 @@ const App = () => {
                 <Route
                   path="/student-list"
                   element={
-                    <StudentList students={students} readingAttempts={readingAttempts} onSelectStudent={setSelectedStudent} />
+                    <StudentList
+                      students={students}
+                      readingAttempts={readingAttempts}
+                    />
                   }
                 />
                 <Route
-                  path="/students"
-                  element={selectedStudent ? (
-                    <Students
-                      student={selectedStudent}
-                      miscues={miscueData.filter(m => m.studentUsername === selectedStudent.username)}
-                      allAssessmentAttempts={readingAttempts}
-                      assessments={assessments} 
-                    />
-                  ) : (
-                    <h2>No student selected.</h2>
-                  )}
+                  path="/students/:id"
+                  element={<StudentRouteWrapper students={students} readingAttempts={readingAttempts} assessments={assessments} miscues={miscueData} />}
                 />
-
               </Routes>
             )}
           </div>
         </div>
       </div>
     </Router>
+  );
+};
+
+const StudentRouteWrapper = ({ students, readingAttempts, assessments, miscues }) => {
+  const { id } = useParams();
+  const student = students.find(s => s._id?.$oid === id || s._id === id);
+  return student ? (
+    <Students
+      student={student}
+      allAssessmentAttempts={readingAttempts.filter(a => a.studentUsername === student.username)}
+      assessments={assessments}
+    />
+  ) : (
+    <h2>No student selected.</h2>
   );
 };
 
