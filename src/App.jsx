@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/navbar/navbar';
 import Sidebar from './components/sidebar/sidebar';
@@ -8,9 +8,9 @@ import StudentList from './views/StudentList';
 import UserController from './controllers/User';
 import ReadingAttemptController from './controllers/ReadingAttempt';
 import ReadingAssessmentController from './controllers/ReadingAssessment';
-import "./App.css";
+import {assessAttempt} from './utils/assessAttempt';
+import './App.css';
 
-// Google Analytics Event Tracking Function
 const trackEvent = (eventName, eventParams = {}, eventType = "click") => {
   if (window.gtag) {
     window.gtag("event", eventType, {
@@ -28,6 +28,7 @@ const App = () => {
   const [readingAttempts, setReadingAttempts] = useState([]);
   const [misreadWords, setMisreadWords] = useState([]);
   const [assessments, setAssessments] = useState([]);
+  const [miscueData, setMiscueData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,6 +59,14 @@ const App = () => {
       const allAssessments = ReadingAssessmentController.getAllAssessments();
       console.log("Fetched Reading Assessments:", allAssessments);
       setAssessments(allAssessments);
+
+      // Calculate miscues from raw passage data using assessAttempt
+      const miscues = filteredAttempts.map(attempt => {
+        const { expected, actual } = attempt;
+        const results = assessAttempt(expected, actual);
+        return { passageId: attempt.passageId, miscues: results.miscues };
+      });
+      setMiscueData(miscues);
 
       if (studentData.length > 0) {
         setSelectedStudent(studentData[0]);
@@ -113,11 +122,17 @@ const App = () => {
                 <Route
                   path="/students"
                   element={selectedStudent ? (
-                    <Students student={selectedStudent} />
+                    <Students
+                      student={selectedStudent}
+                      miscues={miscueData.filter(m => m.studentUsername === selectedStudent.username)}
+                      allAssessmentAttempts={readingAttempts}
+                      assessments={assessments} 
+                    />
                   ) : (
                     <h2>No student selected.</h2>
                   )}
                 />
+
               </Routes>
             )}
           </div>
