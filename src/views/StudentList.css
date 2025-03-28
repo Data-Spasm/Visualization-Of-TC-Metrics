@@ -140,3 +140,33 @@
     font-size: 0.85rem;
   }
   
+  .dual-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .accuracy-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 150px;
+  }
+  
+  .accuracy-bar-fill {
+    height: 16px;
+    border-radius: 10px;
+    transition: width 0.4s ease-in-out;
+  }
+  
+  .bar-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+  }
+  
+  .bar-value.right {
+    margin-left: auto;
+  }
+  
