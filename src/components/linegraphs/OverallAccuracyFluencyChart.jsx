@@ -1,72 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import './OverallAccuracyFluencyChart.css';
+import React, { useState, useEffect } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts";
+import "./ReadingAssessmentDataLineGraph.css";
 
-const OverallAccuracyFluencyChart = ({ data = [], onDataProcessed }) => {
-  const [chartData, setChartData] = useState([]);
+const performanceBands = [
+  { range: "0-49", min: 0, max: 49 },
+  { range: "50-74", min: 50, max: 74 },
+  { range: "75-89", min: 75, max: 89 },
+  { range: "90-100", min: 90, max: 100 },
+];
+
+const OverallAccuracyFluencyChart = ({ students = [] }) => {
+  const [binnedData, setBinnedData] = useState([]);
 
   useEffect(() => {
-    // Mock data for presentation
-    const mockData = [
-      // { week: "Week 1", accuracy: 0.12, fluency: 10 },
-      { week: "Week 2", accuracy: 0.24, fluency: 13 },
-      { week: "Week 3", accuracy: 0.16, fluency: 5 },
-      { week: "Week 4", accuracy: 0.2, fluency: 6 },
-      { week: "Week 5", accuracy: 0.3, fluency: 12 },
-    ];
+    const bands = performanceBands.map(({ range, min, max }) => {
+      let accuracyCount = 0;
+      let fluencyCount = 0;
 
-    // Combine provided data with mock data
-    const combinedData = [...data,...mockData];
+      students.forEach((student) => {
+        const accuracy = student.student?.reading?.overallPerformance?.overallAccuracy * 100 || 0;
+        const fluency = student.student?.reading?.overallPerformance?.overallFluency || 0;
 
-    console.log("Processed Data for Chart:", combinedData);
+        if (accuracy >= min && accuracy <= max) accuracyCount++;
+        if (fluency >= min && fluency <= max) fluencyCount++;
+      });
 
-    const processedData = combinedData.map((performance, index) => ({
-      week: `Week ${index + 1}`,
-      accuracy: performance.accuracy * 100, // Convert to percentage
-      fluency: performance.fluency,
-    }));
+      return {
+        range,
+        Accuracy: accuracyCount,
+        Fluency: fluencyCount,
+      };
+    });
 
-    setChartData(processedData);
-
-    // Call the parent function with the processed data
-    if (onDataProcessed) {
-      onDataProcessed(processedData);
-    }
-  }, [data, onDataProcessed]);
-
-  // Calculate the maximum value for the Y-axis
-  const maxYValue = Math.max(...chartData.map(d => Math.max(d.accuracy, d.fluency)));
-  // Generate ticks for the Y-axis in increments of 5
-  const yAxisTicks = Array.from({ length: Math.ceil(maxYValue / 5) + 1 }, (_, i) => i * 5);
+    setBinnedData(bands);
+  }, [students]);
 
   return (
     <div className="chart-container">
-      <div className="chart-title">Overall Accuracy & Fluency Trend</div>
-      <ResponsiveContainer width="100%" height={380}>
-        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+      <h3 className="chart-title">Overall Accuracy & Fluency</h3>
+      <ResponsiveContainer width="100%" height={420}>
+        <BarChart
+          data={binnedData}
+          margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
+          barCategoryGap={20}
+        >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="week" label={{ value: "Week", position: "insideBottom", offset: -10 }} />
-          <YAxis 
-            label={{ value: "Performance Metrics", angle: -90, position: "insideLeft", dy: -10 }} 
-            ticks={yAxisTicks} // Set the ticks explicitly
-            domain={[0, 'dataMax']} 
+          <XAxis dataKey="range" label={{ value: "Score Range", position: "insideBottom", offset: -5 }} />
+          <YAxis
+            allowDecimals={false}
+            label={{ value: "Number of Students", angle: -90, position: "insideLeft", offset: 10 }}
           />
           <Tooltip />
-          <Line type="monotone" dataKey="accuracy" stroke="#ff7300" name="Accuracy (%)" />
-          <Line type="monotone" dataKey="fluency" stroke="#4caf50" name="Fluency (WPM)" />
-        </LineChart>
+          <Legend verticalAlign="top" height={36} />
+          <Bar dataKey="Accuracy" fill="#8884d8">
+            <LabelList dataKey="Accuracy" position="top" />
+          </Bar>
+          <Bar dataKey="Fluency" fill="#82ca9d">
+            <LabelList dataKey="Fluency" position="top" />
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
-      <div className="key-container">
-        <div className="key-item">
-          <div className="key-color" style={{ backgroundColor: '#ff7300' }}></div>
-          <span>Accuracy (%)</span>
-        </div>
-        <div className="key-item">
-          <div className="key-color" style={{ backgroundColor: '#4caf50' }}></div>
-          <span>Fluency (WPM)</span>
-        </div>
-      </div>
-      {chartData.length === 0 && <div className="no-data">No data available</div>}
     </div>
   );
 };

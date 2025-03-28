@@ -62,7 +62,7 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
       <div className="grid-container">
         <Card className="card">
           <CardContent>
-            {/* <OverallAccuracyFluencyChart /> */}
+            <OverallAccuracyFluencyChart students={students} />
           </CardContent>
         </Card>
 
