@@ -111,7 +111,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
         >
           <CardContent className="long-card-content">
             <Typography gutterBottom variant="h4" component="div">
-              Progress Overview
+              Progress Overview for {student.firstName} {student.lastName}  
             </Typography>
             <div className="progress-reading-container">
               <ReadingProgressBarCard
