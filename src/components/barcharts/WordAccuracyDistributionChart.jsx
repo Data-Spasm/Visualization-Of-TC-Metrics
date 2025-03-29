@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {BarChart,Bar,XAxis,YAxis,Tooltip,ResponsiveContainer,CartesianGrid,Cell,PieChart,Pie,Label,Legend,Secto} from "recharts";
+import {BarChart,Bar,XAxis,YAxis,Tooltip,ResponsiveContainer,CartesianGrid,Cell,PieChart,Pie,Label,Legend,Sector} from "recharts";
 import "./WordAccuracyDistributionChart.css";
 
 const getColor = (value, isStudent = true, index = 0) => {
