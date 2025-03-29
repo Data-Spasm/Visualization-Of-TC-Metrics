@@ -82,11 +82,11 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
           </CardContent>
         </Card>
 
-        <Card className="card">
+        {/* <Card className="card">
           <CardContent>
             <TopMisreadWordsChart data={misreadWords} />
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="card">
           <CardContent>
