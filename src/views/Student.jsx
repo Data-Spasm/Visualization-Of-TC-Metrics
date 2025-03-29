@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
 import StudentEngagementBubbleChart from "../components/bubblecharts/StudentEngagementBubbleChart";
 import ReadingProgressBarCard from "../components/progressbar/ReadingProgressBarStudent";
@@ -26,6 +27,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
   const [overallPerformanceData, setOverallPerformanceData] = useState([]);
   const [misreadData, setMisreadData] = useState([]);
   const [miscueData, setMiscueData] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("Student object received:", student);
@@ -66,11 +68,12 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
         const passageTitle = matchedAssessmentDoc?.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
 
         const combinedResult = {
+          passageId, // <-- required for routing
           passageTitle,
           numDels: 0,
           numIns: 0,
           numReps: 0,
-          numSelfs: 0,
+          numSubs: 0,
           numCorrect: 0,
         };
 
@@ -81,7 +84,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
             combinedResult.numDels += result.numDels || 0;
             combinedResult.numIns += result.numIns || 0;
             combinedResult.numReps += result.numReps || 0;
-            combinedResult.numSelfs += result.numSelfs || 0;
+            combinedResult.numSubs += result.numSubs || 0;
             combinedResult.numCorrect += result.numCorrect || 0;
 
             console.log(`Processed paragraph #${index + 1}`, result);
@@ -111,7 +114,11 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
               Progress Overview
             </Typography>
             <div className="progress-reading-container">
-              <ReadingProgressBarCard miscues={miscueData} />
+              <ReadingProgressBarCard
+                miscues={miscueData}
+                studentUsername={student.username}
+                onBarClick={(passageId) => navigate(`/passages/${student.username}/${passageId}`)}
+              />
             </div>
           </CardContent>
         </Card>
@@ -149,7 +156,6 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
             <TopMisreadWordsChart data={misreadData} />
           </CardContent>
         </Card>
-
 
         <Card className="card" onClick={() => trackEvent("click_passage_completion", "User clicked on Reading Passage Completion")}
           onMouseEnter={() => trackEvent("hover_passage_completion", "User hovered over Reading Passage Completion", "hover")}
