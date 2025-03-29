@@ -52,14 +52,22 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
     <div className="classroom">
       <div className="long-card">
         <Card className="long-card">
-          <CardContent className="long-card-content">
-            <Typography gutterBottom variant="h4" component="div">
-              Classroom Progress Overview
-            </Typography>
-            <div className="progress-reading-container">
-              <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
-            </div>
-          </CardContent>
+        <CardContent className="long-card-content">
+        <Typography gutterBottom variant="h4" component="div">
+          Classroom Progress Overview
+        </Typography>
+
+        <div className="overview-flex-container">
+          <div className="overview-progress">
+            <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
+          </div>
+
+          <div className="overview-performance">
+            <ClassWideReadingPerformance students={students} />
+          </div>
+        </div>
+      </CardContent>
+
         </Card>
       </div>
 
@@ -82,11 +90,11 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
           </CardContent>
         </Card>
 
-        <Card className="card">
+        {/* <Card className="card">
           <CardContent>
             <TopMisreadWordsChart data={misreadWords} />
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="card">
           <CardContent>
@@ -98,11 +106,11 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
           </CardContent>
         </Card>
 
-        <Card className="card">
+        {/* <Card className="card">
           <CardContent>
             <ClassWideReadingPerformance students={students} />
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
