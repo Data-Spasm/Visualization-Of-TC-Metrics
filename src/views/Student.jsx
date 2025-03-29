@@ -125,13 +125,13 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
       </div>
 
       <div className="grid-container">
-        <Card className="card" onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
+        {/* <Card className="card" onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
           onMouseEnter={() => trackEvent("hover_accuracy_fluency", "User hovered over Overall Accuracy & Fluency Chart", "hover")}
         >
           <CardContent>
-            {/* <OverallAccuracyFluencyChart data={overallPerformanceData} /> */}
+            <OverallAccuracyFluencyChart data={overallPerformanceData} /> 
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="card" onClick={() => trackEvent("click_student_engagement", "User clicked on Student Engagement Bubble Chart")}
           onMouseEnter={() => trackEvent("hover_student_engagement", "User hovered over Student Engagement Bubble Chart", "hover")}
@@ -149,13 +149,13 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
           </CardContent>
         </Card>
 
-        <Card className="card" onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
+        {/* <Card className="card" onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
           onMouseEnter={() => trackEvent("hover_misread_words", "User hovered over Top Misread Words Chart", "hover")}
         >
           <CardContent>
             <TopMisreadWordsChart data={misreadData} />
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="card" onClick={() => trackEvent("click_passage_completion", "User clicked on Reading Passage Completion")}
           onMouseEnter={() => trackEvent("hover_passage_completion", "User hovered over Reading Passage Completion", "hover")}
@@ -169,13 +169,13 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
           </CardContent>
         </Card>
 
-        <Card className="card" onClick={() => trackEvent("click_student_summary", "User clicked on Student Performance Summary")}
+        {/* <Card className="card" onClick={() => trackEvent("click_student_summary", "User clicked on Student Performance Summary")}
           onMouseEnter={() => trackEvent("hover_student_summary", "User hovered over Student Performance Summary", "hover")}
         >
           <CardContent>
             <StudentWideReadingPerformance student={student} />
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

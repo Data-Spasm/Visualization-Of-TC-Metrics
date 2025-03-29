@@ -52,19 +52,33 @@ const App = () => {
       const allAssessments = ReadingAssessmentController.getAllAssessments();
       setAssessments(allAssessments);
 
-      const miscues = filteredAttempts
-        .filter(attempt => attempt?.expected && attempt?.actual)
-        .map(attempt => {
-          const result = assessAttempt(attempt.expected, attempt.actual);
-          return {
-            attemptId: attempt._id,
-            miscues: result.miscues,
-            highlightMap: result.highlightMap,
-          };
+      setLoading(true);
+      const miscues = [];
+
+      const processInChunks = (index = 0, chunkSize = 10) => {
+        const chunk = filteredAttempts.slice(index, index + chunkSize);
+
+        chunk.forEach(attempt => {
+          if (attempt?.expected && attempt?.actual) {
+            const result = assessAttempt(attempt.expected, attempt.actual);
+            miscues.push({
+              attemptId: attempt._id,
+              miscues: result.miscues,
+              highlightMap: result.highlightMap,
+            });
+          }
         });
 
-      setMiscueData(miscues);
-      setLoading(false);
+        if (index + chunkSize < filteredAttempts.length) {
+          setTimeout(() => processInChunks(index + chunkSize, chunkSize), 0);
+        } else {
+          setMiscueData(miscues);
+          setLoading(false);
+        }
+      };
+
+      processInChunks();
+
 
       trackEvent('load_students', { label: 'Students Loaded' });
       trackEvent('load_reading_attempts', { label: 'Reading Attempts Loaded' });
@@ -89,7 +103,10 @@ const App = () => {
           {isSidebarVisible && <Sidebar />}
           <div className={isSidebarVisible ? 'content' : 'content full'}>
             {loading ? (
-              <h2>Loading classroom data...</h2>
+              <div className="loading-screen">
+                <h2>Loading classroom data...</h2>
+                <div className="spinner" />
+              </div>
             ) : (
               <Routes>
                 <Route path="/" element={<Navigate to="/classroom" replace />} />
@@ -155,6 +172,7 @@ const App = () => {
       </div>
     </Router>
   );
+  
 };
 
 const StudentRouteWrapper = ({ students, readingAttempts, assessments, miscues }) => {
