@@ -8,6 +8,7 @@ import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAsse
 import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
 import StudentWideReadingPerformance from "../components/textbase/StudentWideReadingPerformance";
 import WordAccuracyStudent from "../components/barcharts/WordAccuracyStudent";
+import ReadingAssessmentDataTileView from "../components/tileSquareChart/ReadingAssessmentDataTileSquare";
 import { assessAttempt } from "../utils/assessAttempt";
 import "../components/textbase/ClassWideReadingPerformance.css";
 import "./Classroom.css";
@@ -58,7 +59,6 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
       const miscues = matchedAssessments.map((assessment, idx) => {
         const passageId = assessment.readingAssessmentId;
 
-        // Get the matching assessment from the full list (to get the passage title)
         const matchedAssessmentDoc = assessments.find(a =>
           a._id?.$oid === passageId || a._id === passageId
         );
@@ -150,11 +150,16 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
           </CardContent>
         </Card>
 
-        <Card className="card" onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
-          onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
+
+        <Card className="card" onClick={() => trackEvent("click_passage_completion", "User clicked on Reading Passage Completion")}
+          onMouseEnter={() => trackEvent("hover_passage_completion", "User hovered over Reading Passage Completion", "hover")}
         >
           <CardContent>
-            <ReadingAssessmentDataLineGraph student={student} />
+            <ReadingAssessmentDataTileView
+              readingAttempts={allAssessmentAttempts}
+              assessments={assessments}
+              studentUsername={student.username}
+            />
           </CardContent>
         </Card>
 

@@ -5,13 +5,17 @@ import "./ReadingAssessmentDataTileSquare.css";
 const TILE_SIZE = 16;
 const TILE_GAP = 4;
 
-const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [] }) => {
+const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [], studentUsername = null }) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
     const titleMap = {};
 
-    readingAttempts.forEach((attempt) => {
+    const filteredAttempts = studentUsername
+      ? readingAttempts.filter(attempt => attempt.studentUsername === studentUsername)
+      : readingAttempts;
+
+    filteredAttempts.forEach((attempt) => {
       const assessment = assessments.find(
         (a) => a._id?.$oid === attempt.readingAssessmentId
       );
@@ -21,7 +25,10 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [] 
         titleMap[title] = { passage: title, tiles: [] };
       }
 
-      titleMap[title].tiles.push({ type: attempt.quit ? "quit" : "completed", student: attempt.studentUsername });
+      titleMap[title].tiles.push({
+        type: attempt.quit ? "quit" : "completed",
+        student: attempt.studentUsername
+      });
     });
 
     Object.values(titleMap).forEach(entry => {
@@ -29,7 +36,7 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [] 
     });
 
     setData(Object.values(titleMap));
-  }, [readingAttempts, assessments]);
+  }, [readingAttempts, assessments, studentUsername]);
 
   return (
     <div className="chart-container">
@@ -66,7 +73,9 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [] 
                       borderRadius: 3,
                       boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                     }}
-                    title={`Student: ${student}\nStatus: ${type === "completed" ? "Completed" : "Quit"}`}
+                    title={studentUsername
+                      ? `Status: ${type === "completed" ? "Completed" : "Quit"}`
+                      : `Student: ${student}\nStatus: ${type === "completed" ? "Completed" : "Quit"}`}
                   />
                 ))}
               </div>
