@@ -69,3 +69,27 @@
     flex-direction: column;
   }
 }
+
+.fullscreen-card {
+  position: fixed;
+  top: 60px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  overflow: auto;
+  background: white;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  color: #444;
+}

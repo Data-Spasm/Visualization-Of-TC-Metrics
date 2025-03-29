@@ -12,6 +12,7 @@ import "./Classroom.css";
 
 const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => {
   const [loading, setLoading] = useState(true);
+  const [expandedCard, setExpandedCard] = useState(null);
 
   useEffect(() => {
     console.log("Fetching classroom data...");
@@ -50,60 +51,99 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
 
   return (
     <div className="classroom">
-      <div className="long-card">
-        <Card className="long-card">
-          <CardContent className="long-card-content">
-            <Typography gutterBottom variant="h4" component="div">
-              Classroom Progress Overview
-            </Typography>
-            <div className="progress-reading-container">
-              <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {!expandedCard && (
+        <div className="long-card">
+          <Card className="long-card">
+            <CardContent className="long-card-content">
+              <Typography gutterBottom variant="h4" component="div">
+                Classroom Progress Overview
+              </Typography>
+              <div className="progress-reading-container">
+                <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-      <div className="grid-container">
-        <Card className="card">
+      {!expandedCard && (
+        <div className="grid-container">
+          <Card className="card" onClick={() => setExpandedCard("accuracy")}> 
+            <CardContent>
+              <OverallAccuracyFluencyChart students={students} />
+            </CardContent>
+          </Card>
+
+          <Card className="card" onClick={() => setExpandedCard("engagement")}> 
+            <CardContent>
+              <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
+            </CardContent>
+          </Card>
+
+          <Card className="card" onClick={() => setExpandedCard("distribution")}> 
+            <CardContent>
+              <WordAccuracyDistributionChart students={students} />
+            </CardContent>
+          </Card>
+
+          <Card className="card" onClick={() => setExpandedCard("tileview")}> 
+            <CardContent>
+              <ReadingAssessmentDataTileView readingAttempts={readingAttempts} assessments={assessments} students={students} />
+            </CardContent>
+          </Card>
+
+          <Card className="card" onClick={() => setExpandedCard("performance")}> 
+            <CardContent>
+              <ClassWideReadingPerformance students={students} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {expandedCard === "accuracy" && (
+        <Card className="fullscreen-card">
           <CardContent>
+            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
             <OverallAccuracyFluencyChart students={students} />
           </CardContent>
         </Card>
+      )}
 
-        <Card className="card">
+      {expandedCard === "engagement" && (
+        <Card className="fullscreen-card">
           <CardContent>
+            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
             <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
           </CardContent>
         </Card>
+      )}
 
-        <Card className="card">
+      {expandedCard === "distribution" && (
+        <Card className="fullscreen-card">
           <CardContent>
+            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
             <WordAccuracyDistributionChart students={students} />
           </CardContent>
         </Card>
+      )}
 
-        <Card className="card">
+      {expandedCard === "tileview" && (
+        <Card className="fullscreen-card">
           <CardContent>
-            <TopMisreadWordsChart data={misreadWords} />
+            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
+            <ReadingAssessmentDataTileView readingAttempts={readingAttempts} assessments={assessments} students={students} />
           </CardContent>
         </Card>
+      )}
 
-        <Card className="card">
+      {expandedCard === "performance" && (
+        <Card className="fullscreen-card">
           <CardContent>
-            <ReadingAssessmentDataTileView
-              readingAttempts={readingAttempts}
-              assessments={assessments}
-              students={students}
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="card">
-          <CardContent>
+            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
             <ClassWideReadingPerformance students={students} />
           </CardContent>
         </Card>
-      </div>
+      )}
     </div>
   );
 };
