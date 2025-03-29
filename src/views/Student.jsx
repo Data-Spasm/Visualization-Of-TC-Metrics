@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
-import StudentEngagementBubbleChart from "../components/bubblecharts/StudentEngagementBubbleChart";
+import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart"; // Correct import
 import ReadingProgressBarCard from "../components/progressbar/ReadingProgressBarStudent";
 import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
@@ -126,11 +126,11 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
           </CardContent>
         </Card>
 
-        <Card className="card" onClick={() => trackEvent("click_student_engagement", "User clicked on Student Engagement Bubble Chart")}
-          onMouseEnter={() => trackEvent("hover_student_engagement", "User hovered over Student Engagement Bubble Chart", "hover")}
+        <Card className="card" onClick={() => trackEvent("click_student_engagement", "User clicked on Class Engagement Bubble Chart")}
+          onMouseEnter={() => trackEvent("hover_student_engagement", "User hovered over Class Engagement Bubble Chart", "hover")}
         >
           <CardContent>
-            <StudentEngagementBubbleChart student={student} />
+            <ClassEngagementBubbleChart student={student} /> {/* Replaced with ClassEngagementBubbleChart */}
           </CardContent>
         </Card>
 
