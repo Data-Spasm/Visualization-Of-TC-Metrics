@@ -12,33 +12,25 @@ import "./Classroom.css";
 
 const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => {
   const [loading, setLoading] = useState(true);
-  const [engagementDataLoaded, setEngagementDataLoaded] = useState(false);
 
   useEffect(() => {
     console.log("Fetching classroom data...");
 
-    // Log the students, readingAttempts, misreadWords, and assessments
-    console.log("Fetched Students:", students);
-    students.forEach((student, i) => {
-      console.log(`Student ${i + 1}:`, student.username, student.student?.reading?.overallPerformance);
-    });
+    try {
+      console.log("Fetched Students:", students);
+      students.forEach((student, i) => {
+        console.log(`Student ${i + 1}:`, student.username, student.student?.reading?.overallPerformance);
+      });
 
-    console.log("Fetched Reading Attempts:", readingAttempts);
-    console.log("Fetched Misread Words:", misreadWords);
-    console.log("Fetched Assessments:", assessments);
+      console.log("Fetched Reading Attempts:", readingAttempts);
+      console.log("Fetched Misread Words:", misreadWords);
+      console.log("Fetched Assessments:", assessments);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
 
     setLoading(false);
   }, [students, readingAttempts, misreadWords, assessments]);
-
-  useEffect(() => {
-    if (readingAttempts.length && assessments.length) {
-      console.log("Loading engagement data for bubble chart...");
-      setEngagementDataLoaded(true);
-    } else {
-      console.warn("Engagement data is missing for the bubble chart.");
-      setEngagementDataLoaded(false);
-    }
-  }, [readingAttempts, assessments]);
 
   if (loading) {
     return <h2>Loading classroom data...</h2>;
@@ -80,7 +72,7 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
 
         <Card className="card">
           <CardContent>
-            <ClassEngagementBubbleChart readingAttempts={readingAttempts} assessments={assessments} students={students}/>
+          <ClassEngagementBubbleChart readingAttempts={readingAttempts} assessments={assessments} />
           </CardContent>
         </Card>
 
@@ -90,11 +82,11 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
           </CardContent>
         </Card>
 
-        <Card className="card">
+        {/* <Card className="card">
           <CardContent>
             <TopMisreadWordsChart data={misreadWords} />
           </CardContent>
-        </Card>
+        </Card> */}
 
         <Card className="card">
           <CardContent>
