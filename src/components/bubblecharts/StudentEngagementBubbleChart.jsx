@@ -11,13 +11,14 @@ const colorPalette = [
 const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessments = [] }) => {
   const [seriesData, setSeriesData] = useState([]);
   const [legendMap, setLegendMap] = useState([]);
+  const [storySummary, setStorySummary] = useState("");
+  const [chartAnnotations, setChartAnnotations] = useState({});
 
-  // Helper function to process student attempts
   const processStudentAttempts = () => {
     if (!student || !readingAttempts.length || !assessments.length) return;
 
     const studentAttempts = readingAttempts.filter(a => a.studentUsername === student.username);
-    const passageMap = new Map(); // Maps passage titles to indices
+    const passageMap = new Map();
     const seenPassages = {};
     let passageCounter = 1;
 
@@ -30,29 +31,70 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
         passageMap.set(title, passageCounter++);
       }
 
-      const x = passageMap.get(title); // Integer index
+      const x = passageMap.get(title);
       const y = Math.round(parseFloat(attempt.timeOnTask || 0));
-      const z = Math.max(10, Math.min(80, y / 2)); // Bubble size scaled
+      const z = Math.max(10, Math.min(80, y / 2));
 
       if (!seenPassages[title]) {
         seenPassages[title] = {
           name: `P${x} - ${title}`,
           data: [],
           color: colorPalette[(x - 1) % colorPalette.length],
+          maxTime: 0,
+          maxPoint: null,
+          passageIndex: x
         };
       }
 
       seenPassages[title].data.push({ x, y, z });
+
+      if (y > seenPassages[title].maxTime) {
+        seenPassages[title].maxTime = y;
+        seenPassages[title].maxPoint = { x, y };
+      }
     });
 
-    setSeriesData(Object.values(seenPassages));
+    const allSeries = Object.values(seenPassages);
+    setSeriesData(allSeries);
 
     const legend = Array.from(passageMap.entries()).map(([title, index]) => ({
       label: `P${index} - ${title}`,
       color: colorPalette[(index - 1) % colorPalette.length]
     }));
-
     setLegendMap(legend);
+
+
+    const topPassage = allSeries.reduce((prev, current) =>
+      current.maxTime > prev.maxTime ? current : prev
+    , { maxTime: 0 });
+
+    if (topPassage && topPassage.maxPoint) {
+      setStorySummary(` ${student.firstName} spent the most time on "${topPassage.name}" (${topPassage.maxTime} seconds).`);
+
+      setChartAnnotations({
+        annotations: {
+          points: [
+            {
+              x: topPassage.maxPoint.x,
+              y: topPassage.maxPoint.y,
+              marker: { size: 0 },
+              label: {
+                borderColor: "#f97316",
+                offsetY: -15,
+                style: {
+                  color: "#fff",
+                  background: "#f97316",
+                  fontSize: "11px",
+                },
+                text: "⬆ Longest Time Spent"
+              }
+            }
+          ]
+        }
+      });
+    } else {
+      setStorySummary(`No engagement data available for ${student.name}.`);
+    }
   };
 
   useEffect(() => {
@@ -70,7 +112,7 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
       title: { text: "Passages" },
       tickAmount: 10,
       labels: {
-        formatter: val => `P${Math.round(val)}`, // Ensure integer values
+        formatter: val => `P${Math.round(val)}`,
         style: { fontSize: "12px" }
       }
     },
@@ -93,12 +135,24 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
     dataLabels: { enabled: false },
     fill: { opacity: 0.25 },
     colors: seriesData.map(s => s.color),
+    ...chartAnnotations
   };
 
   return (
     <div className="chart-card grey-background">
       <div className="chart-title">Student Engagement with Reading Passages</div>
+
+      <div className="story-summary">
+        <p>{storySummary}</p>
+      </div>
+
       <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+
+      {seriesData.length > 0 && (
+        <div className="callout-block">
+          🔍 <strong>Tip:</strong> Longer times may reflect difficulty or careful reading. Consider comparing this with fluency or accuracy data.
+        </div>
+      )}
     </div>
   );
 };
