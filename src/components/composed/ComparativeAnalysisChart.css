@@ -1,0 +1,21 @@
+.comparative-card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .comparative-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: left;
+    padding-left: 10px;
+    color: #333;
+  }
+  
+  .comparative-chart-container {
+    flex-grow: 1;
+    width: 100%;
+    min-height: 300px; /* Force chart to show */
+  }

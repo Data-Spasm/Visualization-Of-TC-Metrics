@@ -6,8 +6,9 @@ import ReadingProgressBarCard from "../components/progressbar/ReadingProgressBar
 import StudentEngagementBubbleChart from "../components/bubblecharts/StudentEngagementBubbleChart";
 import WordAccuracyStudent from "../components/barcharts/WordAccuracyStudent";
 import ReadingAssessmentDataTileView from "../components/tileSquareChart/ReadingAssessmentDataTileSquare";
-import { assessAttempt } from "../utils/assessAttempt";
+import ComparativePerformanceChart from "../components/composed/ComparativeAnalysisChart";
 
+import { assessAttempt } from "../utils/assessAttempt";
 import "../components/textbase/ClassWideReadingPerformance.css";
 import "./Classroom.css";
 
@@ -19,46 +20,49 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
   useEffect(() => {
     if (!student || !assessments.length || !allAssessmentAttempts.length) return;
 
-    const assessmentIds = student.student?.reading?.readingAssessmentAttemptIds || [];
-    const matchedAssessments = allAssessmentAttempts.filter(attempt =>
-      assessmentIds.includes(attempt._id?.$oid)
-    );
+    const compiledData = assessments.map((assessment, idx) => {
+      const passageId = assessment._id?.$oid || assessment._id;
+      const passageTitle = assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
 
-    const miscues = matchedAssessments.map((assessment, idx) => {
-      const passageId = assessment.readingAssessmentId;
-      const matchedAssessmentDoc = assessments.find(
-        a => a._id?.$oid === passageId || a._id === passageId
+      const classAttempts = allAssessmentAttempts.filter(
+        (attempt) => attempt.readingAssessmentId === passageId
       );
 
-      const passageTitle =
-        matchedAssessmentDoc?.readingContent?.readingMaterial?.passageTitle ||
-        `Passage ${idx + 1}`;
+      const studentAttempts = classAttempts.filter(
+        (attempt) => attempt.studentUsername === student.username
+      );
 
-      const combinedResult = {
-        passageId,
-        passageTitle,
-        numDels: 0,
-        numIns: 0,
-        numReps: 0,
-        numSubs: 0,
-        numCorrect: 0,
-      };
+      let numCorrect = 0;
+      let numDels = 0;
+      let numSubs = 0;
 
-      assessment.readingAttempts.forEach((attempt) => {
-        if (attempt.attempted && attempt.rawAttempt && attempt.readingContent) {
-          const result = assessAttempt(attempt.readingContent, attempt.rawAttempt);
-          combinedResult.numDels += result.numDels || 0;
-          combinedResult.numIns += result.numIns || 0;
-          combinedResult.numReps += result.numReps || 0;
-          combinedResult.numSubs += result.numSubs || 0;
-          combinedResult.numCorrect += result.numCorrect || 0;
-        }
+      studentAttempts.forEach((attempt) => {
+        attempt.readingAttempts?.forEach((seg) => {
+          if (seg.attempted && seg.rawAttempt && seg.readingContent) {
+            const result = assessAttempt(seg.readingContent, seg.rawAttempt);
+            numCorrect += result.numCorrect || 0;
+            numDels += result.numDels || 0;
+            numSubs += result.numSubs || 0;
+          }
+        });
       });
 
-      return combinedResult;
+      const totalWords = numCorrect + numDels + numSubs;
+      const miscueRate = totalWords > 0 ? ((numDels + numSubs) / totalWords) * 100 : 0;
+
+      return {
+        passageId,
+        passage: passageTitle,
+        numCorrect,
+        numDels,
+        numSubs,
+        studentAttempts: studentAttempts.length,
+        classAttempts: classAttempts.length,
+        miscueRate: +miscueRate.toFixed(2),
+      };
     });
 
-    setMiscueData(miscues);
+    setMiscueData(compiledData);
   }, [student, allAssessmentAttempts, assessments]);
 
   const isFullscreen = (key) => fullscreenCard === key;
@@ -154,6 +158,14 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
             </CardContent>
           </Card>
         ) : null}
+      </div>
+
+      <div className="long-card-2">
+        <Card className="long-card-2">
+          <CardContent style={{ height: "100%", width: "100%" }}>
+            <ComparativePerformanceChart miscues={miscueData} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
