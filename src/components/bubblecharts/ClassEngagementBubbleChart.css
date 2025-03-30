@@ -5,6 +5,7 @@
   background: linear-gradient(135deg, #f7f7f7, #e6e6e6);
   margin: 0 auto;
   max-width: 800px;
+  overflow: hidden; /* Prevent scrolling */
 }
 
 .grey-background {
@@ -23,4 +24,8 @@
   text-align: center;
   font-size: 14px;
   color: red;
+}
+
+.apexcharts-toolbar {
+  display: none; /* Hide the zoom toolbar */
 }

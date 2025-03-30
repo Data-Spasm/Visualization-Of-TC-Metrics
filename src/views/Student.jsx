@@ -14,6 +14,7 @@ import "./Classroom.css";
 
 const Student = ({ student, allAssessmentAttempts, assessments }) => {
   const [miscueData, setMiscueData] = useState([]);
+  const [fullscreenCard, setFullscreenCard] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,8 +48,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
       });
 
       const totalWords = numCorrect + numDels + numSubs;
-      const miscueRate =
-        totalWords > 0 ? ((numDels + numSubs) / totalWords) * 100 : 0;
+      const miscueRate = totalWords > 0 ? ((numDels + numSubs) / totalWords) * 100 : 0;
 
       return {
         passageId,
@@ -65,12 +65,14 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
     setMiscueData(compiledData);
   }, [student, allAssessmentAttempts, assessments]);
 
+  const isFullscreen = (key) => fullscreenCard === key;
+
   return (
     <div className="classroom">
       <div className="long-card">
         <Card className="long-card">
           <CardContent className="long-card-content">
-            <Typography gutterBottom variant="h4">
+            <Typography gutterBottom variant="h4" component="div">
               Progress Overview for {student.firstName} {student.lastName}
             </Typography>
             <div className="progress-reading-container">
@@ -87,30 +89,75 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
       </div>
 
       <div className="grid-container">
-        <Card className="card">
-          <CardContent>
-            <StudentEngagementBubbleChart student={student} />
-          </CardContent>
-        </Card>
+        {isFullscreen("engagement") || !fullscreenCard ? (
+          <Card
+            className={isFullscreen("engagement") ? "fullscreen-card" : "card"}
+            onClick={() => setFullscreenCard("engagement")}
+          >
+            <CardContent>
+              {isFullscreen("engagement") && (
+                <button
+                  className="close-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFullscreenCard(null);
+                  }}
+                >
+                  ✖
+                </button>
+              )}
+              <StudentEngagementBubbleChart student={student} />
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <Card className="card">
-          <CardContent>
-            <WordAccuracyStudent
-              student={student}
-              miscues={miscueData}
-            />
-          </CardContent>
-        </Card>
+        {isFullscreen("wordAccuracy") || !fullscreenCard ? (
+          <Card
+            className={isFullscreen("wordAccuracy") ? "fullscreen-card" : "card"}
+            onClick={() => setFullscreenCard("wordAccuracy")}
+          >
+            <CardContent>
+              {isFullscreen("wordAccuracy") && (
+                <button
+                  className="close-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFullscreenCard(null);
+                  }}
+                >
+                  ✖
+                </button>
+              )}
+              <WordAccuracyStudent student={student} miscues={miscueData} />
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <Card className="card">
-          <CardContent>
-            <ReadingAssessmentDataTileView
-              readingAttempts={allAssessmentAttempts}
-              assessments={assessments}
-              studentUsername={student.username}
-            />
-          </CardContent>
-        </Card>
+        {isFullscreen("tileView") || !fullscreenCard ? (
+          <Card
+            className={isFullscreen("tileView") ? "fullscreen-card" : "card"}
+            onClick={() => setFullscreenCard("tileView")}
+          >
+            <CardContent>
+              {isFullscreen("tileView") && (
+                <button
+                  className="close-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFullscreenCard(null);
+                  }}
+                >
+                  ✖
+                </button>
+              )}
+              <ReadingAssessmentDataTileView
+                readingAttempts={allAssessmentAttempts}
+                assessments={assessments}
+                studentUsername={student.username}
+              />
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
 
       <div className="long-card-2">

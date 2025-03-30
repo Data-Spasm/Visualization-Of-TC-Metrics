@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AvatarController from "../controllers/Avatar";
 import { generateAvatarUrl } from "../utils/avatarUrlGenerator";
@@ -6,9 +6,11 @@ import "./StudentList.css";
 
 const StudentList = ({ students }) => {
   const navigate = useNavigate();
+  const [processingStudentId, setProcessingStudentId] = useState(null);
 
   const handleClick = (student) => {
     const studentId = student._id?.$oid || student._id;
+    setProcessingStudentId(studentId); // trigger processing state
     navigate(`/students/${studentId}`);
   };
 
@@ -116,9 +118,15 @@ const StudentList = ({ students }) => {
                           </div>
                         </td>
                         <td>
-                          <button className="reading-progress-button" onClick={() => handleClick(student)}>
-                            Reading Progress
-                          </button>
+                          {processingStudentId === studentId ? (
+                            <span className="processing-message">
+                              <span className="spinner-inline" /> Processing performance data...
+                            </span>
+                          ) : (
+                            <button className="reading-progress-button" onClick={() => handleClick(student)}>
+                              Reading Progress
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );

@@ -2,127 +2,117 @@ import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import "./ClassEngagementBubbleChart.css";
 
-const passageColors = {
-  "Passage 1": "rgba(255, 87, 51, 0.3)",
-  "Passage 2": "rgba(51, 255, 87, 0.3)",
-  "Passage 3": "rgba(51, 87, 255, 0.3)",
-  "Passage 4": "rgba(255, 51, 161, 0.3)",
-  "Passage 5": "rgba(161, 51, 255, 0.3)"
-};
+const colorPalette = [
+  "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+  "#6366f1", "#ec4899", "#22c55e", "#8b5cf6",
+  "#14b8a6", "#f43f5e"
+];
 
-const ClassEngagementBubbleChart = ({ readingAttempts }) => {
-  const [engagementData, setEngagementData] = useState([]);
+const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) => {
+  const [seriesData, setSeriesData] = useState([]);
 
   useEffect(() => {
-    const dataToUse = readingAttempts && readingAttempts.length > 0 ? readingAttempts : [
-      { passageTitle: "Passage 1", student: "Student 1", attempts: 2, timeOnTask: 120 },
-      { passageTitle: "Passage 1", student: "Student 2", attempts: 2, timeOnTask: 100 },
-      { passageTitle: "Passage 1", student: "Student 3", attempts: 3, timeOnTask: 110 },
-      { passageTitle: "Passage 1", student: "Student 4", attempts: 4, timeOnTask: 130 },
-      { passageTitle: "Passage 2", student: "Student 1", attempts: 4, timeOnTask: 140 },
-      { passageTitle: "Passage 2", student: "Student 2", attempts: 4, timeOnTask: 150 },
-      { passageTitle: "Passage 2", student: "Student 3", attempts: 2, timeOnTask: 160 },
-      { passageTitle: "Passage 2", student: "Student 4", attempts: 1, timeOnTask: 170 },
-      { passageTitle: "Passage 3", student: "Student 1", attempts: 1, timeOnTask: 180 },
-      { passageTitle: "Passage 3", student: "Student 2", attempts: 3, timeOnTask: 190 },
-      { passageTitle: "Passage 3", student: "Student 3", attempts: 3, timeOnTask: 200 },
-      { passageTitle: "Passage 3", student: "Student 4", attempts: 5, timeOnTask: 210 },
-      { passageTitle: "Passage 4", student: "Student 1", attempts: 4, timeOnTask: 220 },
-      { passageTitle: "Passage 4", student: "Student 2", attempts: 3, timeOnTask: 230 },
-      { passageTitle: "Passage 4", student: "Student 3", attempts: 2, timeOnTask: 240 },
-      { passageTitle: "Passage 4", student: "Student 4", attempts: 2, timeOnTask: 250 },
-      { passageTitle: "Passage 5", student: "Student 1", attempts: 1, timeOnTask: 260 },
-      { passageTitle: "Passage 5", student: "Student 2", attempts: 1, timeOnTask: 270 },
-      { passageTitle: "Passage 5", student: "Student 3", attempts: 3, timeOnTask: 280 },
-      { passageTitle: "Passage 5", student: "Student 4", attempts: 5, timeOnTask: 290 }
-    ];
+    if (!readingAttempts.length || !assessments.length) return;
 
-    const passageMapping = {
-      "Passage 1": 10,
-      "Passage 2": 30,
-      "Passage 3": 50,
-      "Passage 4": 70,
-      "Passage 5": 90
-    };
+    const passageMap = new Map(); // title => P#
+    const passageDataMap = {}; // title => series
 
-    const groupedData = Object.keys(passageMapping).map((passage) => {
-      let offsetMap = {};
-      return {
-        name: passage,
-        data: dataToUse.filter(item => item.passageTitle === passage).map(item => {
-          if (!offsetMap[item.attempts]) offsetMap[item.attempts] = 0;
-          const xPosition = passageMapping[item.passageTitle] + offsetMap[item.attempts];
-          offsetMap[item.attempts] += 3;
+    let passageCounter = 1;
 
-          return {
-            x: xPosition,
-            y: item.attempts,
-            z: Math.sqrt(item.timeOnTask) * 2,
-            name: item.student,
-            fillColor: passageColors[item.passageTitle]
-          };
-        })
-      };
+    readingAttempts.forEach((attempt) => {
+      const assessment = assessments.find(a => (a._id?.$oid || a._id) === attempt.readingAssessmentId);
+      const title = assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled";
+
+      if (!passageMap.has(title)) {
+        passageMap.set(title, `P${passageCounter++}`);
+      }
+
+      const passageId = passageMap.get(title);
+      const studentName = attempt.studentUsername;
+      const time = Math.round(parseFloat(attempt.timeOnTask || 0));
+
+      if (!passageDataMap[title]) {
+        passageDataMap[title] = {
+          name: `${passageId} - ${title}`,
+          data: [],
+          color: colorPalette[(passageCounter - 2) % colorPalette.length],
+        };
+      }
+
+      const studentEntry = passageDataMap[title].data.find(d => d.name === studentName);
+      if (studentEntry) {
+        studentEntry.y += 1; // count attempts
+        studentEntry.z += time; // sum time
+      } else {
+        passageDataMap[title].data.push({
+          x: parseInt(passageId.replace("P", "")) + passageDataMap[title].data.length * 0.2,
+          y: 1,
+          z: time,
+          name: studentName,
+          passageId
+        });
+        
+      }
     });
 
-    setEngagementData(groupedData);
-  }, [readingAttempts]);
+    setSeriesData(Object.values(passageDataMap));
+  }, [readingAttempts, assessments]);
 
   const chartOptions = {
     chart: {
       type: "bubble",
-      height: 400,
-      toolbar: { show: false }
+      height: 500,
+      toolbar: { show: false },
+      zoom: { enabled: false }
     },
     xaxis: {
-      tickAmount: 4,
+      title: { text: "Passages" },
+      tickAmount: 10,
       labels: {
-        formatter: (val) => {
-          if (val < 20) return "Passage 1";
-          if (val < 40) return "Passage 2";
-          if (val < 60) return "Passage 3";
-          if (val < 80) return "Passage 4";
-          return "Passage 5";
-        },
-        style: { fontSize: "12px" },
-      },
-      title: {
-        text: "Passages",
-        style: { fontSize: "14px", fontWeight: "normal" }
+        formatter: val => `P${Math.round(val)}`, // Ensure integer values with "P" prefix
+        style: { fontSize: "12px" }
       }
     },
     yaxis: {
-      title: {
-        text: "Number of Attempts",
-        style: { fontSize: "14px", fontWeight: "normal" }
-      },
-      labels: {
-        style: { fontSize: "12px" }
-      }
+      title: { text: "Number of Attempts" },
+      labels: { style: { fontSize: "12px" } }
     },
     tooltip: {
       enabled: true,
       custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-        const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
-        return `<div style="padding: 5px;">Student: ${dataPoint.name}<br/>Number of Attempts: ${dataPoint.y}<br/>Average Time on Task: ${Math.round(dataPoint.z)} seconds</div>`;
+        const dp = w.config.series[seriesIndex].data[dataPointIndex];
+        return `
+          <div style="padding: 5px;">
+            <strong>${w.config.series[seriesIndex].name}</strong><br/>
+            Student: ${dp.name}<br/>
+            Attempts: ${dp.y}<br/>
+            Time on Task: ${dp.z} sec
+          </div>
+        `;
       }
     },
-    dataLabels: {
-      enabled: false
+    dataLabels: { enabled: false },
+    fill: { opacity: 0.25 },
+    colors: seriesData.map(s => s.color),
+    legend: {
+      show: true,
+      position: "bottom",
+      fontSize: "10px"
     },
-    colors: Object.values(passageColors)
+    plotOptions: {
+      bubble: {
+        minBubbleRadius: 5, // Minimum bubble size
+        maxBubbleRadius: 50, // Maximum bubble size
+        padding: 5 // Add padding to avoid overlapping
+      }
+    }
   };
 
   return (
     <div className="chart-card grey-background">
       <div className="chart-title">Class Engagement with Reading Passages</div>
-      <Chart
-        options={chartOptions}
-        series={engagementData}
-        type="bubble"
-        height={400}
-      />
-      {engagementData.length === 0 && <div className="no-data">No data available</div>}
+      <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+      {seriesData.length === 0 && <div className="no-data">No data available</div>}
     </div>
   );
 };
