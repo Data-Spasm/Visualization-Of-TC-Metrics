@@ -45,12 +45,11 @@
 /* Larger card at the bottom for additional content */
 .long-card {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  height: 100%;
+  flex-direction: column; /* CHANGE: previously row */
+  justify-content: flex-start;
+  align-items: stretch;
+  height: auto;
   width: 100%;
-  flex: 1.3; /* Takes more space compared to top cards */
   padding: 20px;
   border-radius: 8px;
   background-color: #B0BFC6;
@@ -92,4 +91,23 @@
   border: none;
   cursor: pointer;
   color: #444;
+
+.overview-flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; 
+  gap: 2rem;
+  flex-wrap: nowrap;
+  width: 100%;
+  padding-top: 1rem;
+}
+
+
+.overview-performance {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-top: -2rem;
+
 }

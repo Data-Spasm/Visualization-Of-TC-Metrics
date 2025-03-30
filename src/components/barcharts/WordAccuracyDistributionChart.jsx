@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {BarChart,Bar,XAxis,YAxis,Tooltip,ResponsiveContainer,CartesianGrid,Cell,PieChart,Pie,Label,Legend,Sector} from "recharts";
+import {  BarChart,  Bar,  XAxis,  YAxis,  Tooltip,  ResponsiveContainer,  CartesianGrid,  Cell,  PieChart,  Pie,  Label,  Legend,  Sector} from "recharts";
 import "./WordAccuracyDistributionChart.css";
 
 const getColor = (value, isStudent = true, index = 0) => {
@@ -10,6 +10,16 @@ const getColor = (value, isStudent = true, index = 0) => {
     if (value <= 200) return "green";
     return "blue";
   } else {
+    // Match exact bin label ranges
+    if (typeof value === "string") {
+      if (value.startsWith("0-")) return "red";
+      if (value.startsWith("310-")) return "orange";
+      if (value.startsWith("620-")) return "yellow";
+      if (value.startsWith("930-")) return "green";
+      if (value.startsWith("1240-")) return "blue";
+    }
+
+    // fallback
     const colors = ["red", "orange", "yellow", "green", "blue"];
     return colors[index % colors.length];
   }

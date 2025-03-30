@@ -16,7 +16,6 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
 
   useEffect(() => {
     console.log("Fetching classroom data...");
-
     try {
       console.log("Fetched Students:", students);
       students.forEach((student, i) => {
@@ -29,25 +28,13 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-
     setLoading(false);
   }, [students, readingAttempts, misreadWords, assessments]);
 
-  if (loading) {
-    return <h2>Loading classroom data...</h2>;
-  }
-
-  if (!students || students.length === 0) {
-    return <h2>No students found.</h2>;
-  }
-
-  if (!readingAttempts || readingAttempts.length === 0) {
-    return <h2>No reading attempts found.</h2>;
-  }
-
-  if (!assessments || assessments.length === 0) {
-    return <h2>No reading assessments found.</h2>;
-  }
+  if (loading) return <h2>Loading classroom data...</h2>;
+  if (!students?.length) return <h2>No students found.</h2>;
+  if (!readingAttempts?.length) return <h2>No reading attempts found.</h2>;
+  if (!assessments?.length) return <h2>No reading assessments found.</h2>;
 
   return (
     <div className="classroom">
@@ -55,7 +42,7 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
         <div className="long-card">
           <Card className="long-card">
             <CardContent className="long-card-content">
-              <Typography gutterBottom variant="h4" component="div">
+              <Typography gutterBottom variant="h4">
                 Classroom Progress Overview
               </Typography>
               <div className="progress-reading-container">
@@ -68,31 +55,31 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
 
       {!expandedCard && (
         <div className="grid-container">
-          <Card className="card" onClick={() => setExpandedCard("accuracy")}> 
+          <Card className="card" onClick={() => setExpandedCard("accuracy")}>
             <CardContent>
               <OverallAccuracyFluencyChart students={students} />
             </CardContent>
           </Card>
 
-          <Card className="card" onClick={() => setExpandedCard("engagement")}> 
+          <Card className="card" onClick={() => setExpandedCard("engagement")}>
             <CardContent>
               <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
             </CardContent>
           </Card>
 
-          <Card className="card" onClick={() => setExpandedCard("distribution")}> 
+          <Card className="card" onClick={() => setExpandedCard("distribution")}>
             <CardContent>
               <WordAccuracyDistributionChart students={students} />
             </CardContent>
           </Card>
 
-          <Card className="card" onClick={() => setExpandedCard("tileview")}> 
+          <Card className="card" onClick={() => setExpandedCard("tileview")}>
             <CardContent>
               <ReadingAssessmentDataTileView readingAttempts={readingAttempts} assessments={assessments} students={students} />
             </CardContent>
           </Card>
 
-          <Card className="card" onClick={() => setExpandedCard("performance")}> 
+          <Card className="card" onClick={() => setExpandedCard("performance")}>
             <CardContent>
               <ClassWideReadingPerformance students={students} />
             </CardContent>
@@ -101,48 +88,77 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
       )}
 
       {expandedCard === "accuracy" && (
-        <Card className="fullscreen-card">
-          <CardContent>
-            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-            <OverallAccuracyFluencyChart students={students} />
-          </CardContent>
-        </Card>
+        <div className="fullscreen-card">
+          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
+
+          <div className="long-card">
+            <Card className="long-card">
+              <CardContent className="long-card-content">
+                <Typography gutterBottom variant="h4">
+                  Classroom Progress Overview
+                </Typography>
+                <div className="overview-flex-container">
+                  <div className="overview-progress">
+                    <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
+                  </div>
+                  <div className="overview-performance">
+                    <ClassWideReadingPerformance students={students} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="card">
+            <CardContent>
+              <OverallAccuracyFluencyChart students={students} />
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {expandedCard === "engagement" && (
-        <Card className="fullscreen-card">
-          <CardContent>
-            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-            <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
-          </CardContent>
-        </Card>
+        <div className="fullscreen-card">
+          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
+          <Card className="card">
+            <CardContent>
+              <ClassEngagementBubbleChart readingAttempts={readingAttempts} assessments={assessments} />
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {expandedCard === "distribution" && (
-        <Card className="fullscreen-card">
-          <CardContent>
-            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-            <WordAccuracyDistributionChart students={students} />
-          </CardContent>
-        </Card>
+        <div className="fullscreen-card">
+          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
+          <Card className="card">
+            <CardContent>
+              <WordAccuracyDistributionChart students={students} />
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {expandedCard === "tileview" && (
-        <Card className="fullscreen-card">
-          <CardContent>
-            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-            <ReadingAssessmentDataTileView readingAttempts={readingAttempts} assessments={assessments} students={students} />
-          </CardContent>
-        </Card>
+        <div className="fullscreen-card">
+          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
+          <Card className="card">
+            <CardContent>
+              <ReadingAssessmentDataTileView readingAttempts={readingAttempts} assessments={assessments} students={students} />
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {expandedCard === "performance" && (
-        <Card className="fullscreen-card">
-          <CardContent>
-            <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-            <ClassWideReadingPerformance students={students} />
-          </CardContent>
-        </Card>
+        <div className="fullscreen-card">
+          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
+          <Card className="card">
+            <CardContent>
+              <ClassWideReadingPerformance students={students} />
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );
