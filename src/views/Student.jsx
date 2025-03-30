@@ -1,168 +1,122 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
-import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
-import StudentEngagementBubbleChart from "../components/bubblecharts/StudentEngagementBubbleChart";
+import { useNavigate } from "react-router-dom";
+
 import ReadingProgressBarCard from "../components/progressbar/ReadingProgressBarStudent";
-import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
-import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
-import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
-import StudentWideReadingPerformance from "../components/textbase/StudentWideReadingPerformance";
+import StudentEngagementBubbleChart from "../components/bubblecharts/StudentEngagementBubbleChart";
 import WordAccuracyStudent from "../components/barcharts/WordAccuracyStudent";
+import ReadingAssessmentDataTileView from "../components/tileSquareChart/ReadingAssessmentDataTileSquare";
+import ComparativePerformanceChart from "../components/composed/ComparativeAnalysisChart";
+
 import { assessAttempt } from "../utils/assessAttempt";
 import "../components/textbase/ClassWideReadingPerformance.css";
 import "./Classroom.css";
 
-const trackEvent = (eventName, eventLabel, eventType = "click") => {
-  if (window.gtag) {
-    window.gtag("event", eventType, {
-      event_category: "User Interaction",
-      event_label: eventLabel,
-    });
-  }
-};
-
 const Student = ({ student, allAssessmentAttempts, assessments }) => {
-  const [overallPerformanceData, setOverallPerformanceData] = useState([]);
-  const [misreadData, setMisreadData] = useState([]);
   const [miscueData, setMiscueData] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Student object received:", student);
+    if (!student || !assessments.length || !allAssessmentAttempts.length) return;
 
-    if (student) {
-      const perf = student.student?.reading?.overallPerformance;
-      if (perf) {
-        console.log("Found overall performance:", perf);
-        setOverallPerformanceData([
-          {
-            accuracy: perf.overallAccuracy,
-            fluency: perf.overallFluency,
-          },
-        ]);
-      }
+    const compiledData = assessments.map((assessment, idx) => {
+      const passageId = assessment._id?.$oid || assessment._id;
+      const passageTitle = assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
 
-      if (student.student?.reading?.misreadWords) {
-        console.log("Found misread words:", student.student.reading.misreadWords);
-        setMisreadData(student.student.reading.misreadWords);
-      }
-
-      const assessmentIds = student.student?.reading?.readingAssessmentAttemptIds || [];
-      console.log("Reading attempt IDs:", assessmentIds);
-
-      const matchedAssessments = allAssessmentAttempts.filter(attempt =>
-        assessmentIds.includes(attempt._id?.$oid)
+      const classAttempts = allAssessmentAttempts.filter(
+        (attempt) => attempt.readingAssessmentId === passageId
       );
 
-      console.log("Matched assessment attempts:", matchedAssessments);
+      const studentAttempts = classAttempts.filter(
+        (attempt) => attempt.studentUsername === student.username
+      );
 
-      const miscues = matchedAssessments.map((assessment, idx) => {
-        const passageId = assessment.readingAssessmentId;
+      let numCorrect = 0;
+      let numDels = 0;
+      let numSubs = 0;
 
-        // Get the matching assessment from the full list (to get the passage title)
-        const matchedAssessmentDoc = assessments.find(a =>
-          a._id?.$oid === passageId || a._id === passageId
-        );
-
-        const passageTitle = matchedAssessmentDoc?.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
-
-        const combinedResult = {
-          passageTitle,
-          numDels: 0,
-          numIns: 0,
-          numReps: 0,
-          numSelfs: 0,
-          numCorrect: 0,
-        };
-
-        assessment.readingAttempts.forEach((attempt, index) => {
-          if (attempt.attempted && attempt.rawAttempt && attempt.readingContent) {
-            const result = assessAttempt(attempt.readingContent, attempt.rawAttempt);
-
-            combinedResult.numDels += result.numDels || 0;
-            combinedResult.numIns += result.numIns || 0;
-            combinedResult.numReps += result.numReps || 0;
-            combinedResult.numSelfs += result.numSelfs || 0;
-            combinedResult.numCorrect += result.numCorrect || 0;
-
-            console.log(`Processed paragraph #${index + 1}`, result);
-          } else {
-            console.log(`Skipping paragraph #${index + 1} (invalid)`, attempt);
+      studentAttempts.forEach((attempt) => {
+        attempt.readingAttempts?.forEach((seg) => {
+          if (seg.attempted && seg.rawAttempt && seg.readingContent) {
+            const result = assessAttempt(seg.readingContent, seg.rawAttempt);
+            numCorrect += result.numCorrect || 0;
+            numDels += result.numDels || 0;
+            numSubs += result.numSubs || 0;
           }
         });
-
-        return combinedResult;
       });
 
-      console.log("Final miscues by passage:", miscues);
-      setMiscueData(miscues);
-    }
+      const totalWords = numCorrect + numDels + numSubs;
+      const miscueRate =
+        totalWords > 0 ? ((numDels + numSubs) / totalWords) * 100 : 0;
+
+      return {
+        passageId,
+        passage: passageTitle,
+        numCorrect,
+        numDels,
+        numSubs,
+        studentAttempts: studentAttempts.length,
+        classAttempts: classAttempts.length,
+        miscueRate: +miscueRate.toFixed(2),
+      };
+    });
+
+    setMiscueData(compiledData);
   }, [student, allAssessmentAttempts, assessments]);
 
   return (
     <div className="classroom">
       <div className="long-card">
-        <Card
-          className="long-card"
-          onClick={() => trackEvent("click_progress_overview", "User clicked on Progress Overview Card")}
-          onMouseEnter={() => trackEvent("hover_progress_overview", "User hovered over Progress Overview Card", "hover")}
-        >
+        <Card className="long-card">
           <CardContent className="long-card-content">
-            <Typography gutterBottom variant="h4" component="div">
-              Progress Overview
+            <Typography gutterBottom variant="h4">
+              Progress Overview for {student.firstName} {student.lastName}
             </Typography>
             <div className="progress-reading-container">
-              <ReadingProgressBarCard miscues={miscueData} />
+              <ReadingProgressBarCard
+                miscues={miscueData}
+                studentUsername={student.username}
+                onBarClick={(passageId) =>
+                  navigate(`/passages/${student.username}/${passageId}`)
+                }
+              />
             </div>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid-container">
-        <Card className="card" onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
-          onMouseEnter={() => trackEvent("hover_accuracy_fluency", "User hovered over Overall Accuracy & Fluency Chart", "hover")}
-        >
-          <CardContent>
-            {/* <OverallAccuracyFluencyChart data={overallPerformanceData} /> */}
-          </CardContent>
-        </Card>
-
-        <Card className="card" onClick={() => trackEvent("click_student_engagement", "User clicked on Student Engagement Bubble Chart")}
-          onMouseEnter={() => trackEvent("hover_student_engagement", "User hovered over Student Engagement Bubble Chart", "hover")}
-        >
+        <Card className="card">
           <CardContent>
             <StudentEngagementBubbleChart student={student} />
           </CardContent>
         </Card>
 
-        <Card className="card" onClick={() => trackEvent("click_word_accuracy_distribution", "User clicked on Word Accuracy Distribution Chart")}
-          onMouseEnter={() => trackEvent("hover_word_accuracy_distribution", "User hovered over Word Accuracy Distribution Chart", "hover")}
-        >
+        <Card className="card">
           <CardContent>
-            <WordAccuracyStudent student={student} miscues={miscueData} />
+            <WordAccuracyStudent
+              student={student}
+              miscues={miscueData}
+            />
           </CardContent>
         </Card>
 
-        <Card className="card" onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
-          onMouseEnter={() => trackEvent("hover_misread_words", "User hovered over Top Misread Words Chart", "hover")}
-        >
+        <Card className="card">
           <CardContent>
-            <TopMisreadWordsChart data={misreadData} />
+            <ReadingAssessmentDataTileView
+              readingAttempts={allAssessmentAttempts}
+              assessments={assessments}
+              studentUsername={student.username}
+            />
           </CardContent>
         </Card>
+      </div>
 
-        <Card className="card" onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
-          onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
-        >
-          <CardContent>
-            <ReadingAssessmentDataLineGraph student={student} />
-          </CardContent>
-        </Card>
-
-        <Card className="card" onClick={() => trackEvent("click_student_summary", "User clicked on Student Performance Summary")}
-          onMouseEnter={() => trackEvent("hover_student_summary", "User hovered over Student Performance Summary", "hover")}
-        >
-          <CardContent>
-            <StudentWideReadingPerformance student={student} />
+      <div className="long-card-2">
+        <Card className="long-card-2">
+          <CardContent style={{ height: "100%", width: "100%" }}>
+            <ComparativePerformanceChart miscues={miscueData} />
           </CardContent>
         </Card>
       </div>
