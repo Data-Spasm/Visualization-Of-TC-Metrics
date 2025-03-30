@@ -111,7 +111,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
         >
           <CardContent className="long-card-content">
             <Typography gutterBottom variant="h4" component="div">
-              Progress Overview
+              Progress Overview for {student.firstName} {student.lastName}  
             </Typography>
             <div className="progress-reading-container">
               <ReadingProgressBarCard
@@ -137,7 +137,8 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
           onMouseEnter={() => trackEvent("hover_student_engagement", "User hovered over Student Engagement Bubble Chart", "hover")}
         >
           <CardContent>
-            <StudentEngagementBubbleChart student={student} />
+          <StudentEngagementBubbleChart student={student} readingAttempts={allAssessmentAttempts} assessments={assessments} />
+
           </CardContent>
         </Card>
 

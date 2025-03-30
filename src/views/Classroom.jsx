@@ -72,7 +72,7 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
 
         <Card className="card">
           <CardContent>
-            <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
+          <ClassEngagementBubbleChart readingAttempts={readingAttempts} assessments={assessments} />
           </CardContent>
         </Card>
 
