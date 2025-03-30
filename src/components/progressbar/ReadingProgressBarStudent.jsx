@@ -11,6 +11,7 @@ const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
     { label: "Insertions", key: "numIns", color: "#28B8D6", summary: "Common when students guess or add words unconsciously." },
     { label: "Substitutions", key: "numSubs", color: "#FDCB58", summary: "Usually reflects decoding difficulties or word confusion." },
     { label: "Repetitions", key: "numReps", color: "#8E44AD", summary: "Linked to hesitancy or uncertainty in reading." },
+    { label: "Reversals", key: "numRevs", color: "#ef4444", summary: "Reversals may indicate issues with visual processing or letter/word orientation." },
   ];
 
   const storyInsight = useMemo(() => {
@@ -162,7 +163,7 @@ const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
 
       {miscues.length > 0 && (
         <div className="callout-block">
-          <strong>Tip:</strong> Use this overview to identify which reading skill (e.g., substitution, omission) the student is struggling with most. Focus instruction or practice on the highest occurring error type.
+          <strong>Tip:</strong> Use this overview to identify which reading skill (e.g., substitution, reversal) the student is struggling with most. Focus instruction or practice on the highest occurring error type.
         </div>
       )}
     </div>

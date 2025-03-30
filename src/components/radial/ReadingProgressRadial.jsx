@@ -3,39 +3,40 @@ import { useNavigate } from "react-router-dom";
 import "./ReadingProgressRadial.css";
 
 const CircularProgress = ({ percent = 0, color = "#3498db", label = "", value = 0, total = 0 }) => {
-  const radius = 40;
-  const stroke = 8;
-  const normalizedRadius = radius - stroke / 2;
-
-  // Clamp to prevent rendering bugs
-  const clampedPercent = Math.max(0, Math.min(percent, 100));
-  const sweepAngle = (clampedPercent / 100) * 180;
-
-  return (
-    <div
-      className="semi-circular-progress-wrapper"
-      title={`${value} / ${total}`} // Tooltip showing value out of total
-    >
-      <div className="progress-label">{label}</div>
-      <svg width={radius * 2} height={radius + stroke}>
-        <path
-          d={describeArc(radius, radius, normalizedRadius, 180, 360)}
-          fill="none"
-          stroke="#e6e6e6"
-          strokeWidth={stroke}
-        />
-        <path
-          d={describeArc(radius, radius, normalizedRadius, 180, 180 + sweepAngle)}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-        />
-      </svg>
-      <div className="progress-value">{value}</div>
-    </div>
-  );
-};
+    const radius = 40;
+    const stroke = 8;
+    const normalizedRadius = radius - stroke / 2;
+    const clampedPercent = Math.max(0, Math.min(percent, 100));
+    const sweepAngle = (clampedPercent / 100) * 180;
+  
+    return (
+      <div
+        className="semi-circular-progress-wrapper"
+        title={`${label}: ${value} / ${total}`}
+      >
+        <svg width={radius * 2} height={radius + stroke}>
+          <path
+            d={describeArc(radius, radius, normalizedRadius, 180, 360)}
+            fill="none"
+            stroke="#e6e6e6"
+            strokeWidth={stroke}
+          />
+          <path
+            d={describeArc(radius, radius, normalizedRadius, 180, 180 + sweepAngle)}
+            fill="none"
+            stroke={color}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+          />
+        </svg>
+  
+        {/* Display value and label properly */}
+        <div className="progress-value">{value}</div>
+        <div className="progress-label">{label}</div>
+      </div>
+    );
+  };
+  
 
 function describeArc(cx, cy, r, startAngle, endAngle) {
   const rad = angle => (Math.PI / 180) * angle;
@@ -55,6 +56,7 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
     { label: "Insertions", key: "numIns", color: "#3498DB" },
     { label: "Substitutions", key: "numSubs", color: "#2ECC71" },
     { label: "Repetitions", key: "numReps", color: "#9B59B6" },
+    { label: "Reversals", key: "numRevs", color: "#E74C3C" },
   ];
 
   if (!Array.isArray(miscues)) {
@@ -64,32 +66,52 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
 
   const totalWords =
     miscues[0]?.numTotalWords ||
-    miscues[0]?.numDels +
-    miscues[0]?.numIns +
-    miscues[0]?.numSubs +
-    miscues[0]?.numReps +
-    miscues[0]?.numCorrect;
+    progressData.reduce((sum, metric) => sum + (miscues[0]?.[metric.key] || 0), 0) +
+    (miscues[0]?.numCorrect || 0);
+
+  const totalMiscues = progressData.reduce((sum, m) => sum + (miscues[0]?.[m.key] || 0), 0);
+
+  const mostFrequent = progressData
+    .map(metric => ({ label: metric.label, value: miscues[0]?.[metric.key] || 0 }))
+    .sort((a, b) => b.value - a.value)[0];
+
+  const storyText = mostFrequent?.value
+    ? `${mostFrequent.label} occurred most often across all passages (${mostFrequent.value} total instances).`
+    : "No miscues were detected in the selected attempts.";
 
   return (
     <div className="radial-progress-card-container">
-      <div className="radial-metrics-grid">
-        {progressData.map(metric => {
-          const value = miscues[0]?.[metric.key] || 0;
-          const percent = totalWords > 0 ? (value / totalWords) * 100 : 0;
+  {/* Summary at the top */}
+  <div className="story-summary top-block">
+    <strong>Miscue Breakdown</strong>
+    <p>{storyText}</p>
+  </div>
 
-          return (
-            <CircularProgress
-              key={metric.key}
-              percent={percent}
-              color={metric.color}
-              label={metric.label}
-              value={value}
-              total={totalWords} // Pass total words for the tooltip
-            />
-          );
-        })}
-      </div>
-    </div>
+  {/* Radial bar grid in the center */}
+  <div className="radial-metrics-grid">
+    {progressData.map((metric) => {
+      const value = miscues[0]?.[metric.key] || 0;
+      const percent = totalWords > 0 ? (value / totalWords) * 100 : 0;
+
+      return (
+        <CircularProgress
+          key={metric.key}
+          percent={percent}
+          color={metric.color}
+          label={metric.label}
+          value={value}
+          total={totalWords}
+        />
+      );
+    })}
+  </div>
+
+  {/* Tip at the bottom */}
+  <div className="tip-block">
+    <strong>Tip:</strong> Use this view to quickly compare miscue types. High values may signal where a student struggles most—e.g., decoding (substitutions), fluency (repetitions), or attention (omissions).
+  </div>
+</div>
+
   );
 };
 

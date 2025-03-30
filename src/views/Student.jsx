@@ -37,6 +37,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
       let numSubs = 0;
       let numIns = 0;
       let numReps = 0;
+      let numRevs = 0;
 
       studentAttempts.forEach((attempt) => {
         attempt.readingAttempts?.forEach((seg) => {
@@ -47,13 +48,14 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
             numSubs += result.numSubs || 0;
             numIns += result.numIns || 0;
             numReps += result.numReps || 0;
+            numRevs += result.numRevs || 0;
           }
         });
       });
 
-      const totalWords = numCorrect + numDels + numSubs + numIns + numReps;
+      const totalWords = numCorrect + numDels + numSubs + numIns + numReps + numRevs;
       const miscueRate =
-        totalWords > 0 ? ((numDels + numSubs + numIns + numReps) / totalWords) * 100 : 0;
+        totalWords > 0 ? ((numDels + numSubs + numIns + numReps + numRevs) / totalWords) * 100 : 0;
 
       return {
         passageId,
@@ -63,6 +65,7 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
         numSubs,
         numIns,
         numReps,
+        numRevs,
         studentAttempts: studentAttempts.length,
         classAttempts: classAttempts.length,
         miscueRate: +miscueRate.toFixed(2),
