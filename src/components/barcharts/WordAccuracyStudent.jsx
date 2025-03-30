@@ -69,7 +69,7 @@ const WordAccuracyDistributionChart = ({ student, students, miscues = [] }) => {
     return (
       <div className="chart-container">
         <h3 className="chart-title">
-          {student ? `Correct Words per Passage` : "Student Word Accuracy"}
+          {student ? `${student.firstName}'s Correct Words per Passage` : "Student Word Accuracy"}
         </h3>
   
         <ResponsiveContainer width="100%" height={420}>

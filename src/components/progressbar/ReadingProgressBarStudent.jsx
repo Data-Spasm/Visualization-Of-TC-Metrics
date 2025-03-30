@@ -31,45 +31,60 @@ const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
       )}
 
       <div className="progress-metrics-grid">
-        {progressData.map((metric) => (
-          <div key={metric.key} className="progress-metric-section">
-            <h4 className="progress-metric-title">{metric.label}</h4>
+        {progressData.map((metric) => {
+          const filtered = miscues.filter((entry) => {
+            const hasTitle = !!entry.passageTitle;
+            const value = entry[metric.key] || 0;
+            const total = value + (entry.numCorrect || 0);
+            return hasTitle && total > 0;
+          });
 
-            {miscues.map((entry) => {
-              const value = entry[metric.key] || 0;
-              const total = value + (entry.numCorrect || 0);
-              const percent = total > 0 ? Math.round((value / total) * 100) : 0;
-              const tooltip = `${entry.passageTitle || "Untitled"}\n${metric.label}: ${value}\nCorrect Words: ${entry.numCorrect}\nTotal Words: ${total}`;
+          return (
+            <div key={metric.key} className="progress-metric-section">
+              <h4 className="progress-metric-title">{metric.label}</h4>
 
-              const handleClick = () => {
-                if (entry.passageId && studentUsername) {
-                  setLoadingPassageId(entry.passageId);
-                  setTimeout(() => {
-                    navigate(`/passages/${studentUsername}/${entry.passageId}`);
-                  }, 300); // Optional delay for smoother experience
-                }
-              };
+              {filtered.length === 0 ? (
+                <p style={{ fontSize: "12px", color: "#888", fontStyle: "italic" }}>
+                  No data for {metric.label}.
+                </p>
+              ) : (
+                filtered.map((entry) => {
+                  const value = entry[metric.key] || 0;
+                  const total = value + (entry.numCorrect || 0);
+                  const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+                  const tooltip = `${entry.passageTitle}\n${metric.label}: ${value}\nCorrect Words: ${entry.numCorrect}\nTotal Words: ${total}`;
 
-              return (
-                <div
-                  key={`${entry.passageId}-${metric.key}`}
-                  className="progress-bar-container"
-                  title={tooltip}
-                  onClick={handleClick}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="progress-bar">
+                  const handleClick = () => {
+                    if (entry.passageId && studentUsername) {
+                      setLoadingPassageId(entry.passageId);
+                      setTimeout(() => {
+                        navigate(`/passages/${studentUsername}/${entry.passageId}`);
+                      }, 300);
+                    }
+                  };
+
+                  return (
                     <div
-                      className="progress-fill"
-                      style={{ width: `${percent}%`, backgroundColor: metric.color }}
-                    ></div>
-                    <span className="progress-percentage">{`${percent}%`}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ))}
+                      key={`${entry.passageId}-${metric.key}`}
+                      className="progress-bar-container"
+                      title={tooltip}
+                      onClick={handleClick}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="progress-bar">
+                        <div
+                          className="progress-fill"
+                          style={{ width: `${percent}%`, backgroundColor: metric.color }}
+                        ></div>
+                        <span className="progress-percentage">{`${percent}%`}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

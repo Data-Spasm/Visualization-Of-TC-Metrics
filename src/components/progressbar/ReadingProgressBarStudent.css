@@ -1,76 +1,76 @@
 .progress-card-container {
-    width: 100%;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Prevents content overflow */
-  }
-  
-  .progress-card-title {
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  
-  .progress-metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ensures even distribution */
-    gap: 100px; /* Adjust the gap between columns as needed */
-    width: 125%;
-    overflow-y: hidden; /* Enables vertical scrolling when necessary */
-    max-height: 400px; /* Adjust based on your card's height */
-    padding-right: 300px; /* Provides space for scrollbar */
-  }
-  
-  .progress-metric-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .progress-metric-title {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    text-align: center;
-  }
-  
-  .progress-bar-container {
-    width: 100%;
-    margin-bottom: 5px;
-    text-align: center;
-    position: relative; /* Add relative positioning */
-  }
-  
-  .progress-label {
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 2px;
-  }
-  
-  .progress-bar {
-    position: relative;
-    height: 30px; /* Increase the height of the progress bars */
-    background: #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    width: 120%;
-  }
-  
-  .progress-fill {
-    height: 100%;
-    border-radius: 10px;
-  }
-  
-  .progress-percentage {
-    position: absolute; /* Position the percentage label absolutely */
-    right: 10px; /* Align it to the right end of the bar */
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-    font-weight: bold;
-    color: #000; /* Ensure the text color is visible */
-  }
+  width: 100%;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevents content overflow */
+}
+
+.progress-card-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.progress-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Ensures even distribution */
+  gap: 100px; /* Adjust the gap between columns as needed */
+  width: 125%;
+  overflow-y: hidden; /* Enables vertical scrolling when necessary */
+  max-height: 400px; /* Adjust based on your card's height */
+  padding-right: 300px; /* Provides space for scrollbar */
+}
+
+.progress-metric-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress-metric-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.progress-bar-container {
+  width: 100%;
+  margin-bottom: 5px;
+  text-align: center;
+  position: relative; /* Add relative positioning */
+}
+
+.progress-label {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.progress-bar {
+  position: relative;
+  height: 30px; /* Increase the height of the progress bars */
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  width: 110%;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+}
+
+.progress-percentage {
+  position: absolute; /* Position the percentage label absolutely */
+  right: 10px; /* Align it to the right end of the bar */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: bold;
+  color: #000; /* Ensure the text color is visible */
+}

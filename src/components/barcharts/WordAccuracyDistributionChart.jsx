@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {  BarChart,  Bar,  XAxis,  YAxis,  Tooltip,  ResponsiveContainer,  CartesianGrid,  Cell,  PieChart,  Pie,  Label,  Legend,  Sector} from "recharts";
 import "./WordAccuracyDistributionChart.css";
 
+
 const getColor = (value, isStudent = true, index = 0) => {
   if (isStudent) {
     if (value <= 50) return "red";
