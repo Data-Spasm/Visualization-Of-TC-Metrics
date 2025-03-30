@@ -10,13 +10,13 @@ const colorPalette = [
 
 const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) => {
   const [seriesData, setSeriesData] = useState([]);
+  const [storySummary, setStorySummary] = useState("");
 
   useEffect(() => {
     if (!readingAttempts.length || !assessments.length) return;
 
-    const passageMap = new Map(); // title => P#
-    const passageDataMap = {}; // title => series
-
+    const passageMap = new Map();
+    const passageDataMap = {};
     let passageCounter = 1;
 
     readingAttempts.forEach((attempt) => {
@@ -36,13 +36,15 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
           name: `${passageId} - ${title}`,
           data: [],
           color: colorPalette[(passageCounter - 2) % colorPalette.length],
+          totalAttempts: 0,
+          totalTime: 0
         };
       }
 
       const studentEntry = passageDataMap[title].data.find(d => d.name === studentName);
       if (studentEntry) {
-        studentEntry.y += 1; // count attempts
-        studentEntry.z += time; // sum time
+        studentEntry.y += 1;
+        studentEntry.z += time;
       } else {
         passageDataMap[title].data.push({
           x: parseInt(passageId.replace("P", "")) + passageDataMap[title].data.length * 0.2,
@@ -51,11 +53,24 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
           name: studentName,
           passageId
         });
-        
       }
+
+      passageDataMap[title].totalAttempts += 1;
+      passageDataMap[title].totalTime += time;
     });
 
-    setSeriesData(Object.values(passageDataMap));
+    const allData = Object.values(passageDataMap);
+    setSeriesData(allData);
+
+    // Data storytelling summary
+    const mostEngaged = [...allData].sort((a, b) => b.totalAttempts - a.totalAttempts)[0];
+    if (mostEngaged) {
+      setStorySummary(
+        `Students interacted the most with "${mostEngaged.name}", with ${mostEngaged.totalAttempts} total attempts and a combined ${mostEngaged.totalTime} seconds spent.`
+      );
+    } else {
+      setStorySummary("No engagement data available for analysis.");
+    }
   }, [readingAttempts, assessments]);
 
   const chartOptions = {
@@ -69,7 +84,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
       title: { text: "Passages" },
       tickAmount: 10,
       labels: {
-        formatter: val => `P${Math.round(val)}`, // Ensure integer values with "P" prefix
+        formatter: val => `P${Math.round(val)}`,
         style: { fontSize: "12px" }
       }
     },
@@ -101,9 +116,9 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
     },
     plotOptions: {
       bubble: {
-        minBubbleRadius: 5, // Minimum bubble size
-        maxBubbleRadius: 50, // Maximum bubble size
-        padding: 5 // Add padding to avoid overlapping
+        minBubbleRadius: 5,
+        maxBubbleRadius: 50,
+        padding: 5
       }
     }
   };
@@ -111,7 +126,19 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
   return (
     <div className="chart-card grey-background">
       <div className="chart-title">Class Engagement with Reading Passages</div>
+
+      <div className="story-summary">
+        <p>{storySummary}</p>
+      </div>
+
       <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+
+      {seriesData.length > 0 && (
+        <div className="callout-block">
+          <strong>Tip:</strong> Passages with large bubbles and high attempt counts may indicate either student interest or reading difficulty—consider reviewing performance data for those passages.
+        </div>
+      )}
+
       {seriesData.length === 0 && <div className="no-data">No data available</div>}
     </div>
   );

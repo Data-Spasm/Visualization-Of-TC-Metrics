@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList
+} from "recharts";
 import "./ReadingAssessmentDataLineGraph.css";
 
 const performanceBands = [
@@ -9,8 +11,26 @@ const performanceBands = [
   { range: "90-100", min: 90, max: 100 },
 ];
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const accuracy = payload.find(p => p.name === "Accuracy")?.value || 0;
+    const fluency = payload.find(p => p.name === "Fluency")?.value || 0;
+
+    return (
+      <div className="custom-tooltip">
+        <strong>Range: {label}</strong>
+        <p>{accuracy} students have accuracy in this range</p>
+        <p>{fluency} students have fluency in this range</p>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const OverallAccuracyFluencyChart = ({ students = [] }) => {
   const [binnedData, setBinnedData] = useState([]);
+  const [storySummary, setStorySummary] = useState("");
 
   useEffect(() => {
     const bands = performanceBands.map(({ range, min, max }) => {
@@ -25,19 +45,29 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
         if (fluency >= min && fluency <= max) fluencyCount++;
       });
 
-      return {
-        range,
-        Accuracy: accuracyCount,
-        Fluency: fluencyCount,
-      };
+      return { range, Accuracy: accuracyCount, Fluency: fluencyCount };
     });
 
     setBinnedData(bands);
+
+    // Data Storytelling Summary
+    const mostAccurateBand = [...bands].sort((a, b) => b.Accuracy - a.Accuracy)[0];
+    const mostFluentBand = [...bands].sort((a, b) => b.Fluency - a.Fluency)[0];
+
+    const summary = `Most students are achieving accuracy in the ${mostAccurateBand.range} range 
+      and fluency in the ${mostFluentBand.range} range. Use this insight to identify students needing support.`;
+
+    setStorySummary(summary);
   }, [students]);
 
   return (
     <div className="chart-container">
       <h3 className="chart-title">Overall Accuracy & Fluency</h3>
+
+      <div className="story-summary">
+        <p>{storySummary}</p>
+      </div>
+
       <ResponsiveContainer width="100%" height={420}>
         <BarChart
           data={binnedData}
@@ -50,7 +80,7 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
             allowDecimals={false}
             label={{ value: "Number of Students", angle: -90, position: "insideLeft", offset: 10 }}
           />
-          <Tooltip />
+          <Tooltip content={<CustomTooltip />} />
           <Legend verticalAlign="top" height={36} />
           <Bar dataKey="Accuracy" fill="#8884d8">
             <LabelList dataKey="Accuracy" position="top" />
@@ -60,6 +90,12 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+
+      <div className="callout-block">
+        <p>
+          <strong>Tip:</strong> Click into individual students in the 0–49 band to explore skill-level challenges.
+        </p>
+      </div>
     </div>
   );
 };

@@ -76,3 +76,21 @@
   height: 14px;
   border-radius: 3px;
 }
+
+.reading-insight-block {
+  background-color: #e0f2fe;
+  border-left: 4px solid #0284c7;
+  padding: 10px 16px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.callout-block {
+  margin-top: 14px;
+  padding: 10px 16px;
+  border-left: 4px solid #10b981;
+  background-color: #f0fdf4;
+  font-size: 0.9rem;
+  color: #065f46;
+}

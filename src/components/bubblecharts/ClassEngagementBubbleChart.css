@@ -29,3 +29,21 @@
 .apexcharts-toolbar {
   display: none; /* Hide the zoom toolbar */
 }
+
+.story-summary {
+  background-color: #f0f9ff;
+  border-left: 4px solid #0ea5e9;
+  padding: 10px 16px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.callout-block {
+  background-color: #fefce8;
+  border-left: 4px solid #facc15;
+  padding: 8px 14px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #444;
+}

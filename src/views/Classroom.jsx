@@ -71,11 +71,11 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
             </CardContent>
           </Card>
 
-          <Card className="card" onClick={() => setExpandedCard("distribution")}>
+          {/* <Card className="card" onClick={() => setExpandedCard("distribution")}>
             <CardContent>
               <WordAccuracyDistributionChart students={students} />
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="card" onClick={() => setExpandedCard("tileview")}>
             <CardContent>
@@ -98,8 +98,8 @@ const Classroom = ({ students, readingAttempts, misreadWords, assessments }) => 
           assessments,
         })}
 
-      {expandedCard === "distribution" &&
-        renderExpandedCard("Word Accuracy Distribution", WordAccuracyDistributionChart, { students })}
+      {/* {expandedCard === "distribution" &&
+        renderExpandedCard("Word Accuracy Distribution", WordAccuracyDistributionChart, { students })} */}
 
       {expandedCard === "tileview" &&
         renderExpandedCard("Reading Assessment Completion", ReadingAssessmentDataTileView, {
