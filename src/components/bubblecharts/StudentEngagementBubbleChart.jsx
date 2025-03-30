@@ -150,7 +150,7 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
 
       {seriesData.length > 0 && (
         <div className="callout-block">
-          🔍 <strong>Tip:</strong> Longer times may reflect difficulty or careful reading. Consider comparing this with fluency or accuracy data.
+           <strong>Tip:</strong> Longer times may reflect difficulty or careful reading. Consider comparing this with fluency or accuracy data.
         </div>
       )}
     </div>

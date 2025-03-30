@@ -134,11 +134,20 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
         </div>
       </div>
 
-      {data.length > 0 && !studentUsername && (
-        <div className="callout-block">
-          <strong>Tip:</strong> Hover over squares to identify which students are quitting early. Repeated quit patterns could signal a passage that needs simplification or support.
-        </div>
-      )}
+      {data.length > 0 && (
+      <div className="callout-block">
+        {studentUsername ? (
+          <>
+            <strong>Tip:</strong> If {studentUsername} frequently quits passages, consider reviewing text difficulty, engagement, or external factors like reading environment. This insight can guide personalized interventions.
+          </>
+        ) : (
+          <>
+            <strong>Tip:</strong> Hover over squares to identify which students are quitting early. Repeated quit patterns could signal a passage that needs simplification or support.
+          </>
+        )}
+      </div>
+    )}
+
     </div>
   );
 };
