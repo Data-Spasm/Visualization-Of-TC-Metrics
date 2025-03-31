@@ -53,6 +53,8 @@
   white-space: nowrap;
   position: absolute;
   right: 5px;
+  top: 50%; /* Vertically center the label */
+  transform: translateY(60%); /* Fine-tunes vertical centering */
 }
 
 /* Legend below (optional) */

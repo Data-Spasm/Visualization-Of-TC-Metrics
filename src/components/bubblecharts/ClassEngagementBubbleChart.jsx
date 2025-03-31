@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
+import { ResponsiveContainer } from "recharts";
 import "./ClassEngagementBubbleChart.css";
 
 const colorPalette = [
@@ -124,14 +125,16 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
   };
 
   return (
-    <div className="chart-card grey-background">
-      <div className="chart-title">Class Engagement with Reading Passages</div>
+    <div className="chart-container">
+      <h3 className="chart-title">Class Engagement with Reading Passages</h3>
 
       <div className="story-summary">
         <p>{storySummary}</p>
       </div>
 
-      <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+      <ResponsiveContainer width="100%" height={500}>
+        <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+      </ResponsiveContainer>
 
       {seriesData.length > 0 && (
         <div className="callout-block">

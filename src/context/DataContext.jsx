@@ -24,7 +24,7 @@ export const DataProvider = ({ children }) => {
 
       // fake names (temporary override)
       const fakeNames = [
-        "Yohpie Smith",
+        "Yophi Smith",
         "Josiah Mayers",
         "Maia Paltoo",
         "Aaron Peters",
