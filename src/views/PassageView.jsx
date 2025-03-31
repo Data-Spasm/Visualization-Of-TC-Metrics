@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataContext } from "../context/DataContext";
 import ReadingProgressRadialCard from "../components/radial/ReadingProgressRadial";
+import useAnalyticsEvent from "../hooks/useAnalyticsEvent";
 import "./PassageView.css";
 
 const PassageView = ({ student, passageId: initialPassageId }) => {
@@ -22,9 +23,26 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
   const [originalText, setOriginalText] = useState("Loading...");
   const [attemptDuration, setAttemptDuration] = useState(null);
 
+  const trackEvent = useAnalyticsEvent("Passage View");
+  const hoverStartRef = useRef({});
+
   useEffect(() => {
     if (!attemptsLoaded) loadAttemptsAndMiscues();
   }, [attemptsLoaded, loadAttemptsAndMiscues]);
+
+  const handleMouseEnter = (label) => {
+    hoverStartRef.current[label] = Date.now();
+    trackEvent("hover_start", label);
+  };
+
+  const handleMouseLeave = (label) => {
+    const start = hoverStartRef.current[label];
+    if (start) {
+      const duration = Math.round((Date.now() - start) / 1000);
+      trackEvent("hover_end", label, duration);
+      delete hoverStartRef.current[label];
+    }
+  };
 
   const studentAllAttempts = useMemo(() => {
     return readingAttempts.filter((a) => a.studentUsername === student.username);
@@ -108,12 +126,15 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
 
     const durationSeconds = parseFloat(attempt.timeOnTask);
     setAttemptDuration(isNaN(durationSeconds) ? null : Math.round(durationSeconds));
+
+    trackEvent("attempt_loaded", `Attempt ${selectedAttemptIndex + 1}`);
   }, [
     selectedAttemptIndex,
     filteredAttempts,
     assessments,
     initialPassageId,
     miscuesForSelectedAttempt,
+    trackEvent,
   ]);
 
   if (!attemptsLoaded) return <h2>Loading passage data...</h2>;
@@ -143,7 +164,10 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
           Student: {student?.firstName} {student?.lastName || "Unnamed Student"}
         </h2>
         <button
-          onClick={() => navigate(`/students/${student._id?.$oid || student._id}`)}
+          onClick={() => {
+            trackEvent("back_click", "Back to Student Dashboard");
+            navigate(`/students/${student._id?.$oid || student._id}`);
+          }}
           style={{
             backgroundColor: "#f3f4f6",
             border: "1px solid #d1d5db",
@@ -192,9 +216,12 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
             <select
               id="passageSelect"
               value={initialPassageId}
-              onChange={(e) =>
-                navigate(`/passages/${student.username}/${e.target.value}`)
-              }
+              onChange={(e) => {
+                trackEvent("change_passage", `To Passage ${e.target.value}`);
+                navigate(`/passages/${student.username}/${e.target.value}`);
+              }}
+              onMouseEnter={() => handleMouseEnter("Passage Dropdown")}
+              onMouseLeave={() => handleMouseLeave("Passage Dropdown")}
             >
               {assessments
                 .filter((assessment) => {
@@ -239,7 +266,12 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
           <select
             id="attemptSelect"
             value={selectedAttemptIndex}
-            onChange={(e) => setSelectedAttemptIndex(Number(e.target.value))}
+            onChange={(e) => {
+              trackEvent("change_attempt", `Attempt ${e.target.value}`);
+              setSelectedAttemptIndex(Number(e.target.value));
+            }}
+            onMouseEnter={() => handleMouseEnter("Attempt Dropdown")}
+            onMouseLeave={() => handleMouseLeave("Attempt Dropdown")}
           >
             {filteredAttempts.map((_, idx) => (
               <option key={`attempt-${idx}`} value={idx}>
@@ -250,11 +282,19 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
         </div>
 
         <div className="highlighted-text-box side-by-side-layout">
-          <div className="card-box">
+          <div
+            className="card-box"
+            onMouseEnter={() => handleMouseEnter("Original Passage")}
+            onMouseLeave={() => handleMouseLeave("Original Passage")}
+          >
             <h5>Original</h5>
             <p>{originalText}</p>
           </div>
-          <div className="card-box">
+          <div
+            className="card-box"
+            onMouseEnter={() => handleMouseEnter("Student Attempt")}
+            onMouseLeave={() => handleMouseLeave("Student Attempt")}
+          >
             <h5>Student Attempt</h5>
             {highlightedContent?.trim() ? (
               <p dangerouslySetInnerHTML={{ __html: highlightedContent }} />
@@ -266,9 +306,17 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
           </div>
         </div>
 
-        <div className="audio-player-container">
+        <div
+          className="audio-player-container"
+          onMouseEnter={() => handleMouseEnter("Audio Player")}
+          onMouseLeave={() => handleMouseLeave("Audio Player")}
+        >
           {audioUrl ? (
-            <audio controls src={audioUrl}>
+            <audio
+              controls
+              src={audioUrl}
+              onPlay={() => trackEvent("audio_play", "Audio Started")}
+            >
               Your browser does not support audio.
             </audio>
           ) : (

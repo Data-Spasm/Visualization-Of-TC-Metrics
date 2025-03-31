@@ -1,16 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AvatarController from "../controllers/Avatar";
 import { generateAvatarUrl } from "../utils/avatarUrlGenerator";
+import useAnalyticsEvent from "../hooks/useAnalyticsEvent"; // added
 import "./StudentList.css";
 
 const StudentList = ({ students }) => {
   const navigate = useNavigate();
   const [processingStudentId, setProcessingStudentId] = useState(null);
+  const trackEvent = useAnalyticsEvent("Student List");
+  const hoverStartRef = useRef({});
+
+  useEffect(() => {
+    trackEvent("component_view", "Student List Page Loaded");
+  }, [trackEvent]);
+
+  const handleMouseEnter = (label) => {
+    hoverStartRef.current[label] = Date.now();
+    trackEvent("hover_start", label);
+  };
+
+  const handleMouseLeave = (label) => {
+    const start = hoverStartRef.current[label];
+    if (start) {
+      const duration = Math.round((Date.now() - start) / 1000);
+      trackEvent("hover_end", label, duration);
+      delete hoverStartRef.current[label];
+    }
+  };
 
   const handleClick = (student) => {
     const studentId = student._id?.$oid || student._id;
     setProcessingStudentId(studentId); // trigger processing state
+    trackEvent("card_click", `Reading Progress Click - ${student.firstName} ${student.lastName}`);
     navigate(`/students/${studentId}`);
   };
 
@@ -88,8 +110,15 @@ const StudentList = ({ students }) => {
                     const accuracyPercent = accuracyVal?.toFixed(1) ?? "N/A";
                     const fluencyDisplay = fluencyVal?.toFixed(1) ?? "N/A";
 
+                    const rowLabel = `${student.firstName} ${student.lastName} Row`;
+
                     return (
-                      <tr key={`${studentId}-${index}`} className="striped-row">
+                      <tr
+                        key={`${studentId}-${index}`}
+                        className="striped-row"
+                        onMouseEnter={() => handleMouseEnter(rowLabel)}
+                        onMouseLeave={() => handleMouseLeave(rowLabel)}
+                      >
                         <td>
                           {avatarUrl ? (
                             <img src={avatarUrl} alt="Avatar" className="avatar-image" />
@@ -104,14 +133,20 @@ const StudentList = ({ students }) => {
                             <div className="accuracy-bar-container">
                               <div
                                 className={`accuracy-bar-fill ${getBarColorClass(accuracyVal || 0)}`}
-                                style={{ width: `${accuracyVal || 0}%`, backgroundColor: "#3b82f6" }}
+                                style={{
+                                  width: `${accuracyVal || 0}%`,
+                                  backgroundColor: "#3b82f6",
+                                }}
                               ></div>
                               <span className="bar-value right">{accuracyPercent}%</span>
                             </div>
                             <div className="accuracy-bar-container">
                               <div
                                 className={`accuracy-bar-fill ${getBarColorClass(fluencyVal || 0)}`}
-                                style={{ width: `${Math.min(fluencyVal || 0, 100)}%`, backgroundColor: "#10b981" }}
+                                style={{
+                                  width: `${Math.min(fluencyVal || 0, 100)}%`,
+                                  backgroundColor: "#10b981",
+                                }}
                               ></div>
                               <span className="bar-value right">{fluencyDisplay} WPM</span>
                             </div>
@@ -123,7 +158,16 @@ const StudentList = ({ students }) => {
                               <span className="spinner-inline" /> Processing performance data...
                             </span>
                           ) : (
-                            <button className="reading-progress-button" onClick={() => handleClick(student)}>
+                            <button
+                              className="reading-progress-button"
+                              onClick={() => handleClick(student)}
+                              onMouseEnter={() =>
+                                handleMouseEnter(`Reading Progress Button - ${student.firstName}`)
+                              }
+                              onMouseLeave={() =>
+                                handleMouseLeave(`Reading Progress Button - ${student.firstName}`)
+                              }
+                            >
                               Reading Progress
                             </button>
                           )}

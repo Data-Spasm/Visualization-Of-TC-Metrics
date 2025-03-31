@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, useParams } from 'react-router-dom';
 
 import Navbar from './components/navbar/navbar';
@@ -10,27 +10,36 @@ import StudentList from './views/StudentList';
 import PassageView from './views/PassageView';
 
 import { DataProvider, DataContext } from './context/DataContext';
+import useAnalyticsEvent from './hooks/useAnalyticsEvent';
 import './App.css';
 
-const trackEvent = (eventName, eventParams = {}, eventType = "click") => {
-  if (window.gtag) {
-    window.gtag("event", eventType, {
-      event_category: "User Interaction",
-      event_label: eventParams.label || '',
-      value: eventParams.value || '',
-      ...eventParams,
-    });
+// Grab session ID from sessionStorage
+const getSessionUserId = () => {
+  let sessionUserId = sessionStorage.getItem("userId");
+  if (!sessionUserId) {
+    sessionUserId = `User_${Math.floor(Math.random() * 10000)}_${Date.now()}`;
+    sessionStorage.setItem("userId", sessionUserId);
   }
+  return sessionUserId;
 };
 
 const App = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
   const { students, readingAttempts, assessments, miscues, loading } = useContext(DataContext);
+  const trackEvent = useAnalyticsEvent("App");
 
   const toggleSidebar = () => {
     setSidebarVisible(!isSidebarVisible);
-    trackEvent('toggle_sidebar', { label: 'Sidebar Toggled', value: isSidebarVisible ? 0 : 1 });
+    trackEvent("toggle_sidebar", "Sidebar Toggled", isSidebarVisible ? 0 : 1);
   };
+
+  // Set the GA session user ID on first mount
+  useEffect(() => {
+    const userId = getSessionUserId();
+    if (window.gtag) {
+      window.gtag('set', { user_id: userId });
+    }
+  }, []);
 
   return (
     <Router>
@@ -157,11 +166,13 @@ const PassageRouteWrapper = ({ students, readingAttempts, assessments, miscues }
 const RouteChangeTracker = () => {
   const location = useLocation();
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const userId = getSessionUserId();
     if (window.gtag) {
       window.gtag('event', 'page_view', {
         page_path: location.pathname,
         page_title: document.title,
+        user_id: userId,
       });
     }
   }, [location]);
