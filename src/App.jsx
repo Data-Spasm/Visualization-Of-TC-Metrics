@@ -27,7 +27,7 @@ const App = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
   const [students, setStudents] = useState([]);
   const [readingAttempts, setReadingAttempts] = useState([]);
-  const [misreadWords, setMisreadWords] = useState([]);
+  // const [misreadWords, setMisreadWords] = useState([]);
   const [assessments, setAssessments] = useState([]);
   const [miscueData, setMiscueData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,8 +46,8 @@ const App = () => {
 
       setReadingAttempts(filteredAttempts);
 
-      const misreads = ReadingAttemptController.getMisreadWords(filteredAttempts);
-      setMisreadWords(misreads);
+      // const misreads = ReadingAttemptController.getMisreadWords(filteredAttempts);
+      // setMisreadWords(misreads);
 
       const allAssessments = ReadingAssessmentController.getAllAssessments();
       setAssessments(allAssessments);
@@ -117,7 +117,7 @@ const App = () => {
                       <Classroom
                         students={students}
                         readingAttempts={readingAttempts}
-                        misreadWords={misreadWords}
+                        // misreadWords={misreadWords}
                         assessments={assessments}
                       />
                     ) : (

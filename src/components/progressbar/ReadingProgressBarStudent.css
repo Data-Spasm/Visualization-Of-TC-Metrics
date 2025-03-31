@@ -5,7 +5,7 @@
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Prevents content overflow */
+  overflow: hidden;
 }
 
 .progress-card-title {
@@ -17,12 +17,10 @@
 
 .progress-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Ensures even distribution */
-  gap: 100px; /* Adjust the gap between columns as needed */
-  width: 125%;
-  overflow-y: hidden; /* Enables vertical scrolling when necessary */
-  max-height: 400px; /* Adjust based on your card's height */
-  padding-right: 300px; /* Provides space for scrollbar */
+  grid-template-columns: repeat(5, 1fr); /* Changed from 4 to 5 to fit all metrics in one row */
+  gap: 32px; /* Reduced gap to fit within viewport */
+  width: 100%;
+  overflow-x: auto;
 }
 
 .progress-metric-section {
@@ -32,9 +30,9 @@
 }
 
 .progress-metric-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-align: center;
 }
 
@@ -42,7 +40,7 @@
   width: 100%;
   margin-bottom: 5px;
   text-align: center;
-  position: relative; /* Add relative positioning */
+  position: relative;
 }
 
 .progress-label {
@@ -53,11 +51,11 @@
 
 .progress-bar {
   position: relative;
-  height: 30px; /* Increase the height of the progress bars */
+  height: 22px; /* Reduced bar height */
   background: #e0e0e0;
   border-radius: 10px;
   overflow: hidden;
-  width: 110%;
+  width: 100%;
 }
 
 .progress-fill {
@@ -66,11 +64,68 @@
 }
 
 .progress-percentage {
-  position: absolute; /* Position the percentage label absolutely */
-  right: 10px; /* Align it to the right end of the bar */
+  position: absolute;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
-  color: #000; /* Ensure the text color is visible */
+  color: #000;
+}
+
+.story-summary {
+  background-color: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  padding: 10px 16px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: #78350f;
+}
+
+.callout-block {
+  margin-top: 16px;
+  padding: 10px 16px;
+  background-color: #f0fdf4;
+  border-left: 4px solid #22c55e;
+  font-size: 0.9rem;
+  color: #14532d;
+}
+
+.mini-summary {
+  font-size: 11.5px;
+  color: #6b7280;
+  margin-bottom: 0.6rem;
+  text-align: center;
+}
+
+.totals-row {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.totals-title {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.totals-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-size: 13px;
+  color: #374151;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.totals-list .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: middle;
 }

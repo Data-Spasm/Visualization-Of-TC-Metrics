@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   ComposedChart,
   Bar,
@@ -10,11 +10,56 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { Typography, Select, MenuItem } from "@mui/material";
 import "./ComparativeAnalysisChart.css";
 
-const ComparativePerformanceChart = ({ miscues = [], classAverages = [] }) => {
-  const mergedData = miscues.map((entry) => {
-    const classAvg = classAverages.find(avg => avg.passageId === entry.passageId);
+const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [filteredData, setFilteredData] = useState([]);
+  const [story, setStory] = useState("");
+
+  useEffect(() => {
+    if (students.length > 0 && !selectedStudent) {
+      setSelectedStudent(students[0].username);
+    }
+  }, [students]);
+
+  useEffect(() => {
+    if (!selectedStudent) return;
+    const filtered = miscues.filter(entry => entry.username === selectedStudent);
+    setFilteredData(filtered);
+  }, [selectedStudent, miscues]);
+
+  useEffect(() => {
+    if (filteredData.length > 0) {
+      const highestMiscue = [...filteredData].sort((a, b) => {
+        const totalA = (a.numCorrect || 0) + (a.numDels || 0) + (a.numSubs || 0);
+        const rateA = totalA ? ((a.numDels + a.numSubs) / totalA) * 100 : 0;
+
+        const totalB = (b.numCorrect || 0) + (b.numDels || 0) + (b.numSubs || 0);
+        const rateB = totalB ? ((b.numDels + b.numSubs) / totalB) * 100 : 0;
+
+        return rateB - rateA;
+      })[0];
+
+      const student = students.find(s => s.username === selectedStudent);
+      if (highestMiscue && student) {
+        const totalAttempts = highestMiscue.studentAttempts || 0;
+        const classParticipation = highestMiscue.classAttempts || 0;
+        setStory(
+          `${student.firstName} ${student.lastName} showed the greatest difficulty in the passage titled "${highestMiscue.passage}". Out of ${totalAttempts} personal attempt${totalAttempts !== 1 ? 's' : ''}, their miscue rate reached ${(
+            ((highestMiscue.numDels + highestMiscue.numSubs) /
+              ((highestMiscue.numCorrect || 0) + (highestMiscue.numDels || 0) + (highestMiscue.numSubs || 0))) *
+            100
+          ).toFixed(1)}%. This compares with the class average performance based on ${classParticipation} attempt${classParticipation !== 1 ? 's' : ''}. This insight highlights a potential focal point for tailored reading support.`
+        );
+      }
+    } else {
+      setStory("No performance summary available yet.");
+    }
+  }, [filteredData, students, selectedStudent]);
+
+  const mergedData = filteredData.map((entry) => {
     const total = (entry.numCorrect || 0) + (entry.numDels || 0) + (entry.numSubs || 0);
     const miscueRate = total > 0
       ? (((entry.numDels || 0) + (entry.numSubs || 0)) / total) * 100
@@ -24,8 +69,8 @@ const ComparativePerformanceChart = ({ miscues = [], classAverages = [] }) => {
       passage: entry.passage,
       studentCorrect: entry.numCorrect || 0,
       studentAttempts: entry.studentAttempts || 0,
-      classCorrect: classAvg?.avgCorrect || 0,
-      classAttempts: classAvg?.classAttempts || 0,
+      classCorrect: entry.avgCorrect || 0,
+      classAttempts: entry.classAttempts || 0,
       miscueRate: +miscueRate.toFixed(2),
     };
   });
@@ -58,7 +103,22 @@ const ComparativePerformanceChart = ({ miscues = [], classAverages = [] }) => {
 
   return (
     <div className="comparative-card">
-      <h4 className="comparative-title">Comparative Performance Analysis</h4>
+      <div style={{ marginBottom: "1rem" }}>
+        <Typography variant="subtitle1">Select a Student</Typography>
+        <Select fullWidth value={selectedStudent || ""} onChange={(e) => setSelectedStudent(e.target.value)} displayEmpty>
+          <MenuItem value="" disabled>Select Student</MenuItem>
+          {students.map((s) => (
+            <MenuItem key={s.username} value={s.username}>
+              {s.firstName} {s.lastName}
+            </MenuItem>
+          ))}
+        </Select>
+      </div>
+
+      <div className="story-summary">
+        <p>{story}</p>
+      </div>
+
       <div className="comparative-chart-container">
         <ResponsiveContainer width="100%" height={350}>
           <ComposedChart data={mergedData}>
@@ -90,6 +150,16 @@ const ComparativePerformanceChart = ({ miscues = [], classAverages = [] }) => {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+
+      {mergedData.length > 0 && (
+        <div className="callout-block">
+          <strong>Tip:</strong> If a student's miscue rate is consistently high across multiple passages, consider revisiting decoding strategies or offering scaffolded fluency practice for those reading materials.
+        </div>
+      )}
+
+      {mergedData.length === 0 && (
+        <div className="no-data">No data available</div>
+      )}
     </div>
   );
 };

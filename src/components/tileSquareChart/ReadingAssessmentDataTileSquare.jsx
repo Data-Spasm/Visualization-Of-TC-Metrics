@@ -7,9 +7,13 @@ const TILE_GAP = 4;
 
 const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [], studentUsername = null }) => {
   const [data, setData] = useState([]);
+  const [insight, setInsight] = useState("");
 
   useEffect(() => {
     const titleMap = {};
+    const quitCounts = {};
+    const completeCounts = {};
+    const studentQuitMap = {};
 
     const filteredAttempts = studentUsername
       ? readingAttempts.filter(attempt => attempt.studentUsername === studentUsername)
@@ -23,24 +27,61 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
 
       if (!titleMap[title]) {
         titleMap[title] = { passage: title, tiles: [] };
+        quitCounts[title] = 0;
+        completeCounts[title] = 0;
       }
 
-      titleMap[title].tiles.push({
-        type: attempt.quit ? "quit" : "completed",
-        student: attempt.studentUsername
-      });
+      const type = attempt.quit ? "quit" : "completed";
+      titleMap[title].tiles.push({ type, student: attempt.studentUsername });
+
+      if (type === "quit") {
+        quitCounts[title]++;
+        if (studentUsername) {
+          studentQuitMap[studentUsername] = (studentQuitMap[studentUsername] || 0) + 1;
+        }
+      } else {
+        completeCounts[title]++;
+      }
     });
 
+    // Sort tiles per passage for visual clarity
     Object.values(titleMap).forEach(entry => {
       entry.tiles.sort((a, b) => a.type.localeCompare(b.type));
     });
 
     setData(Object.values(titleMap));
+
+    //  Generate insight summary
+    if (studentUsername) {
+      const total = filteredAttempts.length;
+      const quits = studentQuitMap[studentUsername] || 0;
+      const rate = ((quits / total) * 100).toFixed(0);
+      setInsight(
+        quits === 0
+          ? `${studentUsername} completed all assigned passages.`
+          : `${studentUsername} quit ${quits} of ${total} passages (${rate}%). Consider reviewing difficulty or engagement.`
+      );
+    } else {
+      const quitMax = Object.entries(quitCounts).sort((a, b) => b[1] - a[1])[0];
+      const completeMax = Object.entries(completeCounts).sort((a, b) => b[1] - a[1])[0];
+
+      if (quitMax && completeMax) {
+        setInsight(
+          `"${completeMax[0]}" had the highest completions (${completeMax[1]}), while "${quitMax[0]}" had the most quits (${quitMax[1]}). Use this to reassess passage selection or pacing.`
+        );
+      } else {
+        setInsight("No passage completion data available.");
+      }
+    }
   }, [readingAttempts, assessments, studentUsername]);
 
   return (
     <div className="chart-container">
       <h3 className="chart-title">Reading Passage Completion</h3>
+
+      <div className="story-summary">
+        <p>{insight}</p>
+      </div>
 
       <ResponsiveContainer width="100%" height={data.length * 40 + 80}>
         <div className="responsive-tile-wrapper">
@@ -92,6 +133,21 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
           <div className="tile quit" /> <span>Quit</span>
         </div>
       </div>
+
+      {data.length > 0 && (
+      <div className="callout-block">
+        {studentUsername ? (
+          <>
+            <strong>Tip:</strong> If {studentUsername} frequently quits passages, consider reviewing text difficulty, engagement, or external factors like reading environment. This insight can guide personalized interventions.
+          </>
+        ) : (
+          <>
+            <strong>Tip:</strong> Hover over squares to identify which students are quitting early. Repeated quit patterns could signal a passage that needs simplification or support.
+          </>
+        )}
+      </div>
+    )}
+
     </div>
   );
 };

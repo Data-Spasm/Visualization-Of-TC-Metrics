@@ -28,6 +28,7 @@ const PassageView = ({
     { key: "numIns", label: "Insertions", color: "blue" },
     { key: "numReps", label: "Repetitions", color: "purple" },
     { key: "numSubs", label: "Substitutions", color: "green" },
+    { key: "numRevs", label: "Reversals", color: "red" }
   ];
 
   const filteredAttempts = useMemo(() => {
@@ -43,7 +44,7 @@ const PassageView = ({
       try {
         return assessAttempt(s.readingContent || "", s.rawAttempt || "");
       } catch {
-        return { numDels: 0, numIns: 0, numReps: 0, numSubs: 0 };
+        return { numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0 };
       }
     });
 
@@ -57,8 +58,9 @@ const PassageView = ({
       acc.numIns += r.numIns || 0;
       acc.numReps += r.numReps || 0;
       acc.numSubs += r.numSubs || 0;
+      acc.numRevs += r.numRevs || 0;
       return acc;
-    }, { numDels: 0, numIns: 0, numReps: 0, numSubs: 0 });
+    }, { numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0 });
 
     setTotalSummary({ ...totals, numTotalWords: totalWords });
   }, [allAttempts]);
@@ -85,7 +87,7 @@ const PassageView = ({
         return assessAttempt(a.readingContent || "", a.rawAttempt || "");
       } catch {
         return {
-          numDels: 0, numIns: 0, numReps: 0, numSubs: 0,
+          numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0,
           attemptWithMiscues: [],
         };
       }
@@ -96,8 +98,9 @@ const PassageView = ({
       acc.numIns += res.numIns || 0;
       acc.numReps += res.numReps || 0;
       acc.numSubs += res.numSubs || 0;
+      acc.numRevs += res.numRevs || 0;
       return acc;
-    }, { numDels: 0, numIns: 0, numReps: 0, numSubs: 0 });
+    }, { numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0 });
 
     const totalWords = currentAttempt.readingAttempts.reduce((acc, attempt) => {
       const wordCount = (attempt.readingContent || "").split(/\s+/).filter(Boolean).length;
@@ -140,25 +143,21 @@ const PassageView = ({
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: "1rem"
-        }}>
+      }}>
         <h2 className="title">
-            Student: {student?.firstName} {student?.lastName || "Unnamed Student"}
+          Student: {student?.firstName} {student?.lastName || "Unnamed Student"}
         </h2>
-
-        <button
-            onClick={() => navigate(`/students/${student._id?.$oid || student._id}`)}
-            style={{
+        <button onClick={() => navigate(`/students/${student._id?.$oid || student._id}`)}
+          style={{
             backgroundColor: "#f3f4f6",
             border: "1px solid #d1d5db",
             padding: "6px 12px",
             borderRadius: "6px",
             cursor: "pointer"
-            }}
-        >
-            ← Back to Student Dashboard
+          }}>
+          ← Back to Student Dashboard
         </button>
-        </div>
-
+      </div>
 
       <h4 style={{ marginTop: 0, color: "#0ea5e9" }}>
         Total Correct Words (all passages): {totalCorrectWords}
@@ -172,7 +171,13 @@ const PassageView = ({
       />
 
       <div className="passage-box">
-        <div className="passage-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+        <div className="passage-header" style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "1rem"
+        }}>
           <h2 style={{ margin: 0 }}>
             <strong>Passage: "{assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}”</strong>
           </h2>
