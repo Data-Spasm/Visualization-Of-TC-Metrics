@@ -52,12 +52,13 @@ const ReadingProgressBar = ({ students = [], readingAttempts = [] }) => {
   }, [students, readingAttempts]);
 
   const progressData = [
-    { key: "substitutions", label: "Substitutions", color: "#FF5733" },
-    { key: "insertions", label: "Insertions", color: "#28B8D6" },
-    { key: "omissions", label: "Omissions", color: "#3DA35D" },
-    { key: "repetitions", label: "Repetitions", color: "#8E44AD" },
-    { key: "reversals", label: "Reversals", color: "#FDCB58" },
+    {key: "substitutions",label: "Substitutions",color: "#e74c3c",},
+    {key: "reversals",label: "Reversals",color: "#f97316",},
+    {key: "omissions",label: "Omissions",color: "#facc15",},
+    {key: "insertions",label: "Insertions",color: "#38bdf8",},
+    {key: "repetitions",label: "Repetitions",color: "#6366f1",},
   ];
+  
 
   const totalAvg = progressData.reduce((sum, p) => sum + (performance[p.key]?.avg || 0), 0);
 

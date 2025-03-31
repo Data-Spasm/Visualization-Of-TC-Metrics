@@ -7,12 +7,14 @@ const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
   const [loadingPassageId, setLoadingPassageId] = useState(null);
 
   const progressData = [
-    { label: "Omissions", key: "numDels", color: "#3DA35D", summary: "Often due to skipped words or attention lapses." },
-    { label: "Insertions", key: "numIns", color: "#28B8D6", summary: "Common when students guess or add words unconsciously." },
-    { label: "Substitutions", key: "numSubs", color: "#FDCB58", summary: "Usually reflects decoding difficulties or word confusion." },
-    { label: "Repetitions", key: "numReps", color: "#8E44AD", summary: "Linked to hesitancy or uncertainty in reading." },
-    { label: "Reversals", key: "numRevs", color: "#ef4444", summary: "Reversals may indicate issues with visual processing or letter/word orientation." },
+    {label: "Substitutions",key: "numSubs",color: "#e74c3c", summary: "Usually reflects decoding difficulties or word confusion."},
+    {label: "Reversals",key: "numRevs",color: "#f97316",summary: "May indicate issues with visual processing or orientation."},
+    {label: "Omissions",key: "numDels",color: "#facc15",summary: "Often due to skipped words or attention lapses."},
+    {label: "Insertions",key: "numIns",color: "#38bdf8",summary: "Common when students guess or add words unconsciously."},
+    {label: "Repetitions",key: "numReps",color: "#6366f1",summary: "Linked to hesitancy or uncertainty in reading."}
   ];
+  
+  
 
   const storyInsight = useMemo(() => {
     if (!Array.isArray(miscues) || miscues.length === 0) return null;

@@ -52,11 +52,11 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
   const navigate = useNavigate();
 
   const progressData = [
-    { label: "Omissions", key: "numDels", color: "#F1C40F" },
-    { label: "Insertions", key: "numIns", color: "#3498DB" },
-    { label: "Substitutions", key: "numSubs", color: "#2ECC71" },
-    { label: "Repetitions", key: "numReps", color: "#9B59B6" },
-    { label: "Reversals", key: "numRevs", color: "#E74C3C" },
+    {label: "Substitutions",key: "numSubs",color: "#e74c3c",},
+    {label: "Reversals",key: "numRevs",color: "#f97316",},
+    {label: "Omissions",key: "numDels",color: "#facc15",},
+    {label: "Insertions",key: "numIns",color: "#38bdf8", },
+    {label: "Repetitions",key: "numReps",color: "#6366f1",},
   ];
 
   if (!Array.isArray(miscues)) {

@@ -1,11 +1,11 @@
-/* Styles for the main classroom layout */
 .classroom {
   padding: 20px;
-  height: calc(100vh - 60px); /* Adjusted to fit within the viewport */
+  height: calc(100vh - 90px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background-color: #FFFFFF; /* Light background for the classroom */
+  background-color: #FFFFFF;
+  position: relative;
 }
 
 /* Grid container to arrange the top visualization cards */
@@ -72,41 +72,58 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive design adjustments for tablets and mobile */
+/* Responsive design adjustments */
 @media (max-width: 768px) {
   .grid-container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
-
-  .card, .long-card, .long-card-2 {
-    height: auto;
-    flex-direction: column;
+  
+  .expanded-card {
+    width: 95%;
+    margin: 10px;
+    padding: 15px;
   }
 }
 
-/* Fullscreen modal card for focused chart view */
-.fullscreen-card {
-  position: fixed;
-  top: 60px;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
-  z-index: 9999;
-  overflow: auto;
-  background: white;
-  padding: 2rem;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
+.expanded-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 100;
+  overflow-y: auto;
 }
 
-/* Close button for fullscreen cards */
+.expanded-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px;
+  width: 90%;
+  max-width: 1200px;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e0e0e0;
+}
+
 .close-btn {
   position: absolute;
   top: 10px;
-  right: 15px;
-  background: transparent;
-  font-size: 24px;
+  right: 10px;
+  background: none;
   border: none;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: #444;
+  z-index: 101;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #333;
 }

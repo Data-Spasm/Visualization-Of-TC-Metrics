@@ -60,9 +60,19 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
   const miscuesForSelectedAttempt = miscuesForPassage[selectedAttemptIndex]?.result || {};
 
   const totalSummary = useMemo(() => {
-    const totals = miscuesForPassage.reduce(
+    const allMiscues = [];
+  
+    assessments.forEach((a) => {
+      const key = `${student.username}_${a._id?.$oid || a._id}`;
+      const entries = miscues.byStudentPassage.get(key);
+      if (entries) {
+        allMiscues.push(...entries);
+      }
+    });
+  
+    return allMiscues.reduce(
       (acc, m) => {
-        const r = m.result;
+        const r = m.result || {};
         acc.numDels += r.numDels || 0;
         acc.numIns += r.numIns || 0;
         acc.numReps += r.numReps || 0;
@@ -70,7 +80,7 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
         acc.numRevs += r.numRevs || 0;
         acc.numCorrect += r.numCorrect || 0;
         acc.totalWords +=
-          (r.numCorrect || 0) + r.numDels + r.numIns + r.numReps + r.numSubs + r.numRevs;
+          (r.numCorrect || 0) + (r.numDels || 0) + (r.numIns || 0) + (r.numReps || 0) + (r.numSubs || 0) + (r.numRevs || 0);
         return acc;
       },
       {
@@ -83,8 +93,8 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
         totalWords: 0,
       }
     );
-    return totals;
-  }, [miscuesForPassage]);
+  }, [assessments, miscues, student.username]);
+  
 
   useEffect(() => {
     setSelectedAttemptIndex(0);
@@ -143,12 +153,13 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
   const totalCorrectWords = totalSummary.numCorrect;
 
   const metrics = [
-    { key: "numDels", label: "Omissions", color: "yellow" },
-    { key: "numIns", label: "Insertions", color: "blue" },
-    { key: "numReps", label: "Repetitions", color: "purple" },
-    { key: "numSubs", label: "Substitutions", color: "green" },
-    { key: "numRevs", label: "Reversals", color: "red" },
+    { key: "numSubs", label: "Substitutions", color: "red" },      
+    { key: "numRevs", label: "Reversals", color: "orange" },         
+    { key: "numDels", label: "Omissions", color: "yellow" },        
+    { key: "numIns", label: "Insertions", color: "lightblue" },     
+    { key: "numReps", label: "Repetitions", color: "indigo" },    
   ];
+  
 
   return (
     <div className="passage-view-container">

@@ -26,6 +26,7 @@ const Student = ({ student }) => {
   const navigate = useNavigate();
   const trackEvent = useAnalyticsEvent("Student Dashboard");
   const hoverStartRef = useRef({});
+  const classroomRef = useRef(null);
 
   useEffect(() => {
     if (!attemptsLoaded) loadAttemptsAndMiscues();
@@ -108,10 +109,8 @@ const Student = ({ student }) => {
 
   if (!attemptsLoaded) return <h2>Loading student data...</h2>;
 
-  const isFullscreen = (key) => expandedCard === key;
-
   return (
-    <div className="classroom">
+    <div className="classroom" ref={classroomRef}>
       {!expandedCard && (
         <div className="long-card">
           <Card className="long-card">
@@ -184,68 +183,36 @@ const Student = ({ student }) => {
         </div>
       )}
 
-      {expandedCard === "engagement" && (
-        <div className="fullscreen-card">
-          <button
-            className="close-btn"
-            onClick={() => {
-              trackEvent("fullscreen_close", "Student Engagement Bubble Chart");
-              setExpandedCard(null);
-            }}
-          >
-            ✖
-          </button>
-          <Card className="card">
-            <CardContent>
+      {expandedCard && (
+        <div className="expanded-card-overlay">
+          <div className="expanded-card">
+            <button
+              className="close-btn"
+              onClick={() => {
+                trackEvent("fullscreen_close", expandedCard);
+                setExpandedCard(null);
+              }}
+            >
+              ✖
+            </button>
+            {expandedCard === "engagement" && (
               <StudentEngagementBubbleChart
                 student={student}
                 readingAttempts={studentAttempts}
                 assessments={assessments}
               />
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {expandedCard === "wordAccuracy" && (
-        <div className="fullscreen-card">
-          <button
-            className="close-btn"
-            onClick={() => {
-              trackEvent("fullscreen_close", "Word Accuracy Chart");
-              setExpandedCard(null);
-            }}
-          >
-            ✖
-          </button>
-          <Card className="card">
-            <CardContent>
+            )}
+            {expandedCard === "wordAccuracy" && (
               <WordAccuracyStudent student={student} miscues={miscueData} />
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {expandedCard === "tiles" && (
-        <div className="fullscreen-card">
-          <button
-            className="close-btn"
-            onClick={() => {
-              trackEvent("fullscreen_close", "Reading Assessment Tile View");
-              setExpandedCard(null);
-            }}
-          >
-            ✖
-          </button>
-          <Card className="card">
-            <CardContent>
+            )}
+            {expandedCard === "tiles" && (
               <ReadingAssessmentDataTileView
                 readingAttempts={studentAttempts}
                 assessments={assessments}
                 studentUsername={student.username}
               />
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
       )}
     </div>
