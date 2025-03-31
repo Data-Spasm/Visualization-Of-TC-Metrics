@@ -17,4 +17,5 @@ dist/
 # Ignore JSON data files
 src/data/*.json
 # Ignore all files in the utils directory
-src/utils/
+src/utils/assessAttempt.js
+src/utils/indexToHighlight.js
