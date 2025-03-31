@@ -1,21 +1,20 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { assessAttempt } from "../utils/assessAttempt";
+import { DataContext } from "../context/DataContext";
 import ReadingProgressRadialCard from "../components/radial/ReadingProgressRadial";
 import "./PassageView.css";
 
-const PassageView = ({
-  student,
-  passageId: initialPassageId,
-  attempts = [],
-  allAttempts = [],
-  assessments = []
-}) => {
+const PassageView = ({ student, passageId: initialPassageId }) => {
   const navigate = useNavigate();
+  const {
+    assessments,
+    miscues,
+    readingAttempts,
+    attemptsLoaded,
+    loadAttemptsAndMiscues,
+  } = useContext(DataContext);
 
   const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
-  const [miscueSummary, setMiscueSummary] = useState({});
-  const [totalSummary, setTotalSummary] = useState({});
   const [highlightedContent, setHighlightedContent] = useState("");
   const [rawAttempt, setRawAttempt] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
@@ -23,138 +22,136 @@ const PassageView = ({
   const [originalText, setOriginalText] = useState("Loading...");
   const [attemptDuration, setAttemptDuration] = useState(null);
 
-  const metrics = [
-    { key: "numDels", label: "Omissions", color: "yellow" },
-    { key: "numIns", label: "Insertions", color: "blue" },
-    { key: "numReps", label: "Repetitions", color: "purple" },
-    { key: "numSubs", label: "Substitutions", color: "green" },
-    { key: "numRevs", label: "Reversals", color: "red" }
-  ];
+  useEffect(() => {
+    if (!attemptsLoaded) loadAttemptsAndMiscues();
+  }, [attemptsLoaded, loadAttemptsAndMiscues]);
+
+  const studentAllAttempts = useMemo(() => {
+    return readingAttempts.filter((a) => a.studentUsername === student.username);
+  }, [readingAttempts, student.username]);
 
   const filteredAttempts = useMemo(() => {
-    return attempts.filter(a => a.readingAssessmentId === initialPassageId);
-  }, [attempts, initialPassageId]);
+    return studentAllAttempts.filter((a) => a.readingAssessmentId === initialPassageId);
+  }, [studentAllAttempts, initialPassageId]);
 
-  useEffect(() => {
-    const allSegments = allAttempts
-      .filter(a => Array.isArray(a.readingAttempts))
-      .flatMap(a => a.readingAttempts);
+  const miscuesForPassage = useMemo(() => {
+    const key = `${student.username}_${initialPassageId}`;
+    return miscues.byStudentPassage.get(key) || [];
+  }, [student.username, initialPassageId, miscues]);
 
-    const results = allSegments.map(s => {
-      try {
-        return assessAttempt(s.readingContent || "", s.rawAttempt || "");
-      } catch {
-        return { numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0 };
+  const miscuesForSelectedAttempt = miscuesForPassage[selectedAttemptIndex]?.result || {};
+
+  const totalSummary = useMemo(() => {
+    const totals = miscuesForPassage.reduce(
+      (acc, m) => {
+        const r = m.result;
+        acc.numDels += r.numDels || 0;
+        acc.numIns += r.numIns || 0;
+        acc.numReps += r.numReps || 0;
+        acc.numSubs += r.numSubs || 0;
+        acc.numRevs += r.numRevs || 0;
+        acc.numCorrect += r.numCorrect || 0;
+        acc.totalWords +=
+          (r.numCorrect || 0) + r.numDels + r.numIns + r.numReps + r.numSubs + r.numRevs;
+        return acc;
+      },
+      {
+        numDels: 0,
+        numIns: 0,
+        numReps: 0,
+        numSubs: 0,
+        numRevs: 0,
+        numCorrect: 0,
+        totalWords: 0,
       }
-    });
-
-    const totalWords = allSegments.reduce((acc, seg) => {
-      const words = (seg.readingContent || "").split(/\s+/).filter(Boolean).length;
-      return acc + words;
-    }, 0);
-
-    const totals = results.reduce((acc, r) => {
-      acc.numDels += r.numDels || 0;
-      acc.numIns += r.numIns || 0;
-      acc.numReps += r.numReps || 0;
-      acc.numSubs += r.numSubs || 0;
-      acc.numRevs += r.numRevs || 0;
-      return acc;
-    }, { numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0 });
-
-    setTotalSummary({ ...totals, numTotalWords: totalWords });
-  }, [allAttempts]);
-
-  useEffect(() => {
-    if (!filteredAttempts.length || !assessments.length || !initialPassageId) return;
-
-    const currentAttempt = filteredAttempts[selectedAttemptIndex];
-    if (!currentAttempt?.readingAttempts?.length) return;
-
-    const matchedAssessment = assessments.find(
-      a => a._id?.$oid === initialPassageId || a._id === initialPassageId
     );
-    setAssessment(matchedAssessment);
-
-    const combinedPassage = currentAttempt.readingAttempts
-      .map(p => p.readingContent)
-      .join(" ")
-      .trim();
-    setOriginalText(combinedPassage || "No passage text available.");
-
-    const paragraphResults = currentAttempt.readingAttempts.map(a => {
-      try {
-        return assessAttempt(a.readingContent || "", a.rawAttempt || "");
-      } catch {
-        return {
-          numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0,
-          attemptWithMiscues: [],
-        };
-      }
-    });
-
-    const totalSummary = paragraphResults.reduce((acc, res) => {
-      acc.numDels += res.numDels || 0;
-      acc.numIns += res.numIns || 0;
-      acc.numReps += res.numReps || 0;
-      acc.numSubs += res.numSubs || 0;
-      acc.numRevs += res.numRevs || 0;
-      return acc;
-    }, { numDels: 0, numIns: 0, numReps: 0, numSubs: 0, numRevs: 0 });
-
-    const totalWords = currentAttempt.readingAttempts.reduce((acc, attempt) => {
-      const wordCount = (attempt.readingContent || "").split(/\s+/).filter(Boolean).length;
-      return acc + wordCount;
-    }, 0);
-
-    setMiscueSummary({ ...totalSummary, numTotalWords: totalWords });
-
-    const allHighlights = paragraphResults.map(res =>
-      res.attemptWithMiscues?.map(({ word, miscue }) => {
-        if (miscue === "Omission") return `<span class="omission ghost-word">[${word}]</span>`;
-        if (!word) return "";
-        const className = miscue.toLowerCase().replace(" ", "-");
-        return `<span class="${className}">${word}</span>`;
-      }).join(" ")
-    ).join("<br/>");
-
-    const allRaw = currentAttempt.readingAttempts.map(a => a.rawAttempt || "").join(" ");
-    setHighlightedContent(allHighlights);
-    setRawAttempt(allRaw);
-
-    const audioReference = currentAttempt.readingAttempts?.[0]?.readingActionRecords?.find(r => r.audioReference)?.audioReference;
-    setAudioUrl(audioReference ? `/recordings/${audioReference}` : "");
-
-    const durationSeconds = parseFloat(currentAttempt.timeOnTask);
-    setAttemptDuration(isNaN(durationSeconds) ? null : Math.round(durationSeconds));
-  }, [filteredAttempts, selectedAttemptIndex, assessments, initialPassageId]);
+    return totals;
+  }, [miscuesForPassage]);
 
   useEffect(() => {
     setSelectedAttemptIndex(0);
   }, [initialPassageId]);
 
-  const correctWords = (miscueSummary.numTotalWords || 0) - ((miscueSummary.numDels || 0) + (miscueSummary.numSubs || 0));
-  const totalCorrectWords = (totalSummary.numTotalWords || 0) - ((totalSummary.numDels || 0) + (totalSummary.numSubs || 0));
+  useEffect(() => {
+    if (!filteredAttempts.length || !assessments.length) return;
+
+    const attempt = filteredAttempts[selectedAttemptIndex];
+    const matchedAssessment = assessments.find(
+      (a) => a._id?.$oid === initialPassageId || a._id === initialPassageId
+    );
+    setAssessment(matchedAssessment);
+
+    const combinedPassage = attempt.readingAttempts
+      .map((p) => p.readingContent)
+      .join(" ")
+      .trim();
+    setOriginalText(combinedPassage || "No passage text available.");
+
+    const highlights =
+      miscuesForSelectedAttempt?.attemptWithMiscues
+        ?.map(({ word, miscue }) => {
+          if (miscue === "Omission") return `<span class="omission ghost-word">[${word}]</span>`;
+          if (!word) return "";
+          const className = miscue.toLowerCase().replace(" ", "-");
+          return `<span class="${className}">${word}</span>`;
+        })
+        .join(" ") || "";
+
+    const raw = attempt.readingAttempts.map((a) => a.rawAttempt || "").join(" ");
+    setHighlightedContent(highlights);
+    setRawAttempt(raw);
+
+    const audioReference = attempt.readingAttempts?.[0]?.readingActionRecords?.find(
+      (r) => r.audioReference
+    )?.audioReference;
+    setAudioUrl(audioReference ? `/recordings/${audioReference}` : "");
+
+    const durationSeconds = parseFloat(attempt.timeOnTask);
+    setAttemptDuration(isNaN(durationSeconds) ? null : Math.round(durationSeconds));
+  }, [
+    selectedAttemptIndex,
+    filteredAttempts,
+    assessments,
+    initialPassageId,
+    miscuesForSelectedAttempt,
+  ]);
+
+  if (!attemptsLoaded) return <h2>Loading passage data...</h2>;
+
+  const correctWords = miscuesForSelectedAttempt.numCorrect || 0;
+  const totalCorrectWords = totalSummary.numCorrect;
+
+  const metrics = [
+    { key: "numDels", label: "Omissions", color: "yellow" },
+    { key: "numIns", label: "Insertions", color: "blue" },
+    { key: "numReps", label: "Repetitions", color: "purple" },
+    { key: "numSubs", label: "Substitutions", color: "green" },
+    { key: "numRevs", label: "Reversals", color: "red" },
+  ];
 
   return (
     <div className="passage-view-container">
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "1rem"
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
+      >
         <h2 className="title">
           Student: {student?.firstName} {student?.lastName || "Unnamed Student"}
         </h2>
-        <button onClick={() => navigate(`/students/${student._id?.$oid || student._id}`)}
+        <button
+          onClick={() => navigate(`/students/${student._id?.$oid || student._id}`)}
           style={{
             backgroundColor: "#f3f4f6",
             border: "1px solid #d1d5db",
             padding: "6px 12px",
             borderRadius: "6px",
-            cursor: "pointer"
-          }}>
+            cursor: "pointer",
+          }}
+        >
           ← Back to Student Dashboard
         </button>
       </div>
@@ -164,22 +161,30 @@ const PassageView = ({
       </h4>
 
       <ReadingProgressRadialCard
-        miscues={[{
-          ...totalSummary,
-          passageTitle: "All Passages"
-        }]}
+        miscues={[
+          {
+            passageTitle: "All Passages",
+            ...totalSummary,
+          },
+        ]}
       />
 
       <div className="passage-box">
-        <div className="passage-header" style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1rem"
-        }}>
+        <div
+          className="passage-header"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "1rem",
+          }}
+        >
           <h2 style={{ margin: 0 }}>
-            <strong>Passage: "{assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}”</strong>
+            <strong>
+              Passage: "
+              {assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}”
+            </strong>
           </h2>
 
           <div className="attempt-selector">
@@ -187,16 +192,22 @@ const PassageView = ({
             <select
               id="passageSelect"
               value={initialPassageId}
-              onChange={e => navigate(`/passages/${student.username}/${e.target.value}`)}
+              onChange={(e) =>
+                navigate(`/passages/${student.username}/${e.target.value}`)
+              }
             >
-              {assessments.filter(assessment => {
-                const assessmentId = assessment._id?.$oid || assessment._id;
-                return allAttempts.some(attempt => attempt.readingAssessmentId === assessmentId);
-              }).map(a => (
-                <option key={a._id?.$oid || a._id} value={a._id?.$oid || a._id}>
-                  {a.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}
-                </option>
-              ))}
+              {assessments
+                .filter((assessment) => {
+                  const assessmentId = assessment._id?.$oid || assessment._id;
+                  return studentAllAttempts.some(
+                    (attempt) => attempt.readingAssessmentId === assessmentId
+                  );
+                })
+                .map((a) => (
+                  <option key={a._id?.$oid || a._id} value={a._id?.$oid || a._id}>
+                    {a.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}
+                  </option>
+                ))}
             </select>
           </div>
         </div>
@@ -207,17 +218,18 @@ const PassageView = ({
 
         {attemptDuration !== null && (
           <h4 style={{ marginBottom: "0.5rem", color: "#6366f1" }}>
-            Time Taken: {Math.floor(attemptDuration / 60)}m {Math.round(attemptDuration % 60)}s
+            Time Taken: {Math.floor(attemptDuration / 60)}m{" "}
+            {Math.round(attemptDuration % 60)}s
           </h4>
         )}
 
         <div className="miscue-chips">
-          {metrics.map(m => (
+          {metrics.map((m) => (
             <span
               className={`chip ${m.color}`}
               key={`${initialPassageId}-${selectedAttemptIndex}-${m.key}`}
             >
-              {miscueSummary[m.key] || 0} {m.label}
+              {miscuesForSelectedAttempt[m.key] || 0} {m.label}
             </span>
           ))}
         </div>
@@ -227,7 +239,7 @@ const PassageView = ({
           <select
             id="attemptSelect"
             value={selectedAttemptIndex}
-            onChange={e => setSelectedAttemptIndex(Number(e.target.value))}
+            onChange={(e) => setSelectedAttemptIndex(Number(e.target.value))}
           >
             {filteredAttempts.map((_, idx) => (
               <option key={`attempt-${idx}`} value={idx}>
