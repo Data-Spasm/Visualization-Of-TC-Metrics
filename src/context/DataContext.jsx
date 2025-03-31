@@ -17,11 +17,27 @@ export const DataProvider = ({ children }) => {
 
   const teacherUsername = "arima2";
 
-  // Load students and assessments immediately
+  // Load students and assessments
   useEffect(() => {
     try {
       const fetchedStudents = UserController.getStudentsByTeacher(teacherUsername);
-      setStudents(fetchedStudents);
+
+      // fake names (temporary override)
+      const fakeNames = [
+        "Yohpie Smith",
+        "Josiah Mayers",
+        "Maia Paltoo",
+        "Aaron Peters",
+        "Bruno Mars",
+        "Akeilah McKenzie",
+      ];
+
+      const renamed = fetchedStudents.map((s, i) => {
+        const [firstName, lastName] = fakeNames[i]?.split(" ") || [s.firstName, s.lastName];
+        return { ...s, firstName, lastName };
+      });
+
+      setStudents(renamed);
 
       const fetchedAssessments = ReadingAssessmentController.getAllAssessments();
       setAssessments(fetchedAssessments);
