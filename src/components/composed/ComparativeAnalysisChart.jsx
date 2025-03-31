@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   ComposedChart,
   Bar,
@@ -10,11 +10,26 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { Typography, Select, MenuItem } from "@mui/material";
 import "./ComparativeAnalysisChart.css";
 
-const ComparativePerformanceChart = ({ miscues = [], classAverages = [] }) => {
-  const mergedData = miscues.map((entry) => {
-    const classAvg = classAverages.find(avg => avg.passageId === entry.passageId);
+const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [filteredData, setFilteredData] = useState([]);
+
+  useEffect(() => {
+    if (students.length > 0 && !selectedStudent) {
+      setSelectedStudent(students[0].username);
+    }
+  }, [students]);
+
+  useEffect(() => {
+    if (!selectedStudent) return;
+    const filtered = miscues.filter(entry => entry.username === selectedStudent);
+    setFilteredData(filtered);
+  }, [selectedStudent, miscues]);
+
+  const mergedData = filteredData.map((entry) => {
     const total = (entry.numCorrect || 0) + (entry.numDels || 0) + (entry.numSubs || 0);
     const miscueRate = total > 0
       ? (((entry.numDels || 0) + (entry.numSubs || 0)) / total) * 100
@@ -24,8 +39,8 @@ const ComparativePerformanceChart = ({ miscues = [], classAverages = [] }) => {
       passage: entry.passage,
       studentCorrect: entry.numCorrect || 0,
       studentAttempts: entry.studentAttempts || 0,
-      classCorrect: classAvg?.avgCorrect || 0,
-      classAttempts: classAvg?.classAttempts || 0,
+      classCorrect: entry.avgCorrect || 0,
+      classAttempts: entry.classAttempts || 0,
       miscueRate: +miscueRate.toFixed(2),
     };
   });
@@ -58,7 +73,18 @@ const ComparativePerformanceChart = ({ miscues = [], classAverages = [] }) => {
 
   return (
     <div className="comparative-card">
-      <h4 className="comparative-title">Comparative Performance Analysis</h4>
+      <div style={{ marginBottom: "1rem" }}>
+        <Typography variant="subtitle1">Select a Student</Typography>
+        <Select fullWidth value={selectedStudent || ""} onChange={(e) => setSelectedStudent(e.target.value)} displayEmpty>
+          <MenuItem value="" disabled>Select Student</MenuItem>
+          {students.map((s) => (
+            <MenuItem key={s.username} value={s.username}>
+              {s.firstName} {s.lastName}
+            </MenuItem>
+          ))}
+        </Select>
+      </div>
+
       <div className="comparative-chart-container">
         <ResponsiveContainer width="100%" height={350}>
           <ComposedChart data={mergedData}>

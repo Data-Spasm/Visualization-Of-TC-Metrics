@@ -167,14 +167,6 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
           </Card>
         </div>
       )}
-
-      <div className="long-card-2">
-        <Card className="long-card-2">
-          <CardContent style={{ height: "100%", width: "100%" }}>
-            <ComparativePerformanceChart miscues={miscueData} />
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
