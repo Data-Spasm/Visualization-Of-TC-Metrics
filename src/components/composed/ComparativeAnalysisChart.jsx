@@ -16,6 +16,7 @@ import "./ComparativeAnalysisChart.css";
 const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
+  const [story, setStory] = useState("");
 
   useEffect(() => {
     if (students.length > 0 && !selectedStudent) {
@@ -28,6 +29,35 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
     const filtered = miscues.filter(entry => entry.username === selectedStudent);
     setFilteredData(filtered);
   }, [selectedStudent, miscues]);
+
+  useEffect(() => {
+    if (filteredData.length > 0) {
+      const highestMiscue = [...filteredData].sort((a, b) => {
+        const totalA = (a.numCorrect || 0) + (a.numDels || 0) + (a.numSubs || 0);
+        const rateA = totalA ? ((a.numDels + a.numSubs) / totalA) * 100 : 0;
+
+        const totalB = (b.numCorrect || 0) + (b.numDels || 0) + (b.numSubs || 0);
+        const rateB = totalB ? ((b.numDels + b.numSubs) / totalB) * 100 : 0;
+
+        return rateB - rateA;
+      })[0];
+
+      const student = students.find(s => s.username === selectedStudent);
+      if (highestMiscue && student) {
+        const totalAttempts = highestMiscue.studentAttempts || 0;
+        const classParticipation = highestMiscue.classAttempts || 0;
+        setStory(
+          `${student.firstName} ${student.lastName} showed the greatest difficulty in the passage titled "${highestMiscue.passage}". Out of ${totalAttempts} personal attempt${totalAttempts !== 1 ? 's' : ''}, their miscue rate reached ${(
+            ((highestMiscue.numDels + highestMiscue.numSubs) /
+              ((highestMiscue.numCorrect || 0) + (highestMiscue.numDels || 0) + (highestMiscue.numSubs || 0))) *
+            100
+          ).toFixed(1)}%. This compares with the class average performance based on ${classParticipation} attempt${classParticipation !== 1 ? 's' : ''}. This insight highlights a potential focal point for tailored reading support.`
+        );
+      }
+    } else {
+      setStory("No performance summary available yet.");
+    }
+  }, [filteredData, students, selectedStudent]);
 
   const mergedData = filteredData.map((entry) => {
     const total = (entry.numCorrect || 0) + (entry.numDels || 0) + (entry.numSubs || 0);
@@ -85,6 +115,10 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
         </Select>
       </div>
 
+      <div className="story-summary">
+        <p>{story}</p>
+      </div>
+
       <div className="comparative-chart-container">
         <ResponsiveContainer width="100%" height={350}>
           <ComposedChart data={mergedData}>
@@ -116,6 +150,16 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+
+      {mergedData.length > 0 && (
+        <div className="callout-block">
+          <strong>Tip:</strong> If a student's miscue rate is consistently high across multiple passages, consider revisiting decoding strategies or offering scaffolded fluency practice for those reading materials.
+        </div>
+      )}
+
+      {mergedData.length === 0 && (
+        <div className="no-data">No data available</div>
+      )}
     </div>
   );
 };
