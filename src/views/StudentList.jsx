@@ -64,9 +64,8 @@ const StudentList = ({ students }) => {
     return "excellent";
   };
 
-  //  Early check: no student data yet
   if (!Array.isArray(students)) {
-    console.warn("⚠️ StudentList received non-array or missing student data:", students);
+    console.warn("StudentList received non-array or missing student data:", students);
     return <div className="loading-message">Loading students...</div>;
   }
 
@@ -93,7 +92,7 @@ const StudentList = ({ students }) => {
   const performanceOrder = ["Excellent", "Good", "Fair", "Low"];
 
   return (
-    <div className="student-list-wrapper">
+    <div className="classroom student-list">
       <div className="student-list-container">
         <h2>Students</h2>
         <div className="responsive-table-container">
