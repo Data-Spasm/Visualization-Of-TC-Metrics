@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
-import { ResponsiveContainer } from "recharts";
+import { useNavigate } from "react-router-dom";
 import "./ClassEngagementBubbleChart.css";
 
-// This component visualizes class engagement with reading passages using a bubble chart.
 const colorPalette = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
   "#6366f1", "#ec4899", "#22c55e", "#8b5cf6",
   "#14b8a6", "#f43f5e"
 ];
 
-// The ClassEngagementBubbleChart component takes in reading attempts and assessments as props and generates a bubble chart to visualize student engagement with reading passages.
-const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) => {
+const ClassEngagementBubbleChart = ({
+  readingAttempts = [],
+  assessments = [],
+  students = []
+}) => {
   const [seriesData, setSeriesData] = useState([]);
   const [storySummary, setStorySummary] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!readingAttempts.length || !assessments.length) return;
+    if (!readingAttempts.length || !assessments.length || !students.length) return;
 
     const passageMap = new Map();
     const passageDataMap = {};
@@ -24,7 +27,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
 
     readingAttempts.forEach((attempt) => {
       const assessment = assessments.find(
-        a => (a._id?.$oid || a._id) === attempt.readingAssessmentId
+        (a) => (a._id?.$oid || a._id) === attempt.readingAssessmentId
       );
       const title = assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled";
 
@@ -33,7 +36,13 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
       }
 
       const passageId = passageMap.get(title);
-      const studentName = attempt.studentUsername;
+      const username = attempt.studentUsername;
+      const displayStudent = students.find((s) => s.username === username);
+      const displayName = displayStudent
+        ? `${displayStudent.firstName} ${displayStudent.lastName}`
+        : username;
+
+      const assessmentId = attempt.readingAssessmentId;
       const time = Math.round(parseFloat(attempt.timeOnTask || 0));
 
       if (!passageDataMap[title]) {
@@ -46,17 +55,18 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
         };
       }
 
-      const studentEntry = passageDataMap[title].data.find(d => d.name === studentName);
-      if (studentEntry) {
-        studentEntry.y += 1;
-        studentEntry.z += time;
+      const existing = passageDataMap[title].data.find((d) => d.username === username);
+      if (existing) {
+        existing.y += 1;
+        existing.z += time;
       } else {
         passageDataMap[title].data.push({
           x: parseInt(passageId.replace("P", "")) + passageDataMap[title].data.length * 0.2,
           y: 1,
           z: time,
-          name: studentName,
-          passageId
+          name: displayName,
+          username, // for routing
+          passageId: assessmentId
         });
       }
 
@@ -67,7 +77,6 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
     const allData = Object.values(passageDataMap);
     setSeriesData(allData);
 
-    // Data storytelling summary
     const mostEngaged = [...allData].sort((a, b) => b.totalAttempts - a.totalAttempts)[0];
     if (mostEngaged) {
       setStorySummary(
@@ -76,14 +85,22 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
     } else {
       setStorySummary("No engagement data available for analysis.");
     }
-  }, [readingAttempts, assessments]);
+  }, [readingAttempts, assessments, students]);
 
   const chartOptions = {
     chart: {
       type: "bubble",
-      // Let height be controlled by container
       toolbar: { show: false },
-      zoom: { enabled: false }
+      zoom: { enabled: false },
+      events: {
+        dataPointSelection: function (event, chartContext, config) {
+          const { seriesIndex, dataPointIndex } = config;
+          const bubble = chartContext.w.config.series[seriesIndex].data[dataPointIndex];
+          if (bubble?.username && bubble?.passageId) {
+            navigate(`/passages/${bubble.username}/${bubble.passageId}`);
+          }
+        }
+      }
     },
     xaxis: {
       title: { text: "Passages", style: { fontWeight: "normal" } },
@@ -106,14 +123,15 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
             <strong>${w.config.series[seriesIndex].name}</strong><br/>
             Student: ${dp.name}<br/>
             Attempts: ${dp.y}<br/>
-            Time on Task: ${dp.z} sec
+            Time on Task: ${dp.z} sec<br/>
+            <em>Click to view attempt</em>
           </div>
         `;
       }
     },
     dataLabels: { enabled: false },
     fill: { opacity: 0.25 },
-    colors: seriesData.map(s => s.color),
+    colors: seriesData.map((s) => s.color),
     legend: {
       show: true,
       position: "bottom",
@@ -131,7 +149,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
     },
     grid: {
       padding: {
-        bottom: 30, // Ensure legend doesn't crowd the chart
+        bottom: 30,
         top: 10,
         left: 10,
         right: 10
@@ -147,13 +165,13 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
         <p>{storySummary}</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={355}>
-        <Chart options={chartOptions} series={seriesData} type="bubble" />
-      </ResponsiveContainer>
+      <div style={{ width: "100%", height: 390 }}>
+        <Chart options={chartOptions} series={seriesData} type="bubble" height="100%" />
+      </div>
 
       {seriesData.length > 0 && (
         <div className="callout-block">
-          <strong>Tip:</strong> Passages with large bubbles and high attempt counts may indicate either student interest or reading difficulty—consider reviewing performance data for those passages.
+          <strong>Tip:</strong> Click a bubble to view the student's specific passage attempt.
         </div>
       )}
 

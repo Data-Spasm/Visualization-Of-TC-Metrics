@@ -5,7 +5,12 @@ import "./ReadingAssessmentDataTileSquare.css";
 const TILE_SIZE = 16;
 const TILE_GAP = 4;
 
-const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [], studentUsername = null }) => {
+const ReadingAssessmentDataTileView = ({
+  readingAttempts = [],
+  assessments = [],
+  studentUsername = null,
+  students = []
+}) => {
   const [data, setData] = useState([]);
   const [insight, setInsight] = useState("");
 
@@ -16,7 +21,7 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
     const studentQuitMap = {};
 
     const filteredAttempts = studentUsername
-      ? readingAttempts.filter(attempt => attempt.studentUsername === studentUsername)
+      ? readingAttempts.filter((attempt) => attempt.studentUsername === studentUsername)
       : readingAttempts;
 
     filteredAttempts.forEach((attempt) => {
@@ -37,7 +42,7 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
       titleMap[title].tiles.push({
         type,
         student: attempt.studentUsername,
-        passageId: attempt.readingAssessmentId,
+        passageId: attempt.readingAssessmentId
       });
 
       if (type === "quit") {
@@ -50,13 +55,13 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
       }
     });
 
-    Object.values(titleMap).forEach(entry => {
+    Object.values(titleMap).forEach((entry) => {
       entry.tiles.sort((a, b) => a.type.localeCompare(b.type));
     });
 
     setData(Object.values(titleMap));
 
-    // Generate insight
+    // Insight generation
     if (studentUsername) {
       const total = filteredAttempts.length;
       const quits = studentQuitMap[studentUsername] || 0;
@@ -80,6 +85,11 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
     }
   }, [readingAttempts, assessments, studentUsername]);
 
+  const getDisplayName = (username) => {
+    const match = students.find((s) => s.username === username);
+    return match ? `${match.firstName} ${match.lastName}` : username;
+  };
+
   return (
     <div className="chart-container">
       <h3 className="chart-title">Reading Passage Completion</h3>
@@ -92,10 +102,10 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
         className="scrollable-area"
         style={{
           width: "100%",
-          height: "310px",
+          height: "325px",
           overflowY: "auto",
           overflowX: "hidden",
-          paddingRight: "8px",
+          paddingRight: "8px"
         }}
       >
         <div className="responsive-tile-wrapper">
@@ -111,7 +121,7 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
                   textOverflow: "ellipsis",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#333",
+                  color: "#333"
                 }}
               >
                 {passage}
@@ -125,7 +135,9 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
                     title={
                       studentUsername
                         ? `Status: ${type === "completed" ? "Completed" : "Quit"}`
-                        : `Student: ${student}\nStatus: ${type === "completed" ? "Completed" : "Quit"}`
+                        : `Student: ${getDisplayName(student)}\nStatus: ${
+                            type === "completed" ? "Completed" : "Quit"
+                          }`
                     }
                   >
                     <div
@@ -135,7 +147,7 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
                         height: TILE_SIZE,
                         margin: TILE_GAP / 2,
                         borderRadius: 3,
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
                       }}
                     />
                   </Link>
@@ -160,12 +172,11 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
           {studentUsername ? (
             <>
               <strong>Tip:</strong> If {studentUsername} frequently quits passages, consider reviewing text difficulty,
-              engagement, or external factors like reading environment. This insight can guide personalized interventions.
+              engagement, or external factors like reading environment.
             </>
           ) : (
             <>
-              <strong>Tip:</strong> Hover over squares to identify which students are quitting early. Repeated quit patterns
-              could signal a passage that needs simplification or support.
+              <strong>Tip:</strong> Hover over squares to identify which students are quitting early.
             </>
           )}
         </div>

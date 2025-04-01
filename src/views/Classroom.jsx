@@ -29,9 +29,7 @@ const Classroom = () => {
   const classroomRef = useRef(null);
 
   useEffect(() => {
-    if (!attemptsLoaded) {
-      loadAttemptsAndMiscues();
-    }
+    if (!attemptsLoaded) loadAttemptsAndMiscues();
   }, [attemptsLoaded, loadAttemptsAndMiscues]);
 
   useEffect(() => {
@@ -59,8 +57,7 @@ const Classroom = () => {
 
     return assessments.flatMap((assessment, idx) => {
       const passageId = assessment._id?.$oid || assessment._id;
-      const passageTitle =
-        assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
+      const passageTitle = assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
 
       return students.map((student) => {
         const key = `${student.username}_${passageId}`;
@@ -159,7 +156,11 @@ const Classroom = () => {
             }}
           >
             <CardContent>
-              <ClassEngagementBubbleChart readingAttempts={readingAttempts} assessments={assessments} />
+              <ClassEngagementBubbleChart
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+                students={students}
+              />
             </CardContent>
           </Card>
 
@@ -195,13 +196,12 @@ const Classroom = () => {
             >
               ✖
             </button>
-            {expandedCard === "accuracy" && (
-              <OverallAccuracyFluencyChart students={students} />
-            )}
+            {expandedCard === "accuracy" && <OverallAccuracyFluencyChart students={students} />}
             {expandedCard === "engagement" && (
               <ClassEngagementBubbleChart
                 readingAttempts={readingAttempts}
                 assessments={assessments}
+                students={students}
               />
             )}
             {expandedCard === "tileview" && (

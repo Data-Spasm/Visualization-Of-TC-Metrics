@@ -70,7 +70,7 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
         <p>{storySummary}</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={390}>
       <BarChart
         data={binnedData}
         margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
