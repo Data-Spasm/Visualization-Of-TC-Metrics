@@ -17,7 +17,7 @@
 .content {
   flex: 1;
   padding: 20px;
-  background-color: #FFFFFF; /* Background color */
+  background-color: #FFFFFF; 
 }
 
 .content.full {

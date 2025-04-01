@@ -14,7 +14,7 @@
   background: linear-gradient(135deg, #f7f7f7, #e6e6e6);
   margin: 0 auto;
   max-width: 80vw;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden; 
 }
 
 .grey-background {
@@ -36,7 +36,7 @@
 }
 
 .apexcharts-toolbar {
-  display: none; /* Hide the zoom toolbar */
+  display: none; 
 }
 
 .story-summary {
@@ -57,7 +57,6 @@
   color: #14532d;
 }
 
-/* Media Queries for scaling */
 @media (max-width: 1200px) {
   .chart-card {
     padding: 3vw;

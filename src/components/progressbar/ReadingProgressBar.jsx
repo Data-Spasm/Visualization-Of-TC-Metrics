@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import "./ReadingProgressBar.css";
 
+// This component visualizes reading progress and performance metrics for students in a class.
 const ReadingProgressBar = ({ students = [], readingAttempts = [] }) => {
   const performance = useMemo(() => {
     if (students.length === 0) return {};
@@ -25,6 +26,7 @@ const ReadingProgressBar = ({ students = [], readingAttempts = [] }) => {
       metricDetails.reversals.push({ name, value: perf.overallReversals || 0 });
     });
 
+    // Calculate averages, max, min, and students with max/min values for each metric
     const averages = {};
     Object.entries(metricDetails).forEach(([key, data]) => {
       const total = data.reduce((sum, d) => sum + d.value, 0);

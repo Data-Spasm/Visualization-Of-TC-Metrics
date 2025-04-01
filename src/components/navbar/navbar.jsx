@@ -36,7 +36,7 @@ const Navbar = ({ toggleSidebar }) => {
       <button className='toggle-button' onClick={toggleSidebar}>☰</button>
 
       <div className='header'>
-        <h1 className='header-text'>Teacher Dashboard</h1>
+        <h1 className='header-text'>Mrs. Brown's Dashboard</h1>
       </div>
 
       <div className='search'>
