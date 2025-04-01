@@ -54,29 +54,36 @@ const Classroom = () => {
 
   const miscueData = useMemo(() => {
     if (!students.length || !assessments.length || !attemptsLoaded) return [];
-
+  
     return assessments.flatMap((assessment, idx) => {
       const passageId = assessment._id?.$oid || assessment._id;
       const passageTitle = assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
-
+  
       return students.map((student) => {
         const key = `${student.username}_${passageId}`;
         const entries = miscues.byStudentPassage.get(key) || [];
-
+  
         let numCorrect = 0,
           numDels = 0,
           numSubs = 0;
-
+  
+        // Aggregate student's total correct, deletions, and substitutions
         entries.forEach((e) => {
           const result = e.result;
           numCorrect += result.numCorrect || 0;
           numDels += result.numDels || 0;
           numSubs += result.numSubs || 0;
         });
-
-        const studentAttempts = entries.length;
+  
+        // Student full attempt count = number of full ReadingAssessmentAttempts for this assessment
+        const studentAttempts = readingAttempts.filter(
+          (a) => a.studentUsername === student.username && a.readingAssessmentId === passageId
+        ).length;
+  
+        // Class full attempt count = number of unique ReadingAssessmentAttempts for this passage
         const classAttempts = readingAttempts.filter((a) => a.readingAssessmentId === passageId).length;
-
+  
+        // Class total correct for this passage (aggregate from all readingAttempts inside each assessment attempt)
         const totalClassCorrect = readingAttempts.reduce((acc, a) => {
           if (a.readingAssessmentId === passageId) {
             a.readingAttempts?.forEach((seg) => {
@@ -90,7 +97,9 @@ const Classroom = () => {
           }
           return acc;
         }, 0);
-
+  
+        const avgCorrect = classAttempts > 0 ? totalClassCorrect / classAttempts : 0;
+  
         return {
           passageId,
           passage: passageTitle,
@@ -100,11 +109,12 @@ const Classroom = () => {
           numSubs,
           studentAttempts,
           classAttempts,
-          avgCorrect: classAttempts > 0 ? totalClassCorrect / classAttempts : 0,
+          avgCorrect,
         };
       });
     });
   }, [students, readingAttempts, assessments, miscues, attemptsLoaded]);
+  
 
   if (loading) return <h2>Loading classroom data...</h2>;
 

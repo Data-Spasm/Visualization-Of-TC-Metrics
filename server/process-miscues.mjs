@@ -1,8 +1,16 @@
 import { assessAttempt } from '../src/utils/assessAttempt.js';
 import { MongoClient, ServerApiVersion } from 'mongodb';
+import dotenv from 'dotenv';
 
+dotenv.config({ path: './.env' });
 
-const uri = "mongodb+srv://jonathanswamber2003:PR6aMw4u345v7fxT@cluster0.8rf33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGO_URI;
+
+if (!uri) {
+  console.error("MONGO_URI is not set in environment variables.");
+  process.exit(1);
+}
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -16,6 +24,8 @@ const dbName = "textcomplexitydb";
 async function run() {
   try {
     await client.connect();
+    console.log("Connected to MongoDB.");
+
     const db = client.db(dbName);
     const attemptsCollection = db.collection("readingAssessmentAttempts");
 
@@ -25,26 +35,33 @@ async function run() {
     for (const attempt of allAttempts) {
       if (!Array.isArray(attempt.readingAttempts)) continue;
 
-      let updated = false;
+      let hasUpdates = false;
 
       const updatedSegments = attempt.readingAttempts.map((segment) => {
-        if (!segment.readingContent || !segment.rawAttempt || typeof segment.readingContent !== 'string' || typeof segment.rawAttempt !== 'string') {
+        const { readingContent, rawAttempt } = segment;
+
+        if (
+          !readingContent ||
+          !rawAttempt ||
+          typeof readingContent !== "string" ||
+          typeof rawAttempt !== "string"
+        ) {
           return segment;
         }
-      
-        if (segment.miscueResult) return segment;
-      
+
+        if (segment.miscueResult) return segment; // Already has result
+
         try {
-          const result = assessAttempt(segment.readingContent, segment.rawAttempt);
+          const result = assessAttempt(readingContent, rawAttempt);
+          hasUpdates = true;
           return { ...segment, miscueResult: result };
         } catch (err) {
-          console.warn(`⚠️ Failed to process one segment:`, err.message);
-          return segment; // Skip this one
+          console.warn("Failed to assess segment:", err.message);
+          return segment;
         }
       });
-      
 
-      if (updated) {
+      if (hasUpdates) {
         await attemptsCollection.updateOne(
           { _id: attempt._id },
           { $set: { readingAttempts: updatedSegments } }
@@ -53,9 +70,9 @@ async function run() {
       }
     }
 
-    console.log(`\u2705 Precomputed miscues for ${updatedCount} documents.`);
+    console.log(`Precomputed miscues for ${updatedCount} documents.`);
   } catch (err) {
-    console.error("\u274C Failed:", err);
+    console.error("Error during processing:", err);
   } finally {
     await client.close();
   }
