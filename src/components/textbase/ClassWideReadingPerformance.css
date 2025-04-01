@@ -1,0 +1,7 @@
+.overview-performance {
+  flex: 1 1 45%;
+  min-width: 320px;
+  max-width: 600px;
+  color: #000;
+  background-color: #fff;
+}

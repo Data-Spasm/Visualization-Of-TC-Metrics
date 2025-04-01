@@ -1,0 +1,82 @@
+.chart-container {
+  width: 100%;
+  height: 100%;
+  padding: 2vw;
+  background: linear-gradient(135deg, #f7f7f7, #e6e6e6);
+  border-radius: 1rem;
+  box-shadow: 0.2rem 0.4rem 1rem rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-title {
+  text-align: center;
+  font-size: 2vw;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1vw;
+}
+
+.no-data {
+  text-align: center;
+  font-size: 1.5vw;
+  color: red;
+}
+
+.story-summary {
+  background-color: #f0f4ff;
+  border-left: 0.5vw solid #3f51b5;
+  padding: 1vw;
+  margin-bottom: 1vw;
+  font-style: italic;
+  font-size: 1.5vw;
+  color: #333;
+}
+
+.callout-block {
+  background-color: #f9f9f9;
+  padding: 1vw 2vw;
+  border-left: 0.5vw solid #4caf50;
+  margin-top: 1.5vw;
+  font-size: 1.5vw;
+}
+
+.custom-tooltip {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 1vw 1.5vw;
+  font-size: 1.2vw;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .chart-title {
+    font-size: 1.8vw;
+  }
+
+  .story-summary, .callout-block, .no-data, .custom-tooltip {
+    font-size: 1.3vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-title {
+    font-size: 1.5vw;
+  }
+
+  .story-summary, .callout-block, .no-data, .custom-tooltip {
+    font-size: 1.1vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-title {
+    font-size: 1.2vw;
+  }
+
+  .story-summary, .callout-block, .no-data, .custom-tooltip {
+    font-size: 1vw;
+  }
+}
