@@ -4,6 +4,7 @@ import {
 } from "recharts";
 import "./ReadingAssessmentDataLineGraph.css";
 
+// This component visualizes the overall accuracy and fluency of students in a bar chart format
 const performanceBands = [
   { range: "0-49", min: 0, max: 49 },
   { range: "50-74", min: 50, max: 74 },
@@ -28,6 +29,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+// This component is responsible for rendering the Overall Accuracy and Fluency chart
 const OverallAccuracyFluencyChart = ({ students = [] }) => {
   const [binnedData, setBinnedData] = useState([]);
   const [storySummary, setStorySummary] = useState("");

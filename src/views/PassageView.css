@@ -162,7 +162,7 @@
     border-radius: 4px;
   }
   
-  /* ---------- Responsive Adjustments ---------- */
+  /* Responsive Adjustments */
   @media (max-width: 768px) {
     .title {
       font-size: 1.2rem;

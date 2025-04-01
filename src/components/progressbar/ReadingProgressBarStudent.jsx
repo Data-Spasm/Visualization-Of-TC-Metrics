@@ -2,10 +2,12 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ReadingProgressBarStudent.css";
 
+// This component visualizes reading progress and performance metrics for a single student.
 const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
   const navigate = useNavigate();
   const [loadingPassageId, setLoadingPassageId] = useState(null);
 
+  // This effect is used to track the loading state of the passage ID when a user clicks on a bar.
   const progressData = [
     {label: "Substitutions",key: "numSubs",color: "#e74c3c", summary: "Usually reflects decoding difficulties or word confusion."},
     {label: "Reversals",key: "numRevs",color: "#f97316",summary: "May indicate issues with visual processing or orientation."},
@@ -13,8 +15,6 @@ const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
     {label: "Insertions",key: "numIns",color: "#38bdf8",summary: "Common when students guess or add words unconsciously."},
     {label: "Repetitions",key: "numReps",color: "#6366f1",summary: "Linked to hesitancy or uncertainty in reading."}
   ];
-  
-  
 
   const storyInsight = useMemo(() => {
     if (!Array.isArray(miscues) || miscues.length === 0) return null;

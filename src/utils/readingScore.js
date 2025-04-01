@@ -9,7 +9,7 @@ const calculateReadingScore = (students) => {
     const perf = student.student?.reading?.overallPerformance;
 
     if (perf) {
-      const accuracy = perf.overallAccuracy * 100 || 0; // Assuming decimal (0.72) format
+      const accuracy = perf.overallAccuracy * 100 || 0; 
       const fluency = perf.overallFluency || 0;
       const timeOnTask = perf.overallTimeOnTask || 0;
 

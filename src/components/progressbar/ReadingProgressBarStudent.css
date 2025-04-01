@@ -44,13 +44,15 @@
 }
 
 .progress-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 24px;
   margin-bottom: 24px;
 }
 
 .progress-metric-section {
+  flex: 1;
+  min-width: 100px; 
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -114,7 +116,7 @@
 
 .progress-bar {
   position: relative;
-  height: 24px;
+  height: 18px;
   background: #e5e7eb;
   border-radius: 12px;
   overflow: hidden;
@@ -187,7 +189,7 @@
 
 @media (max-width: 768px) {
   .progress-metrics-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
   
   .totals-list {

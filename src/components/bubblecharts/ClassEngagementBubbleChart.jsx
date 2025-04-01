@@ -3,12 +3,14 @@ import Chart from "react-apexcharts";
 import { ResponsiveContainer } from "recharts";
 import "./ClassEngagementBubbleChart.css";
 
+// This component visualizes class engagement with reading passages using a bubble chart.
 const colorPalette = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
   "#6366f1", "#ec4899", "#22c55e", "#8b5cf6",
   "#14b8a6", "#f43f5e"
 ];
 
+// The ClassEngagementBubbleChart component takes in reading attempts and assessments as props and generates a bubble chart to visualize student engagement with reading passages.
 const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) => {
   const [seriesData, setSeriesData] = useState([]);
   const [storySummary, setStorySummary] = useState("");
@@ -82,7 +84,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
       zoom: { enabled: false }
     },
     xaxis: {
-      title: { text: "Passages" },
+      title: { text: "Passages", style: { fontWeight: "normal" } },
       tickAmount: 10,
       labels: {
         formatter: val => `P${Math.round(val)}`,
@@ -90,7 +92,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
       }
     },
     yaxis: {
-      title: { text: "Number of Attempts" },
+      title: { text: "Number of Attempts", style: { fontWeight: "normal" } },
       labels: { style: { fontSize: "12px" } }
     },
     tooltip: {

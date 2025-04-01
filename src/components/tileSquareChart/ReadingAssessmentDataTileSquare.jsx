@@ -4,6 +4,7 @@ import "./ReadingAssessmentDataTileSquare.css";
 const TILE_SIZE = 16;
 const TILE_GAP = 4;
 
+// This component visualizes reading assessment data using a tile grid format. Each tile represents a student's attempt at a reading passage, with color coding for completion status.
 const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [], studentUsername = null }) => {
   const [data, setData] = useState([]);
   const [insight, setInsight] = useState("");
