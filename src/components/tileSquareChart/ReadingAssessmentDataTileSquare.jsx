@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { ResponsiveContainer } from "recharts";
 import "./ReadingAssessmentDataTileSquare.css";
 
 const TILE_SIZE = 16;
@@ -44,14 +43,13 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
       }
     });
 
-    // Sort tiles per passage for visual clarity
     Object.values(titleMap).forEach(entry => {
       entry.tiles.sort((a, b) => a.type.localeCompare(b.type));
     });
 
     setData(Object.values(titleMap));
 
-    //  Generate insight summary
+    // Generate insight
     if (studentUsername) {
       const total = filteredAttempts.length;
       const quits = studentQuitMap[studentUsername] || 0;
@@ -83,7 +81,18 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
         <p>{insight}</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={data.length * 40 + 80}>
+      {/* Fixed-height, scrollable tile grid */}
+      <div
+        className="scrollable-area"
+        style={{
+          width: "100%",
+          height: "310px",
+          overflowY: "auto",
+          overflowX: "hidden",
+          paddingRight: "8px",
+        }}
+      >
+
         <div className="responsive-tile-wrapper">
           {data.map(({ passage, tiles }) => (
             <div key={passage} className="tile-row">
@@ -97,7 +106,7 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
                   textOverflow: "ellipsis",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#333"
+                  color: "#333",
                 }}
               >
                 {passage}
@@ -114,16 +123,18 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
                       borderRadius: 3,
                       boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                     }}
-                    title={studentUsername
-                      ? `Status: ${type === "completed" ? "Completed" : "Quit"}`
-                      : `Student: ${student}\nStatus: ${type === "completed" ? "Completed" : "Quit"}`}
+                    title={
+                      studentUsername
+                        ? `Status: ${type === "completed" ? "Completed" : "Quit"}`
+                        : `Student: ${student}\nStatus: ${type === "completed" ? "Completed" : "Quit"}`
+                    }
                   />
                 ))}
               </div>
             </div>
           ))}
         </div>
-      </ResponsiveContainer>
+      </div>
 
       <div className="tile-legend" style={{ marginTop: "0.75rem", textAlign: "center" }}>
         <div className="legend-item">
@@ -135,19 +146,20 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
       </div>
 
       {data.length > 0 && (
-      <div className="callout-block">
-        {studentUsername ? (
-          <>
-            <strong>Tip:</strong> If {studentUsername} frequently quits passages, consider reviewing text difficulty, engagement, or external factors like reading environment. This insight can guide personalized interventions.
-          </>
-        ) : (
-          <>
-            <strong>Tip:</strong> Hover over squares to identify which students are quitting early. Repeated quit patterns could signal a passage that needs simplification or support.
-          </>
-        )}
-      </div>
-    )}
-
+        <div className="callout-block">
+          {studentUsername ? (
+            <>
+              <strong>Tip:</strong> If {studentUsername} frequently quits passages, consider reviewing text difficulty,
+              engagement, or external factors like reading environment. This insight can guide personalized interventions.
+            </>
+          ) : (
+            <>
+              <strong>Tip:</strong> Hover over squares to identify which students are quitting early. Repeated quit patterns
+              could signal a passage that needs simplification or support.
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

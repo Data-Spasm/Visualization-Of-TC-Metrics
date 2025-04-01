@@ -112,3 +112,24 @@
   width: 12px; /* Match smaller tile size */
   height: 12px;
 }
+
+/* Apply to the scrollable container */
+.scrollable-area {
+  scrollbar-width: thin;              /* Firefox */
+  scrollbar-color: #ccc transparent;  /* Firefox */
+  overflow-y: auto;
+}
+
+/* WebKit browsers (Chrome, Edge, Safari) */
+.scrollable-area::-webkit-scrollbar {
+  width: 4px; /* Ultra-thin */
+}
+
+.scrollable-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-area::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 2px;
+}

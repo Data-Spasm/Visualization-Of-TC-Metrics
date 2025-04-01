@@ -68,28 +68,30 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
         <p>{storySummary}</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={420}>
-        <BarChart
-          data={binnedData}
-          margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
-          barCategoryGap={20}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="range" label={{ value: "Score Range", position: "insideBottom", offset: -5 }} />
-          <YAxis
-            allowDecimals={false}
-            label={{ value: "Number of Students", angle: -90, position: "insideLeft", offset: 10 }}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" height={36} />
-          <Bar dataKey="Accuracy" fill="#8884d8">
-            <LabelList dataKey="Accuracy" position="top" />
-          </Bar>
-          <Bar dataKey="Fluency" fill="#82ca9d">
-            <LabelList dataKey="Fluency" position="top" />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <ResponsiveContainer width="100%" height={400}>
+      <BarChart
+        data={binnedData}
+        margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
+        barCategoryGap={5}
+        barSize={35}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="range" label={{ value: "Score Range", position: "insideBottom", offset: -5 }} />
+        <YAxis
+          allowDecimals={false}
+          label={{ value: "Number of Students", angle: -90, position: "insideLeft", offset: 10 }}
+        />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend verticalAlign="top" height={36} />
+        <Bar dataKey="Accuracy" fill="#8884d8">
+          <LabelList dataKey="Accuracy" position="top" />
+        </Bar>
+        <Bar dataKey="Fluency" fill="#82ca9d">
+          <LabelList dataKey="Fluency" position="top" />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+
 
       <div className="callout-block">
         <p>

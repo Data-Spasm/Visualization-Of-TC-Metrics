@@ -132,7 +132,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
         <p>{storySummary}</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={500}>
+      <ResponsiveContainer width="100%" height={355}>
         <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
       </ResponsiveContainer>
 
