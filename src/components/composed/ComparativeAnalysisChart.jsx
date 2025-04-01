@@ -28,7 +28,21 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
   useEffect(() => {
     if (!selectedStudent) return;
     const filtered = miscues.filter(entry => entry.username === selectedStudent);
-    setFilteredData(filtered);
+
+    // Group by passage to get 1 unique attempt per assessment per student
+    const uniqueByPassage = new Map();
+    for (const entry of filtered) {
+      if (!uniqueByPassage.has(entry.passage)) {
+        uniqueByPassage.set(entry.passage, entry);
+      } else {
+        const current = uniqueByPassage.get(entry.passage);
+        current.numCorrect += entry.numCorrect || 0;
+        current.numDels += entry.numDels || 0;
+        current.numSubs += entry.numSubs || 0;
+      }
+    }
+
+    setFilteredData(Array.from(uniqueByPassage.values()));
   }, [selectedStudent, miscues]);
 
   useEffect(() => {
@@ -43,7 +57,6 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
         return rateB - rateA;
       })[0];
 
-      // Find the student associated with the highest miscue
       const student = students.find(s => s.username === selectedStudent);
       if (highestMiscue && student) {
         const totalAttempts = highestMiscue.studentAttempts || 0;
@@ -61,7 +74,6 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
     }
   }, [filteredData, students, selectedStudent]);
 
-  // Merge the filtered data with the class average data
   const mergedData = filteredData.map((entry) => {
     const total = (entry.numCorrect || 0) + (entry.numDels || 0) + (entry.numSubs || 0);
     const miscueRate = total > 0
