@@ -4,6 +4,7 @@ import {
 } from "recharts";
 import "./ReadingAssessmentDataLineGraph.css";
 
+// This component visualizes the overall accuracy and fluency of students in a bar chart format
 const performanceBands = [
   { range: "0-49", min: 0, max: 49 },
   { range: "50-74", min: 50, max: 74 },
@@ -28,6 +29,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+// This component is responsible for rendering the Overall Accuracy and Fluency chart
 const OverallAccuracyFluencyChart = ({ students = [] }) => {
   const [binnedData, setBinnedData] = useState([]);
   const [storySummary, setStorySummary] = useState("");
@@ -68,28 +70,30 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
         <p>{storySummary}</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={420}>
-        <BarChart
-          data={binnedData}
-          margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
-          barCategoryGap={20}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="range" label={{ value: "Score Range", position: "insideBottom", offset: -5 }} />
-          <YAxis
-            allowDecimals={false}
-            label={{ value: "Number of Students", angle: -90, position: "insideLeft", offset: 10 }}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend verticalAlign="top" height={36} />
-          <Bar dataKey="Accuracy" fill="#8884d8">
-            <LabelList dataKey="Accuracy" position="top" />
-          </Bar>
-          <Bar dataKey="Fluency" fill="#82ca9d">
-            <LabelList dataKey="Fluency" position="top" />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <ResponsiveContainer width="100%" height={400}>
+      <BarChart
+        data={binnedData}
+        margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
+        barCategoryGap={5}
+        barSize={35}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="range" label={{ value: "Score Range", position: "insideBottom", offset: -5 }} />
+        <YAxis
+          allowDecimals={false}
+          label={{ value: "Number of Students", angle: -90, position: "insideLeft", offset: 10 }}
+        />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend verticalAlign="top" height={36} />
+        <Bar dataKey="Accuracy" fill="#8884d8">
+          <LabelList dataKey="Accuracy" position="top" />
+        </Bar>
+        <Bar dataKey="Fluency" fill="#82ca9d">
+          <LabelList dataKey="Fluency" position="top" />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+
 
       <div className="callout-block">
         <p>

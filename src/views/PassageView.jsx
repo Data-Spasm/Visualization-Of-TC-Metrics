@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataContext } from "../context/DataContext";
 import ReadingProgressRadialCard from "../components/radial/ReadingProgressRadial";
+import useAnalyticsEvent from "../hooks/useAnalyticsEvent";
 import "./PassageView.css";
 
 const PassageView = ({ student, passageId: initialPassageId }) => {
@@ -22,9 +23,26 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
   const [originalText, setOriginalText] = useState("Loading...");
   const [attemptDuration, setAttemptDuration] = useState(null);
 
+  const trackEvent = useAnalyticsEvent("Passage View");
+  const hoverStartRef = useRef({});
+
   useEffect(() => {
     if (!attemptsLoaded) loadAttemptsAndMiscues();
   }, [attemptsLoaded, loadAttemptsAndMiscues]);
+
+  const handleMouseEnter = (label) => {
+    hoverStartRef.current[label] = Date.now();
+    trackEvent("hover_start", label);
+  };
+
+  const handleMouseLeave = (label) => {
+    const start = hoverStartRef.current[label];
+    if (start) {
+      const duration = Math.round((Date.now() - start) / 1000);
+      trackEvent("hover_end", label, duration);
+      delete hoverStartRef.current[label];
+    }
+  };
 
   const studentAllAttempts = useMemo(() => {
     return readingAttempts.filter((a) => a.studentUsername === student.username);
@@ -34,17 +52,20 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
     return studentAllAttempts.filter((a) => a.readingAssessmentId === initialPassageId);
   }, [studentAllAttempts, initialPassageId]);
 
-  const miscuesForPassage = useMemo(() => {
-    const key = `${student.username}_${initialPassageId}`;
-    return miscues.byStudentPassage.get(key) || [];
-  }, [student.username, initialPassageId, miscues]);
-
-  const miscuesForSelectedAttempt = miscuesForPassage[selectedAttemptIndex]?.result || {};
-
   const totalSummary = useMemo(() => {
-    const totals = miscuesForPassage.reduce(
+    const allMiscues = [];
+
+    assessments.forEach((a) => {
+      const key = `${student.username}_${a._id?.$oid || a._id}`;
+      const entries = miscues.byStudentPassage.get(key);
+      if (entries) {
+        allMiscues.push(...entries);
+      }
+    });
+
+    return allMiscues.reduce(
       (acc, m) => {
-        const r = m.result;
+        const r = m.result || {};
         acc.numDels += r.numDels || 0;
         acc.numIns += r.numIns || 0;
         acc.numReps += r.numReps || 0;
@@ -52,7 +73,7 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
         acc.numRevs += r.numRevs || 0;
         acc.numCorrect += r.numCorrect || 0;
         acc.totalWords +=
-          (r.numCorrect || 0) + r.numDels + r.numIns + r.numReps + r.numSubs + r.numRevs;
+          (r.numCorrect || 0) + (r.numDels || 0) + (r.numIns || 0) + (r.numReps || 0) + (r.numSubs || 0) + (r.numRevs || 0);
         return acc;
       },
       {
@@ -65,8 +86,7 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
         totalWords: 0,
       }
     );
-    return totals;
-  }, [miscuesForPassage]);
+  }, [assessments, miscues, student.username]);
 
   useEffect(() => {
     setSelectedAttemptIndex(0);
@@ -81,23 +101,20 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
     );
     setAssessment(matchedAssessment);
 
-    const combinedPassage = attempt.readingAttempts
-      .map((p) => p.readingContent)
-      .join(" ")
-      .trim();
+    const combinedPassage = attempt.readingAttempts.map((p) => p.readingContent).join(" ").trim();
     setOriginalText(combinedPassage || "No passage text available.");
 
-    const highlights =
-      miscuesForSelectedAttempt?.attemptWithMiscues
-        ?.map(({ word, miscue }) => {
-          if (miscue === "Omission") return `<span class="omission ghost-word">[${word}]</span>`;
-          if (!word) return "";
-          const className = miscue.toLowerCase().replace(" ", "-");
-          return `<span class="${className}">${word}</span>`;
-        })
-        .join(" ") || "";
+    const allSegments = attempt.readingAttempts.filter(seg => seg.miscueResult);
+    const allMiscueWords = allSegments.flatMap(seg => seg.miscueResult.attemptWithMiscues || []);
 
-    const raw = attempt.readingAttempts.map((a) => a.rawAttempt || "").join(" ");
+    const highlights = allMiscueWords.map(({ word, miscue }) => {
+      if (miscue === "Omission") return `<span class="omission ghost-word">[${word}]</span>`;
+      if (!word) return "";
+      const className = miscue.toLowerCase().replace(" ", "-");
+      return `<span class="${className}">${word}</span>`;
+    }).join(" ");
+
+    const raw = allSegments.map(seg => seg.rawAttempt || "").join(" ").trim();
     setHighlightedContent(highlights);
     setRawAttempt(raw);
 
@@ -108,56 +125,60 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
 
     const durationSeconds = parseFloat(attempt.timeOnTask);
     setAttemptDuration(isNaN(durationSeconds) ? null : Math.round(durationSeconds));
-  }, [
-    selectedAttemptIndex,
-    filteredAttempts,
-    assessments,
-    initialPassageId,
-    miscuesForSelectedAttempt,
-  ]);
+    trackEvent("attempt_loaded", `Attempt ${selectedAttemptIndex + 1}`);
+  }, [selectedAttemptIndex, filteredAttempts, assessments, initialPassageId, trackEvent]);
 
   if (!attemptsLoaded) return <h2>Loading passage data...</h2>;
 
-  const correctWords = miscuesForSelectedAttempt.numCorrect || 0;
-  const totalCorrectWords = totalSummary.numCorrect;
+  const attempt = filteredAttempts[selectedAttemptIndex];
+  const combinedResult = attempt?.readingAttempts?.reduce(
+    (acc, segment) => {
+      const res = segment?.miscueResult || {};
+      acc.numCorrect += res.numCorrect || 0;
+      acc.numSubs += res.numSubs || 0;
+      acc.numRevs += res.numRevs || 0;
+      acc.numDels += res.numDels || 0;
+      acc.numIns += res.numIns || 0;
+      acc.numReps += res.numReps || 0;
+      return acc;
+    },
+    {
+      numCorrect: 0,
+      numSubs: 0,
+      numRevs: 0,
+      numDels: 0,
+      numIns: 0,
+      numReps: 0,
+    }
+  );
 
   const metrics = [
+    { key: "numSubs", label: "Substitutions", color: "red" },
+    { key: "numRevs", label: "Reversals", color: "orange" },
     { key: "numDels", label: "Omissions", color: "yellow" },
-    { key: "numIns", label: "Insertions", color: "blue" },
-    { key: "numReps", label: "Repetitions", color: "purple" },
-    { key: "numSubs", label: "Substitutions", color: "green" },
-    { key: "numRevs", label: "Reversals", color: "red" },
+    { key: "numIns", label: "Insertions", color: "lightblue" },
+    { key: "numReps", label: "Repetitions", color: "indigo" },
   ];
 
   return (
     <div className="passage-view-container">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1rem",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h2 className="title">
           Student: {student?.firstName} {student?.lastName || "Unnamed Student"}
         </h2>
         <button
-          onClick={() => navigate(`/students/${student._id?.$oid || student._id}`)}
-          style={{
-            backgroundColor: "#f3f4f6",
-            border: "1px solid #d1d5db",
-            padding: "6px 12px",
-            borderRadius: "6px",
-            cursor: "pointer",
+          onClick={() => {
+            trackEvent("back_click", "Back to Student Dashboard");
+            navigate(`/students/${student._id?.$oid || student._id}`);
           }}
+          style={{ backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
         >
           ← Back to Student Dashboard
         </button>
       </div>
 
       <h4 style={{ marginTop: 0, color: "#0ea5e9" }}>
-        Total Correct Words (all passages): {totalCorrectWords}
+        Total Correct Words (all passages): {totalSummary.numCorrect}
       </h4>
 
       <ReadingProgressRadialCard
@@ -170,39 +191,21 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
       />
 
       <div className="passage-box">
-        <div
-          className="passage-header"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "1rem",
-          }}
-        >
+        <div className="passage-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
           <h2 style={{ margin: 0 }}>
             <strong>
-              Passage: "
-              {assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}”
+              Passage: "{assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}”
             </strong>
           </h2>
-
           <div className="attempt-selector">
             <label htmlFor="passageSelect">Change Passage:</label>
             <select
               id="passageSelect"
               value={initialPassageId}
-              onChange={(e) =>
-                navigate(`/passages/${student.username}/${e.target.value}`)
-              }
+              onChange={(e) => navigate(`/passages/${student.username}/${e.target.value}`)}
             >
               {assessments
-                .filter((assessment) => {
-                  const assessmentId = assessment._id?.$oid || assessment._id;
-                  return studentAllAttempts.some(
-                    (attempt) => attempt.readingAssessmentId === assessmentId
-                  );
-                })
+                .filter((a) => studentAllAttempts.some((att) => att.readingAssessmentId === (a._id?.$oid || a._id)))
                 .map((a) => (
                   <option key={a._id?.$oid || a._id} value={a._id?.$oid || a._id}>
                     {a.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}
@@ -213,23 +216,19 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
         </div>
 
         <h4 style={{ marginBottom: "0.5rem", color: "#059669" }}>
-          Correct Words: {correctWords}
+          Correct Words: {combinedResult.numCorrect}
         </h4>
 
         {attemptDuration !== null && (
           <h4 style={{ marginBottom: "0.5rem", color: "#6366f1" }}>
-            Time Taken: {Math.floor(attemptDuration / 60)}m{" "}
-            {Math.round(attemptDuration % 60)}s
+            Time Taken: {Math.floor(attemptDuration / 60)}m {Math.round(attemptDuration % 60)}s
           </h4>
         )}
 
         <div className="miscue-chips">
           {metrics.map((m) => (
-            <span
-              className={`chip ${m.color}`}
-              key={`${initialPassageId}-${selectedAttemptIndex}-${m.key}`}
-            >
-              {miscuesForSelectedAttempt[m.key] || 0} {m.label}
+            <span className={`chip ${m.color}`} key={`${initialPassageId}-${selectedAttemptIndex}-${m.key}`}>
+              {combinedResult[m.key] || 0} {m.label}
             </span>
           ))}
         </div>
@@ -250,27 +249,18 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
         </div>
 
         <div className="highlighted-text-box side-by-side-layout">
-          <div className="card-box">
-            <h5>Original</h5>
-            <p>{originalText}</p>
+          <div className="card-box" onMouseEnter={() => handleMouseEnter("Original Passage")} onMouseLeave={() => handleMouseLeave("Original Passage")}>
+            <h5>Original</h5><p>{originalText}</p>
           </div>
-          <div className="card-box">
+          <div className="card-box" onMouseEnter={() => handleMouseEnter("Student Attempt")} onMouseLeave={() => handleMouseLeave("Student Attempt")}>
             <h5>Student Attempt</h5>
-            {highlightedContent?.trim() ? (
-              <p dangerouslySetInnerHTML={{ __html: highlightedContent }} />
-            ) : rawAttempt?.trim() ? (
-              <p>{rawAttempt}</p>
-            ) : (
-              <p>No attempt recorded.</p>
-            )}
+            {highlightedContent ? <p dangerouslySetInnerHTML={{ __html: highlightedContent }} /> : rawAttempt ? <p>{rawAttempt}</p> : <p>No attempt recorded.</p>}
           </div>
         </div>
 
-        <div className="audio-player-container">
+        <div className="audio-player-container" onMouseEnter={() => handleMouseEnter("Audio Player")} onMouseLeave={() => handleMouseLeave("Audio Player")}>
           {audioUrl ? (
-            <audio controls src={audioUrl}>
-              Your browser does not support audio.
-            </audio>
+            <audio controls src={audioUrl} onPlay={() => trackEvent("audio_play", "Audio Started")}>Your browser does not support audio.</audio>
           ) : (
             <p>No audio available.</p>
           )}

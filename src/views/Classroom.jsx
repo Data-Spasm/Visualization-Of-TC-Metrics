@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 
 import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
@@ -9,6 +9,7 @@ import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngageme
 import ComparativePerformanceChart from "../components/composed/ComparativeAnalysisChart";
 
 import { DataContext } from "../context/DataContext";
+import useAnalyticsEvent from "../hooks/useAnalyticsEvent";
 import "./Classroom.css";
 
 const Classroom = () => {
@@ -23,12 +24,35 @@ const Classroom = () => {
   } = useContext(DataContext);
 
   const [expandedCard, setExpandedCard] = useState(null);
+  const trackEvent = useAnalyticsEvent("Classroom Dashboard");
+  const hoverStartRef = useRef({});
+  const classroomRef = useRef(null);
 
   useEffect(() => {
     if (!attemptsLoaded) {
       loadAttemptsAndMiscues();
     }
   }, [attemptsLoaded, loadAttemptsAndMiscues]);
+
+  useEffect(() => {
+    if (attemptsLoaded) {
+      trackEvent("component_view", "Classroom Page Loaded");
+    }
+  }, [attemptsLoaded, trackEvent]);
+
+  const handleMouseEnter = (label) => {
+    hoverStartRef.current[label] = Date.now();
+    trackEvent("hover_start", label);
+  };
+
+  const handleMouseLeave = (label) => {
+    const start = hoverStartRef.current[label];
+    if (start) {
+      const duration = Math.round((Date.now() - start) / 1000);
+      trackEvent("hover_end", label, duration);
+      delete hoverStartRef.current[label];
+    }
+  };
 
   const miscueData = useMemo(() => {
     if (!students.length || !assessments.length || !attemptsLoaded) return [];
@@ -86,12 +110,9 @@ const Classroom = () => {
   }, [students, readingAttempts, assessments, miscues, attemptsLoaded]);
 
   if (loading) return <h2>Loading classroom data...</h2>;
-  if (!attemptsLoaded) return <h2>Loading reading attempts...</h2>;
-
-  const isFullscreen = (key) => expandedCard === key;
 
   return (
-    <div className="classroom">
+    <div className="classroom" ref={classroomRef}>
       {!expandedCard && (
         <div className="long-card">
           <Card className="long-card">
@@ -101,10 +122,7 @@ const Classroom = () => {
               </Typography>
               <div className="overview-flex-container">
                 <div className="overview-progress">
-                  <ReadingProgressBar
-                    readingAttempts={readingAttempts}
-                    students={students}
-                  />
+                  <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
                 </div>
                 <div className="overview-performance">
                   <ClassWideReadingPerformance students={students} />
@@ -117,20 +135,43 @@ const Classroom = () => {
 
       {!expandedCard && (
         <div className="grid-container">
-          <Card className="card" onClick={() => setExpandedCard("accuracy")}>
+          <Card
+            className="card"
+            onMouseEnter={() => handleMouseEnter("Overall Accuracy & Fluency")}
+            onMouseLeave={() => handleMouseLeave("Overall Accuracy & Fluency")}
+            onClick={() => {
+              trackEvent("card_click", "Overall Accuracy & Fluency");
+              setExpandedCard("accuracy");
+            }}
+          >
             <CardContent>
               <OverallAccuracyFluencyChart students={students} />
             </CardContent>
           </Card>
-          <Card className="card" onClick={() => setExpandedCard("engagement")}>
+
+          <Card
+            className="card"
+            onMouseEnter={() => handleMouseEnter("Class Engagement")}
+            onMouseLeave={() => handleMouseLeave("Class Engagement")}
+            onClick={() => {
+              trackEvent("card_click", "Class Engagement Bubble Chart");
+              setExpandedCard("engagement");
+            }}
+          >
             <CardContent>
-              <ClassEngagementBubbleChart
-                readingAttempts={readingAttempts}
-                assessments={assessments}
-              />
+              <ClassEngagementBubbleChart readingAttempts={readingAttempts} assessments={assessments} />
             </CardContent>
           </Card>
-          <Card className="card" onClick={() => setExpandedCard("tileview")}>
+
+          <Card
+            className="card"
+            onMouseEnter={() => handleMouseEnter("Assessment Tile View")}
+            onMouseLeave={() => handleMouseLeave("Assessment Tile View")}
+            onClick={() => {
+              trackEvent("card_click", "Assessment Data Tile View");
+              setExpandedCard("tileview");
+            }}
+          >
             <CardContent>
               <ReadingAssessmentDataTileView
                 readingAttempts={readingAttempts}
@@ -142,50 +183,50 @@ const Classroom = () => {
         </div>
       )}
 
-      {expandedCard === "accuracy" && (
-        <div className="fullscreen-card">
-          <button className="close-btn" onClick={() => setExpandedCard(null)}>
-            ✖
-          </button>
-          <OverallAccuracyFluencyChart students={students} />
+      {expandedCard && (
+        <div className="expanded-card-overlay">
+          <div className="expanded-card">
+            <button
+              className="close-btn"
+              onClick={() => {
+                trackEvent("fullscreen_close", expandedCard);
+                setExpandedCard(null);
+              }}
+            >
+              ✖
+            </button>
+            {expandedCard === "accuracy" && (
+              <OverallAccuracyFluencyChart students={students} />
+            )}
+            {expandedCard === "engagement" && (
+              <ClassEngagementBubbleChart
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+              />
+            )}
+            {expandedCard === "tileview" && (
+              <ReadingAssessmentDataTileView
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+                students={students}
+              />
+            )}
+          </div>
         </div>
       )}
 
-      {expandedCard === "engagement" && (
-        <div className="fullscreen-card">
-          <button className="close-btn" onClick={() => setExpandedCard(null)}>
-            ✖
-          </button>
-          <ClassEngagementBubbleChart
-            readingAttempts={readingAttempts}
-            assessments={assessments}
-          />
+      {!expandedCard && (
+        <div className="long-card-2">
+          <Card className="long-card-2">
+            <CardContent style={{ height: "100%", width: "100%" }}>
+              <Typography variant="h5" gutterBottom>
+                Student vs Class Comparative Analysis
+              </Typography>
+              <ComparativePerformanceChart miscues={miscueData} students={students} />
+            </CardContent>
+          </Card>
         </div>
       )}
-
-      {expandedCard === "tileview" && (
-        <div className="fullscreen-card">
-          <button className="close-btn" onClick={() => setExpandedCard(null)}>
-            ✖
-          </button>
-          <ReadingAssessmentDataTileView
-            readingAttempts={readingAttempts}
-            assessments={assessments}
-            students={students}
-          />
-        </div>
-      )}
-
-      <div className="long-card-2">
-        <Card className="long-card-2">
-          <CardContent style={{ height: "100%", width: "100%" }}>
-            <Typography variant="h5" gutterBottom>
-              Student vs Class Comparative Analysis
-            </Typography>
-            <ComparativePerformanceChart miscues={miscueData} students={students} />
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };
