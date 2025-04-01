@@ -57,6 +57,7 @@
   color: #14532d;
 }
 
+
 @media (max-width: 1200px) {
   .chart-card {
     padding: 3vw;
@@ -98,3 +99,5 @@
     font-size: 0.7rem;
   }
 }
+
+

@@ -8,6 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
+  'http://localhost:5173',
   'https://visualization-of-tc-metrics-2.onrender.com'
 ];
 
@@ -55,10 +56,10 @@ async function main() {
         // CASE 1: Fetch students by teacher username
         if (teacher) {
           const teacherDoc = await userCollection.findOne({ username: teacher });
-          console.log("👩‍🏫 Found teacher document:", teacherDoc?.username);
+          console.log("Found teacher document:", teacherDoc?.username);
     
           if (!teacherDoc || !teacherDoc.teacher || !Array.isArray(teacherDoc.teacher.studentNames)) {
-            console.warn("⚠️ No studentNames found in teacher doc or invalid structure.");
+            console.warn("No studentNames found in teacher doc or invalid structure.");
             return res.json([]);
           }
     

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
+import { useNavigate } from "react-router-dom";
 import { ResponsiveContainer } from "recharts";
 import "./ClassEngagementBubbleChart.css";
 
@@ -16,6 +17,7 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
   const [legendMap, setLegendMap] = useState([]);
   const [storySummary, setStorySummary] = useState("");
   const [chartAnnotations, setChartAnnotations] = useState({});
+  const navigate = useNavigate(); // Needed for routing to attempt page
 
   const processStudentAttempts = () => {
     if (!student || !readingAttempts.length || !assessments.length) return;
@@ -49,7 +51,12 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
         };
       }
 
-      seenPassages[title].data.push({ x, y, z });
+      seenPassages[title].data.push({
+        x,
+        y,
+        z,
+        passageId: id // used for routing
+      });
 
       if (y > seenPassages[title].maxTime) {
         seenPassages[title].maxTime = y;
@@ -108,7 +115,17 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
       type: "bubble",
       height: 500,
       toolbar: { show: false },
-      zoom: { enabled: false }
+      zoom: { enabled: false },
+      events: {
+        // Handle bubble click to route to passage attempt
+        dataPointSelection: function (event, chartContext, config) {
+          const { seriesIndex, dataPointIndex } = config;
+          const dp = chartContext.w.config.series[seriesIndex].data[dataPointIndex];
+          if (dp && dp.passageId) {
+            navigate(`/passages/${student.username}/${dp.passageId}`);
+          }
+        }
+      }
     },
     xaxis: {
       title: { text: "Passages", style: { fontWeight: "normal" } },
@@ -129,7 +146,8 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
         return `
           <div style="padding: 5px;">
             <strong>${w.config.series[seriesIndex].name}</strong><br/>
-            Time on Task: ${dp.y}s
+            Time on Task: ${dp.y}s<br/>
+            <em>Click to view attempt</em>
           </div>
         `;
       }
@@ -154,7 +172,7 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
 
       {seriesData.length > 0 && (
         <div className="callout-block">
-           <strong>Tip:</strong> Longer times may reflect difficulty or careful reading. Consider comparing this with fluency or accuracy data.
+          <strong>Tip:</strong> Longer times may reflect difficulty or careful reading. Consider comparing this with fluency or accuracy data.
         </div>
       )}
 
