@@ -1,16 +1,15 @@
-// src/controllers/AvatarController.js
-import AvatarModel from '../models/Avatar';
+const AvatarController = {
+  async getAvatarById(id) {
+    const response = await fetch(`/api/avatars/${id}`);
+    if (!response.ok) throw new Error("Failed to fetch avatar by ID");
+    return response.json();
+  },
 
-class AvatarController {
-  // Get avatar by ID
-  static getAvatarById(id) {
-    return AvatarModel.getAvatarById(id);
+  async getAllAvatars() {
+    const response = await fetch(`/api/avatars`);
+    if (!response.ok) throw new Error("Failed to fetch avatars");
+    return response.json();
   }
-
-  // Get all available avatars
-  static getAllAvatars() {
-    return AvatarModel.getAllAvatars();
-  }
-}
+};
 
 export default AvatarController;

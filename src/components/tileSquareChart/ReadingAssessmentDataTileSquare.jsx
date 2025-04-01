@@ -19,9 +19,11 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
       : readingAttempts;
 
     filteredAttempts.forEach((attempt) => {
-      const assessment = assessments.find(
-        (a) => a._id?.$oid === attempt.readingAssessmentId
-      );
+      const assessment = assessments.find((a) => {
+        const id = String(a._id?.$oid || a._id);
+        return id === String(attempt.readingAssessmentId);
+      });
+      
       const title = assessment?.title || "Untitled";
 
       if (!titleMap[title]) {
