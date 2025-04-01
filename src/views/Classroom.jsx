@@ -1,144 +1,232 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
+
 import OverallAccuracyFluencyChart from "../components/linegraphs/OverallAccuracyFluencyChart";
 import ReadingProgressBar from "../components/progressbar/ReadingProgressBar";
-import TimeOnTaskChart from "../components/barcharts/TimeOnTaskChart";
-import TopMisreadWordsChart from "../components/barcharts/TopMisreadWordsChart";
 import ClassWideReadingPerformance from "../components/textbase/ClassWideReadingPerformance";
-import ReadingAssessmentDataLineGraph from "../components/linegraphs/ReadingAssessmentDataLineGraph";
+import ReadingAssessmentDataTileView from "../components/tileSquareChart/ReadingAssessmentDataTileSquare";
 import ClassEngagementBubbleChart from "../components/bubblecharts/ClassEngagementBubbleChart";
-import WordAccuracyDistributionChart from "../components/barcharts/WordAccuracyDistributionChart";
+import ComparativePerformanceChart from "../components/composed/ComparativeAnalysisChart";
+
+import { DataContext } from "../context/DataContext";
+import useAnalyticsEvent from "../hooks/useAnalyticsEvent";
 import "./Classroom.css";
 
-// Google Analytics Event Tracking Function for Clicks & Hovers
-const trackEvent = (eventName, eventLabel, eventType = "click") => {
-  if (window.gtag) {
-    window.gtag("event", eventType, {
-      event_category: "User Interaction",
-      event_label: eventLabel,
-    });
-  }
-};
+const Classroom = () => {
+  const {
+    students,
+    readingAttempts,
+    assessments,
+    miscues,
+    loading,
+    attemptsLoaded,
+    loadAttemptsAndMiscues,
+  } = useContext(DataContext);
 
-const Classroom = ({ student, readingAttempts }) => {
-  const [students, setStudents] = useState([]);
-  const [overallPerformanceData, setOverallPerformanceData] = useState([]);
-  const [timeOnTaskData, setTimeOnTaskData] = useState([]);
-  const [misreadData, setMisreadData] = useState([]);
-  const [readingAssessmentData, setReadingAssessmentData] = useState({});
+  const [expandedCard, setExpandedCard] = useState(null);
+  const trackEvent = useAnalyticsEvent("Classroom Dashboard");
+  const hoverStartRef = useRef({});
+  const classroomRef = useRef(null);
 
   useEffect(() => {
-    if (student && student.overallPerformance) {
-      setOverallPerformanceData([
-        {
-          accuracy: student.overallPerformance.accuracy,
-          fluency: student.overallPerformance.fluency,
-        },
-      ]);
+    if (!attemptsLoaded) {
+      loadAttemptsAndMiscues();
+    }
+  }, [attemptsLoaded, loadAttemptsAndMiscues]);
 
-      setTimeOnTaskData([
-        { name: student.username, timeOnTask: student.overallPerformance.timeOnTask },
-      ]);
+  useEffect(() => {
+    if (attemptsLoaded) {
+      trackEvent("component_view", "Classroom Page Loaded");
+    }
+  }, [attemptsLoaded, trackEvent]);
 
-      setStudents((prevStudents) => {
-        const exists = prevStudents.some((s) => s.username === student.username);
-        return exists ? prevStudents : [...prevStudents, student];
+  const handleMouseEnter = (label) => {
+    hoverStartRef.current[label] = Date.now();
+    trackEvent("hover_start", label);
+  };
+
+  const handleMouseLeave = (label) => {
+    const start = hoverStartRef.current[label];
+    if (start) {
+      const duration = Math.round((Date.now() - start) / 1000);
+      trackEvent("hover_end", label, duration);
+      delete hoverStartRef.current[label];
+    }
+  };
+
+  const miscueData = useMemo(() => {
+    if (!students.length || !assessments.length || !attemptsLoaded) return [];
+
+    return assessments.flatMap((assessment, idx) => {
+      const passageId = assessment._id?.$oid || assessment._id;
+      const passageTitle =
+        assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
+
+      return students.map((student) => {
+        const key = `${student.username}_${passageId}`;
+        const entries = miscues.byStudentPassage.get(key) || [];
+
+        let numCorrect = 0,
+          numDels = 0,
+          numSubs = 0;
+
+        entries.forEach((e) => {
+          const result = e.result;
+          numCorrect += result.numCorrect || 0;
+          numDels += result.numDels || 0;
+          numSubs += result.numSubs || 0;
+        });
+
+        const studentAttempts = entries.length;
+        const classAttempts = readingAttempts.filter((a) => a.readingAssessmentId === passageId).length;
+
+        const totalClassCorrect = readingAttempts.reduce((acc, a) => {
+          if (a.readingAssessmentId === passageId) {
+            a.readingAttempts?.forEach((seg) => {
+              const matched = miscues.global.find(
+                (m) =>
+                  m.readingContent === seg.readingContent &&
+                  m.rawAttempt === seg.rawAttempt
+              );
+              acc += matched?.result?.numCorrect || 0;
+            });
+          }
+          return acc;
+        }, 0);
+
+        return {
+          passageId,
+          passage: passageTitle,
+          username: student.username,
+          numCorrect,
+          numDels,
+          numSubs,
+          studentAttempts,
+          classAttempts,
+          avgCorrect: classAttempts > 0 ? totalClassCorrect / classAttempts : 0,
+        };
       });
-    }
+    });
+  }, [students, readingAttempts, assessments, miscues, attemptsLoaded]);
 
-    if (student && student.misreadWords) {
-      setMisreadData(student.misreadWords);
-    }
-
-    if (readingAttempts && readingAttempts.length > 0) {
-      const assessmentData = calculateReadingAssessmentData(readingAttempts);
-      setReadingAssessmentData(assessmentData);
-    }
-  }, [student, readingAttempts]);
+  if (loading) return <h2>Loading classroom data...</h2>;
 
   return (
-    <div className="classroom">
-      {/* Top Card: Progress Bar */}
-      <div className="long-card">
-        <Card 
-          className="long-card"
-          onClick={() => trackEvent("click_progress_overview", "User clicked on Progress Overview Card")}
-          onMouseEnter={() => trackEvent("hover_progress_overview", "User hovered over Progress Overview Card", "hover")}
-        >
-          <CardContent className="long-card-content">
-            <Typography gutterBottom variant="h4" component="div">
-              Progress Overview
-            </Typography>
-            <div className="progress-reading-container">
-              <ReadingProgressBar performance={student?.overallPerformance} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid-container">
-        <Card 
-          className="card"
-          onClick={() => trackEvent("click_accuracy_fluency", "User clicked on Overall Accuracy & Fluency Chart")}
-          onMouseEnter={() => trackEvent("hover_accuracy_fluency", "User hovered over Overall Accuracy & Fluency Chart", "hover")}
-        >
-          <CardContent>
-            <OverallAccuracyFluencyChart data={overallPerformanceData} />
-          </CardContent>
-        </Card>
+    <div className="classroom" ref={classroomRef}>
+      {!expandedCard && (
+        <div className="long-card">
+          <Card className="long-card">
+            <CardContent className="long-card-content">
+              <Typography gutterBottom variant="h4">
+                Classroom Progress Overview
+              </Typography>
+              <div className="overview-flex-container">
+                <div className="overview-progress">
+                  <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
+                </div>
+                <div className="overview-performance">
+                  <ClassWideReadingPerformance students={students} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-        <Card 
-          className="card"
-          onClick={() => trackEvent("click_class_engagement", "User clicked on Class Engagement Bubble Chart")}
-          onMouseEnter={() => trackEvent("hover_class_engagement", "User hovered over Class Engagement Bubble Chart", "hover")}
-        >
-          <CardContent>
-            <ClassEngagementBubbleChart readingAttempts={readingAttempts} />
-          </CardContent>
-        </Card>
+      {!expandedCard && (
+        <div className="grid-container">
+          <Card
+            className="card"
+            onMouseEnter={() => handleMouseEnter("Overall Accuracy & Fluency")}
+            onMouseLeave={() => handleMouseLeave("Overall Accuracy & Fluency")}
+            onClick={() => {
+              trackEvent("card_click", "Overall Accuracy & Fluency");
+              setExpandedCard("accuracy");
+            }}
+          >
+            <CardContent>
+              <OverallAccuracyFluencyChart students={students} />
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="card"
-          onClick={() => trackEvent("click_word_accuracy_distribution", "User clicked on Word Accuracy Distribution Chart")}
-          onMouseEnter={() => trackEvent("hover_word_accuracy_distribution", "User hovered over Word Accuracy Distribution Chart", "hover")}
-        >
-          <CardContent>
-            <WordAccuracyDistributionChart students={students} />
-          </CardContent>
-        </Card>
+          <Card
+            className="card"
+            onMouseEnter={() => handleMouseEnter("Class Engagement")}
+            onMouseLeave={() => handleMouseLeave("Class Engagement")}
+            onClick={() => {
+              trackEvent("card_click", "Class Engagement Bubble Chart");
+              setExpandedCard("engagement");
+            }}
+          >
+            <CardContent>
+              <ClassEngagementBubbleChart readingAttempts={readingAttempts} assessments={assessments} />
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="card"
-          onClick={() => trackEvent("click_misread_words", "User clicked on Top Misread Words Chart")}
-          onMouseEnter={() => trackEvent("hover_misread_words", "User hovered over Top Misread Words Chart", "hover")}
-        >
-          <CardContent>
-            <TopMisreadWordsChart data={misreadData} />
-          </CardContent>
-        </Card>
+          <Card
+            className="card"
+            onMouseEnter={() => handleMouseEnter("Assessment Tile View")}
+            onMouseLeave={() => handleMouseLeave("Assessment Tile View")}
+            onClick={() => {
+              trackEvent("card_click", "Assessment Data Tile View");
+              setExpandedCard("tileview");
+            }}
+          >
+            <CardContent>
+              <ReadingAssessmentDataTileView
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+                students={students}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-        <Card 
-          className="card"
-          onClick={() => trackEvent("click_reading_assessment", "User clicked on Reading Assessment Line Graph")}
-          onMouseEnter={() => trackEvent("hover_reading_assessment", "User hovered over Reading Assessment Line Graph", "hover")}
-        >
-          <CardContent>
-            <ReadingAssessmentDataLineGraph data={[readingAssessmentData]} />
-          </CardContent>
-        </Card>
+      {expandedCard && (
+        <div className="expanded-card-overlay">
+          <div className="expanded-card">
+            <button
+              className="close-btn"
+              onClick={() => {
+                trackEvent("fullscreen_close", expandedCard);
+                setExpandedCard(null);
+              }}
+            >
+              ✖
+            </button>
+            {expandedCard === "accuracy" && (
+              <OverallAccuracyFluencyChart students={students} />
+            )}
+            {expandedCard === "engagement" && (
+              <ClassEngagementBubbleChart
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+              />
+            )}
+            {expandedCard === "tileview" && (
+              <ReadingAssessmentDataTileView
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+                students={students}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
-        <Card 
-          className="card"
-          onClick={() => trackEvent("click_class_wide_performance", "User clicked on Class-Wide Reading Performance")}
-          onMouseEnter={() => trackEvent("hover_class_wide_performance", "User hovered over Class-Wide Reading Performance", "hover")}
-        >
-          <CardContent>
-            <ClassWideReadingPerformance students={students} />
-          </CardContent>
-        </Card>
-
-        
-      </div>
+      {!expandedCard && (
+        <div className="long-card-2">
+          <Card className="long-card-2">
+            <CardContent style={{ height: "100%", width: "100%" }}>
+              <Typography variant="h5" gutterBottom>
+                Student vs Class Comparative Analysis
+              </Typography>
+              <ComparativePerformanceChart miscues={miscueData} students={students} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

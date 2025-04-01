@@ -14,8 +14,11 @@ export const phonemeMap = {
     "b": ["p", "d"],         // Added
 };
 
-  
 export function getPhoneticSimilarity(word1, word2) {
+    if (!word1 || !word2) {
+        return 0; // Return 0 similarity if either word is null
+    }
+
     const w1 = word1.toLowerCase();
     const w2 = word2.toLowerCase();
     let similarityScore = 0;

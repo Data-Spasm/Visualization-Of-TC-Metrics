@@ -1,0 +1,72 @@
+.comparative-card {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.comparative-chart-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.story-summary {
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.callout-block {
+  background-color: #f9fafb;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 16px;
+  font-size: 1rem;
+}
+
+.no-data {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 1rem;
+  color: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .comparative-card {
+    padding: 12px;
+  }
+
+  .comparative-chart-container {
+    margin-top: 12px;
+  }
+
+  .story-summary {
+    font-size: 0.9rem;
+  }
+
+  .callout-block {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .comparative-card {
+    padding: 8px;
+  }
+
+  .comparative-chart-container {
+    margin-top: 8px;
+  }
+
+  .story-summary {
+    font-size: 0.8rem;
+  }
+
+  .callout-block {
+    font-size: 0.8rem;
+  }
+}
