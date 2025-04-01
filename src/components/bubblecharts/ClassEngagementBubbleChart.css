@@ -1,26 +1,100 @@
 .chart-container {
-    width: 100%;
-    height: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, #f7f7f7, #e6e6e6);
-    border-radius: 10px;
-    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 2vw;
+  box-sizing: border-box;
+}
+
+.chart-card {
+  padding: 2vw;
+  border-radius: 1rem;
+  box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #f7f7f7, #e6e6e6);
+  margin: 0 auto;
+  max-width: 80vw;
+  overflow: hidden; 
+}
+
+.grey-background {
+  background: linear-gradient(135deg, #f7f7f7, #e6e6e6);
+}
+
+.chart-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.no-data {
+  text-align: center;
+  font-size: 1rem;
+  color: red;
+}
+
+.apexcharts-toolbar {
+  display: none; 
+}
+
+.story-summary {
+  background-color: #fef3c7;
+  border-left: 0.4rem solid #f59e0b;
+  padding: 1vw;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #78350f;
+}
+
+.callout-block {
+  background-color: #f0fdf4;
+  border-left: 0.4rem solid #22c55e;
+  padding: 1vw;
+  margin-top: 1.2rem;
+  font-size: 1rem;
+  color: #14532d;
+}
+
+@media (max-width: 1200px) {
+  .chart-card {
+    padding: 3vw;
   }
-  
+
   .chart-title {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
+    font-size: 1.2rem;
   }
-  
-  .no-data {
-    text-align: center;
-    font-size: 14px;
-    color: red;
+
+  .story-summary, .callout-block, .no-data {
+    font-size: 0.9rem;
   }
+}
+
+@media (max-width: 768px) {
+  .chart-card {
+    padding: 4vw;
+  }
+
+  .chart-title {
+    font-size: 1rem;
+  }
+
+  .story-summary, .callout-block, .no-data {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-card {
+    padding: 5vw;
+  }
+
+  .chart-title {
+    font-size: 0.9rem;
+  }
+
+  .story-summary, .callout-block, .no-data {
+    font-size: 0.7rem;
+  }
+}

@@ -1,0 +1,88 @@
+.chart-container {
+  padding: 10px; 
+}
+
+.chart-title {
+  font-weight: bold;
+  font-size: 16px; 
+  margin-bottom: 12px; 
+  text-align: center;
+}
+
+.tile-row {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  margin-bottom: 10px; 
+}
+
+.tile-label {
+  font-size: 12px; 
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px; 
+  text-align: center;
+}
+
+.tile-grid {
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 2px; 
+  justify-content: center;
+}
+
+.tile {
+  width: 12px; 
+  height: 12px;
+  border-radius: 2px; 
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.tile.completed {
+  background-color: #4CAF50;
+}
+
+.tile.quit {
+  background-color: #F44336;
+}
+
+.tile-legend {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; 
+  font-size: 12px; 
+  margin-top: 2px; 
+}
+
+.legend-item .tile {
+  width: 12px; 
+  height: 12px;
+}
+
+.scrollable-area {
+  scrollbar-width: thin;             
+  scrollbar-color: #ccc transparent; 
+  overflow-y: auto;
+}
+
+/* WebKit browsers (Chrome, Edge, Safari) */
+.scrollable-area::-webkit-scrollbar {
+  width: 4px; 
+}
+
+.scrollable-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-area::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 2px;
+}
