@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./ReadingAssessmentDataTileSquare.css";
 
 const TILE_SIZE = 16;
 const TILE_GAP = 4;
 
-// This component visualizes reading assessment data using a tile grid format. Each tile represents a student's attempt at a reading passage, with color coding for completion status.
 const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [], studentUsername = null }) => {
   const [data, setData] = useState([]);
   const [insight, setInsight] = useState("");
@@ -24,7 +24,7 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
         const id = String(a._id?.$oid || a._id);
         return id === String(attempt.readingAssessmentId);
       });
-      
+
       const title = assessment?.title || "Untitled";
 
       if (!titleMap[title]) {
@@ -34,7 +34,11 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
       }
 
       const type = attempt.quit ? "quit" : "completed";
-      titleMap[title].tiles.push({ type, student: attempt.studentUsername });
+      titleMap[title].tiles.push({
+        type,
+        student: attempt.studentUsername,
+        passageId: attempt.readingAssessmentId,
+      });
 
       if (type === "quit") {
         quitCounts[title]++;
@@ -84,7 +88,6 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
         <p>{insight}</p>
       </div>
 
-      {/* Fixed-height, scrollable tile grid */}
       <div
         className="scrollable-area"
         style={{
@@ -95,7 +98,6 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
           paddingRight: "8px",
         }}
       >
-
         <div className="responsive-tile-wrapper">
           {data.map(({ passage, tiles }) => (
             <div key={passage} className="tile-row">
@@ -115,23 +117,28 @@ const ReadingAssessmentDataTileView = ({ readingAttempts = [], assessments = [],
                 {passage}
               </div>
               <div className="tile-grid">
-                {tiles.map(({ type, student }, idx) => (
-                  <div
+                {tiles.map(({ type, student, passageId }, idx) => (
+                  <Link
                     key={idx}
-                    className={`tile ${type}`}
-                    style={{
-                      width: TILE_SIZE,
-                      height: TILE_SIZE,
-                      margin: TILE_GAP / 2,
-                      borderRadius: 3,
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                    }}
+                    to={`/passages/${student}/${passageId}`}
+                    className="tile-link-wrapper"
                     title={
                       studentUsername
                         ? `Status: ${type === "completed" ? "Completed" : "Quit"}`
                         : `Student: ${student}\nStatus: ${type === "completed" ? "Completed" : "Quit"}`
                     }
-                  />
+                  >
+                    <div
+                      className={`tile ${type}`}
+                      style={{
+                        width: TILE_SIZE,
+                        height: TILE_SIZE,
+                        margin: TILE_GAP / 2,
+                        borderRadius: 3,
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                  </Link>
                 ))}
               </div>
             </div>

@@ -38,6 +38,7 @@
   height: 12px;
   border-radius: 2px; 
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease;
 }
 
 .tile.completed {
@@ -86,3 +87,19 @@
   background-color: #ccc;
   border-radius: 2px;
 }
+
+.tile-link-wrapper {
+  display: inline-block;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 4px;
+}
+
+.tile-link-wrapper:hover,
+.tile-link-wrapper:focus {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(0, 132, 255, 0.7);
+  outline: none;
+  z-index: 2;
+}
+

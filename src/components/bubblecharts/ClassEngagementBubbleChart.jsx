@@ -23,7 +23,9 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
     let passageCounter = 1;
 
     readingAttempts.forEach((attempt) => {
-      const assessment = assessments.find(a => (a._id?.$oid || a._id) === attempt.readingAssessmentId);
+      const assessment = assessments.find(
+        a => (a._id?.$oid || a._id) === attempt.readingAssessmentId
+      );
       const title = assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled";
 
       if (!passageMap.has(title)) {
@@ -79,7 +81,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
   const chartOptions = {
     chart: {
       type: "bubble",
-      height: 500,
+      // Let height be controlled by container
       toolbar: { show: false },
       zoom: { enabled: false }
     },
@@ -115,13 +117,24 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
     legend: {
       show: true,
       position: "bottom",
-      fontSize: "10px"
+      horizontalAlign: "center",
+      fontSize: "10px",
+      itemMargin: { horizontal: 10, vertical: 2 },
+      markers: { width: 10, height: 10 }
     },
     plotOptions: {
       bubble: {
         minBubbleRadius: 5,
         maxBubbleRadius: 50,
         padding: 5
+      }
+    },
+    grid: {
+      padding: {
+        bottom: 30, // Ensure legend doesn't crowd the chart
+        top: 10,
+        left: 10,
+        right: 10
       }
     }
   };
@@ -135,7 +148,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
       </div>
 
       <ResponsiveContainer width="100%" height={355}>
-        <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+        <Chart options={chartOptions} series={seriesData} type="bubble" />
       </ResponsiveContainer>
 
       {seriesData.length > 0 && (
