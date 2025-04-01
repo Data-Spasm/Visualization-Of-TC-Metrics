@@ -2,16 +2,18 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ReadingProgressBarStudent.css";
 
+// This component visualizes reading progress and performance metrics for a single student.
 const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
   const navigate = useNavigate();
   const [loadingPassageId, setLoadingPassageId] = useState(null);
 
+  // This effect is used to track the loading state of the passage ID when a user clicks on a bar.
   const progressData = [
-    { label: "Omissions", key: "numDels", color: "#3DA35D", summary: "Often due to skipped words or attention lapses." },
-    { label: "Insertions", key: "numIns", color: "#28B8D6", summary: "Common when students guess or add words unconsciously." },
-    { label: "Substitutions", key: "numSubs", color: "#FDCB58", summary: "Usually reflects decoding difficulties or word confusion." },
-    { label: "Repetitions", key: "numReps", color: "#8E44AD", summary: "Linked to hesitancy or uncertainty in reading." },
-    { label: "Reversals", key: "numRevs", color: "#ef4444", summary: "Reversals may indicate issues with visual processing or letter/word orientation." },
+    {label: "Substitutions",key: "numSubs",color: "#e74c3c", summary: "Usually reflects decoding difficulties or word confusion."},
+    {label: "Reversals",key: "numRevs",color: "#f97316",summary: "May indicate issues with visual processing or orientation."},
+    {label: "Omissions",key: "numDels",color: "#facc15",summary: "Often due to skipped words or attention lapses."},
+    {label: "Insertions",key: "numIns",color: "#38bdf8",summary: "Common when students guess or add words unconsciously."},
+    {label: "Repetitions",key: "numReps",color: "#6366f1",summary: "Linked to hesitancy or uncertainty in reading."}
   ];
 
   const storyInsight = useMemo(() => {

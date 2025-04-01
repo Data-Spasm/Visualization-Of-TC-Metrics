@@ -3,51 +3,40 @@ import './navbar.css';
 import logo_light from '../../assets/logo-black.png';
 import search_icon_light from '../../assets/search-w.png';
 
-// Generate a unique user ID for tracking
-const generateUserID = () => `User_${Math.floor(Math.random() * 10000)}`;
+// Function to generate a unique session ID
+const generateUserID = () => `User_${Math.floor(Math.random() * 10000)}_${Date.now()}`;
 
-// Google Analytics Event Tracking
-const trackEvent = (eventName, eventLabel, userId) => {
-  if (window.gtag) {
-    window.gtag("event", eventName, {
-      event_category: "User Interaction",
-      event_label: eventLabel,
-      user_id: userId,
-    });
+// Retrieve or generate session ID
+const getSessionUserId = () => {
+  let sessionUserId = sessionStorage.getItem("userId");
+  if (!sessionUserId) {
+    sessionUserId = generateUserID();
+    sessionStorage.setItem("userId", sessionUserId);
   }
+  return sessionUserId;
 };
 
 const Navbar = ({ toggleSidebar }) => {
-  const [userId, setUserId] = useState(() => localStorage.getItem("userId") || generateUserID());
+  const [userId, setUserId] = useState(getSessionUserId);
 
   useEffect(() => {
-    localStorage.setItem("userId", userId);
     if (window.gtag) {
-      window.gtag('set', { user_id: userId });  // Ensure GA is using the correct user ID
+      // Set user ID for Google Analytics session
+      window.gtag('set', { user_id: userId });
+
+      // Optionally log session_start for more clarity in GA4 DebugView
+      window.gtag('event', 'session_start', {
+        user_id: userId,
+      });
     }
   }, [userId]);
-
-  // Reset user function
-  const resetUser = () => {
-    const newUserId = generateUserID();
-    setUserId(newUserId);
-    localStorage.setItem("userId", newUserId);
-
-    // Immediately update Google Analytics with new user ID
-    if (window.gtag) {
-      window.gtag('set', { user_id: newUserId });
-    }
-
-    trackEvent("reset_user", "User reset session", newUserId);
-    alert(`New user started: ${newUserId}`);
-  };
 
   return (
     <div className='navbar'>
       <button className='toggle-button' onClick={toggleSidebar}>☰</button>
-      
+
       <div className='header'>
-        <h1 className='header-text'>Teacher Dashboard</h1>
+        <h1 className='header-text'>Mrs. Brown's Dashboard</h1>
       </div>
 
       <div className='search'>
@@ -55,12 +44,8 @@ const Navbar = ({ toggleSidebar }) => {
         <img src={search_icon_light} alt="Search Icon" className='search-icon' />
       </div>
 
-      {/* Reset User Button inside Navbar */}
-      <div className='reset-user-container'>
-        <button className='reset-user-button' onClick={resetUser}>
-          Reset User
-        </button>
-        <span className='user-id'>ID: {userId}</span>
+      <div className='user-id-container'>
+        <span className='user-id'>Session ID: {userId}</span>
       </div>
     </div>
   );

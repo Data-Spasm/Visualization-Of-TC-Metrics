@@ -1,36 +1,51 @@
-// src/controllers/UserController.js
-import User from '../models/User';
-import ReadingAttempt from '../models/ReadingAttempt';
-import ReadingAssessment from '../models/ReadingAssessment';
+const UserController = {
+  // Get a user by username
+  async getUserByUsername(username) {
+    const response = await fetch(`/api/users/${username}`);
+    if (!response.ok) throw new Error("Failed to fetch user");
+    return response.json();
+  },
 
-class UserController {
-  // Fetch user details by username
-  static getUserByUsername(username) {
-    return User.getUserByUsername(username);
-  }
+  // Get all students
+  async getAllStudents() {
+    const response = await fetch(`/api/users?role=ROLE_STUDENT`);
+    if (!response.ok) throw new Error("Failed to fetch students");
+    return response.json();
+  },
 
-  // Fetch all students
-  static getAllStudents() {
-    return User.getUsersByRole("ROLE_STUDENT");
-  }
+  // Get all teachers
+  async getAllTeachers() {
+    const response = await fetch(`/api/users?role=ROLE_TEACHER`);
+    if (!response.ok) throw new Error("Failed to fetch teachers");
+    return response.json();
+  },
 
-  // Fetch all teachers
-  static getAllTeachers() {
-    return User.getUsersByRole("ROLE_TEACHER");
-  }
+  // Get all students for a given teacher
+  async getStudentsByTeacher(username) {
+    const response = await fetch(`/api/users?teacher=${username}`);
+    if (!response.ok) throw new Error("Failed to fetch students by teacher");
+    return response.json();
+  },
 
-  static getStudentsByTeacher(username) {
-    return User.getStudentsByTeacher(username);
-  }
+  // Get reading attempts + assessments for a student
+  async getStudentReadingData(username) {
+    const [attemptsRes, assessmentsRes] = await Promise.all([
+      fetch(`/api/readingAssessmentAttempts?student=${username}`),
+      fetch(`/api/readingAssessments`)
+    ]);
 
-  // Fetch reading attempts and related assessments for a student
-  static getStudentReadingData(username) {
-    const attempts = ReadingAttempt.getAttemptsByStudent(username);
+    if (!attemptsRes.ok || !assessmentsRes.ok) {
+      throw new Error("Failed to fetch reading data");
+    }
+
+    const attempts = await attemptsRes.json();
+    const assessments = await assessmentsRes.json();
+
     return attempts.map(attempt => ({
       ...attempt,
-      assessment: ReadingAssessment.getAssessmentById(attempt.readingAssessmentId)
+      assessment: assessments.find(a => a._id === attempt.readingAssessmentId || a._id?.$oid === attempt.readingAssessmentId)
     }));
   }
-}
+};
 
 export default UserController;

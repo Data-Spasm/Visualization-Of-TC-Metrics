@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
+import { ResponsiveContainer } from "recharts";
 import "./ClassEngagementBubbleChart.css";
 
+// This component visualizes student engagement with reading passages using a bubble chart.
 const colorPalette = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
   "#6366f1", "#ec4899", "#22c55e", "#8b5cf6",
   "#14b8a6", "#f43f5e"
 ];
 
+// The StudentEngagementBubbleChart component takes in reading attempts and assessments as props and generates a bubble chart to visualize student engagement with reading passages.
 const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessments = [] }) => {
   const [seriesData, setSeriesData] = useState([]);
   const [legendMap, setLegendMap] = useState([]);
@@ -63,7 +66,6 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
     }));
     setLegendMap(legend);
 
-
     const topPassage = allSeries.reduce((prev, current) =>
       current.maxTime > prev.maxTime ? current : prev
     , { maxTime: 0 });
@@ -109,7 +111,7 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
       zoom: { enabled: false }
     },
     xaxis: {
-      title: { text: "Passages" },
+      title: { text: "Passages", style: { fontWeight: "normal" } },
       tickAmount: 10,
       labels: {
         formatter: val => `P${Math.round(val)}`,
@@ -117,7 +119,7 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
       }
     },
     yaxis: {
-      title: { text: "Time on Task (Seconds)" },
+      title: { text: "Time on Task (Seconds)", style: { fontWeight: "normal" } },
       labels: { style: { fontSize: "12px" } }
     },
     tooltip: {
@@ -139,20 +141,24 @@ const StudentEngagementBubbleChart = ({ student, readingAttempts = [], assessmen
   };
 
   return (
-    <div className="chart-card grey-background">
-      <div className="chart-title">Student Engagement with Reading Passages</div>
+    <div className="chart-container">
+      <h3 className="chart-title">Student Engagement with Reading Passages</h3>
 
       <div className="story-summary">
         <p>{storySummary}</p>
       </div>
 
-      <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+      <ResponsiveContainer width="100%" height={355}>
+        <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+      </ResponsiveContainer>
 
       {seriesData.length > 0 && (
         <div className="callout-block">
            <strong>Tip:</strong> Longer times may reflect difficulty or careful reading. Consider comparing this with fluency or accuracy data.
         </div>
       )}
+
+      {seriesData.length === 0 && <div className="no-data">No data available</div>}
     </div>
   );
 };

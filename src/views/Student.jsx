@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -8,54 +8,86 @@ import WordAccuracyStudent from "../components/barcharts/WordAccuracyStudent";
 import ReadingAssessmentDataTileView from "../components/tileSquareChart/ReadingAssessmentDataTileSquare";
 import ComparativePerformanceChart from "../components/composed/ComparativeAnalysisChart";
 
-import { assessAttempt } from "../utils/assessAttempt";
+import { DataContext } from "../context/DataContext";
+import useAnalyticsEvent from "../hooks/useAnalyticsEvent";
 import "../components/textbase/ClassWideReadingPerformance.css";
 import "./Classroom.css";
 
-const Student = ({ student, allAssessmentAttempts, assessments }) => {
-  const [miscueData, setMiscueData] = useState([]);
+const Student = ({ student }) => {
+  const {
+    assessments,
+    readingAttempts,
+    miscues,
+    attemptsLoaded,
+    loadAttemptsAndMiscues,
+  } = useContext(DataContext);
+
   const [expandedCard, setExpandedCard] = useState(null);
   const navigate = useNavigate();
+  const trackEvent = useAnalyticsEvent("Student Dashboard");
+  const hoverStartRef = useRef({});
+  const classroomRef = useRef(null);
 
   useEffect(() => {
-    if (!student || !assessments.length || !allAssessmentAttempts.length) return;
+    if (!attemptsLoaded) loadAttemptsAndMiscues();
+  }, [attemptsLoaded, loadAttemptsAndMiscues]);
 
-    const compiledData = assessments.map((assessment, idx) => {
+  useEffect(() => {
+    if (attemptsLoaded) {
+      trackEvent("component_view", `Student Dashboard: ${student.username}`);
+    }
+  }, [attemptsLoaded, trackEvent, student.username]);
+
+  const handleMouseEnter = (label) => {
+    hoverStartRef.current[label] = Date.now();
+    trackEvent("hover_start", label);
+  };
+
+  const handleMouseLeave = (label) => {
+    const start = hoverStartRef.current[label];
+    if (start) {
+      const duration = Math.round((Date.now() - start) / 1000);
+      trackEvent("hover_end", label, duration);
+      delete hoverStartRef.current[label];
+    }
+  };
+
+  const studentAttempts = useMemo(() => {
+    return readingAttempts.filter((a) => a.studentUsername === student.username);
+  }, [readingAttempts, student.username]);
+
+  const miscueData = useMemo(() => {
+    if (!assessments.length || !student || !attemptsLoaded) return [];
+
+    return assessments.map((assessment, idx) => {
       const passageId = assessment._id?.$oid || assessment._id;
-      const passageTitle = assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
+      const passageTitle =
+        assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
+      const key = `${student.username}_${passageId}`;
+      const entries = miscues.byStudentPassage.get(key) || [];
 
-      const classAttempts = allAssessmentAttempts.filter(
-        (attempt) => attempt.readingAssessmentId === passageId
-      );
+      let numCorrect = 0,
+        numDels = 0,
+        numSubs = 0,
+        numIns = 0,
+        numReps = 0,
+        numRevs = 0;
 
-      const studentAttempts = classAttempts.filter(
-        (attempt) => attempt.studentUsername === student.username
-      );
-
-      let numCorrect = 0;
-      let numDels = 0;
-      let numSubs = 0;
-      let numIns = 0;
-      let numReps = 0;
-      let numRevs = 0;
-
-      studentAttempts.forEach((attempt) => {
-        attempt.readingAttempts?.forEach((seg) => {
-          if (seg.attempted && seg.rawAttempt && seg.readingContent) {
-            const result = assessAttempt(seg.readingContent, seg.rawAttempt);
-            numCorrect += result.numCorrect || 0;
-            numDels += result.numDels || 0;
-            numSubs += result.numSubs || 0;
-            numIns += result.numIns || 0;
-            numReps += result.numReps || 0;
-            numRevs += result.numRevs || 0;
-          }
-        });
+      entries.forEach((e) => {
+        const r = e.result;
+        numCorrect += r.numCorrect || 0;
+        numDels += r.numDels || 0;
+        numSubs += r.numSubs || 0;
+        numIns += r.numIns || 0;
+        numReps += r.numReps || 0;
+        numRevs += r.numRevs || 0;
       });
 
       const totalWords = numCorrect + numDels + numSubs + numIns + numReps + numRevs;
       const miscueRate =
-        totalWords > 0 ? ((numDels + numSubs + numIns + numReps + numRevs) / totalWords) * 100 : 0;
+        totalWords > 0
+          ? ((numDels + numSubs + numIns + numReps + numRevs) / totalWords) * 100
+          : 0;
 
       return {
         passageId,
@@ -66,19 +98,19 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
         numIns,
         numReps,
         numRevs,
-        studentAttempts: studentAttempts.length,
-        classAttempts: classAttempts.length,
+        studentAttempts: entries.length,
+        classAttempts: readingAttempts.filter(
+          (a) => a.readingAssessmentId === passageId
+        ).length,
         miscueRate: +miscueRate.toFixed(2),
       };
     });
+  }, [assessments, miscues, student, readingAttempts, attemptsLoaded]);
 
-    setMiscueData(compiledData);
-  }, [student, allAssessmentAttempts, assessments]);
-
-  const isFullscreen = (key) => expandedCard === key;
+  if (!attemptsLoaded) return <h2>Loading student data...</h2>;
 
   return (
-    <div className="classroom">
+    <div className="classroom" ref={classroomRef}>
       {!expandedCard && (
         <div className="long-card">
           <Card className="long-card">
@@ -99,26 +131,50 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
 
       {!expandedCard && (
         <div className="grid-container">
-          <Card className="card" onClick={() => setExpandedCard("engagement")}>
+          <Card
+            className="card"
+            onClick={() => {
+              trackEvent("card_click", "Student Engagement Bubble Chart");
+              setExpandedCard("engagement");
+            }}
+            onMouseEnter={() => handleMouseEnter("Student Engagement Bubble Chart")}
+            onMouseLeave={() => handleMouseLeave("Student Engagement Bubble Chart")}
+          >
             <CardContent>
               <StudentEngagementBubbleChart
                 student={student}
-                readingAttempts={allAssessmentAttempts}
+                readingAttempts={studentAttempts}
                 assessments={assessments}
               />
             </CardContent>
           </Card>
 
-          <Card className="card" onClick={() => setExpandedCard("wordAccuracy")}>
+          <Card
+            className="card"
+            onClick={() => {
+              trackEvent("card_click", "Word Accuracy Chart");
+              setExpandedCard("wordAccuracy");
+            }}
+            onMouseEnter={() => handleMouseEnter("Word Accuracy Chart")}
+            onMouseLeave={() => handleMouseLeave("Word Accuracy Chart")}
+          >
             <CardContent>
               <WordAccuracyStudent student={student} miscues={miscueData} />
             </CardContent>
           </Card>
 
-          <Card className="card" onClick={() => setExpandedCard("tiles")}>
+          <Card
+            className="card"
+            onClick={() => {
+              trackEvent("card_click", "Reading Assessment Tile View");
+              setExpandedCard("tiles");
+            }}
+            onMouseEnter={() => handleMouseEnter("Reading Assessment Tile View")}
+            onMouseLeave={() => handleMouseLeave("Reading Assessment Tile View")}
+          >
             <CardContent>
               <ReadingAssessmentDataTileView
-                readingAttempts={allAssessmentAttempts}
+                readingAttempts={studentAttempts}
                 assessments={assessments}
                 studentUsername={student.username}
               />
@@ -127,44 +183,36 @@ const Student = ({ student, allAssessmentAttempts, assessments }) => {
         </div>
       )}
 
-      {expandedCard === "engagement" && (
-        <div className="fullscreen-card">
-          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-          <Card className="card">
-            <CardContent>
+      {expandedCard && (
+        <div className="expanded-card-overlay">
+          <div className="expanded-card">
+            <button
+              className="close-btn"
+              onClick={() => {
+                trackEvent("fullscreen_close", expandedCard);
+                setExpandedCard(null);
+              }}
+            >
+              ✖
+            </button>
+            {expandedCard === "engagement" && (
               <StudentEngagementBubbleChart
                 student={student}
-                readingAttempts={allAssessmentAttempts}
+                readingAttempts={studentAttempts}
                 assessments={assessments}
               />
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {expandedCard === "wordAccuracy" && (
-        <div className="fullscreen-card">
-          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-          <Card className="card">
-            <CardContent>
+            )}
+            {expandedCard === "wordAccuracy" && (
               <WordAccuracyStudent student={student} miscues={miscueData} />
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {expandedCard === "tiles" && (
-        <div className="fullscreen-card">
-          <button className="close-btn" onClick={() => setExpandedCard(null)}>✖</button>
-          <Card className="card">
-            <CardContent>
+            )}
+            {expandedCard === "tiles" && (
               <ReadingAssessmentDataTileView
-                readingAttempts={allAssessmentAttempts}
+                readingAttempts={studentAttempts}
                 assessments={assessments}
                 studentUsername={student.username}
               />
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
       )}
     </div>

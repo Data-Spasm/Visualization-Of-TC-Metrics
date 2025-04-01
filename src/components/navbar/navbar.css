@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #465a65; /* Primary color */
+  background: #465a65;
   padding: 15px 4%;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -13,7 +13,6 @@
   cursor: pointer;
 }
 
-/* Header Centered */
 .header {
   flex: 1;
   text-align: center;
@@ -26,7 +25,6 @@
   color: #FFFFFF;
 }
 
-/* Navigation Links */
 .nav-links {
   flex: 1;
   list-style: none;
@@ -43,10 +41,9 @@
 }
 
 .nav-item:hover {
-  color: #FFD700; /* Highlight color on hover */
+  color: #FFD700; 
 }
 
-/* Search Bar */
 .search {
   display: flex;
   align-items: center;
@@ -81,28 +78,15 @@
   margin-left: 8px;
 }
 
-/* Reset User Button & User ID */
-.reset-user-container {
+.user-id-container {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-left: 20px;
+  margin-left: 1rem;
+  color: #444;
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
-.reset-user-button {
-  background-color: #ff4b4b;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background 0.3s ease-in-out;
-}
-
-.reset-user-button:hover {
-  background-color: #d13b3b;
-}
 
 .user-id {
   font-size: 14px;
