@@ -39,10 +39,10 @@ const Navbar = ({ toggleSidebar }) => {
         <h1 className='header-text'>Mrs. Brown's Dashboard</h1>
       </div>
 
-      <div className='search'>
+      {/* <div className='search'>
         <input type="search" placeholder='Search' className='search-input' />
         <img src={search_icon_light} alt="Search Icon" className='search-icon' />
-      </div>
+      </div> */}
 
       <div className='user-id-container'>
         <span className='user-id'>Session ID: {userId}</span>
