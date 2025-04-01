@@ -1,16 +1,15 @@
-// src/controllers/RoleController.js
-import Role from '../models/RoleModel';
+const RoleController = {
+  async getRoleById(id) {
+    const response = await fetch(`/api/roles/${id}`);
+    if (!response.ok) throw new Error("Failed to fetch role by ID");
+    return response.json();
+  },
 
-class Role {
-  // Get role by ID
-  static getRoleById(id) {
-    return Role.getRoleById(id);
+  async getAllRoles() {
+    const response = await fetch(`/api/roles`);
+    if (!response.ok) throw new Error("Failed to fetch roles");
+    return response.json();
   }
+};
 
-  // Get all roles
-  static getAllRoles() {
-    return Role.getAllRoles();
-  }
-}
-
-export default Role;
+export default RoleController;

@@ -110,7 +110,6 @@ const Classroom = () => {
   }, [students, readingAttempts, assessments, miscues, attemptsLoaded]);
 
   if (loading) return <h2>Loading classroom data...</h2>;
-  if (!attemptsLoaded) return <h2>Loading reading attempts...</h2>;
 
   return (
     <div className="classroom" ref={classroomRef}>
