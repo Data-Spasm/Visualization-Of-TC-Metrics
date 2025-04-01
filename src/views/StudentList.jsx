@@ -93,7 +93,6 @@ const StudentList = ({ students }) => {
   const performanceOrder = ["Excellent", "Good", "Fair", "Low"];
 
   return (
-    <div className="student-list-wrapper">
       <div className="student-list-container">
         <h2>Students</h2>
         <div className="responsive-table-container">
@@ -198,7 +197,6 @@ const StudentList = ({ students }) => {
           </table>
         </div>
       </div>
-    </div>
   );
 };
 
