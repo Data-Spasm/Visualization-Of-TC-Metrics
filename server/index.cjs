@@ -7,7 +7,15 @@ require('dotenv').config({ path: __dirname + '/.env' });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const allowedOrigins = [
+  'https://visualization-of-tc-metrics-2.onrender.com'
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 app.use(express.json());
 
 const uri = process.env.MONGO_URI;
