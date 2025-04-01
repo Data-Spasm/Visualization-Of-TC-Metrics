@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./ReadingProgressRadial.css";
 
+// This component visualizes reading progress and performance metrics for a single student.
 const CircularProgress = ({ percent = 0, color = "#3498db", label = "", value = 0, total = 0 }) => {
     const radius = 40;
     const stroke = 8;
@@ -30,14 +31,13 @@ const CircularProgress = ({ percent = 0, color = "#3498db", label = "", value = 
           />
         </svg>
   
-        {/* Display value and label properly */}
         <div className="progress-value">{value}</div>
         <div className="progress-label">{label}</div>
       </div>
     );
   };
   
-
+// This function generates the SVG path for a circular arc based on the center coordinates, radius, and start/end angles.
 function describeArc(cx, cy, r, startAngle, endAngle) {
   const rad = angle => (Math.PI / 180) * angle;
   const x1 = cx + r * Math.cos(rad(startAngle));
@@ -52,11 +52,11 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
   const navigate = useNavigate();
 
   const progressData = [
-    { label: "Omissions", key: "numDels", color: "#F1C40F" },
-    { label: "Insertions", key: "numIns", color: "#3498DB" },
-    { label: "Substitutions", key: "numSubs", color: "#2ECC71" },
-    { label: "Repetitions", key: "numReps", color: "#9B59B6" },
-    { label: "Reversals", key: "numRevs", color: "#E74C3C" },
+    {label: "Substitutions",key: "numSubs",color: "#e74c3c",},
+    {label: "Reversals",key: "numRevs",color: "#f97316",},
+    {label: "Omissions",key: "numDels",color: "#facc15",},
+    {label: "Insertions",key: "numIns",color: "#38bdf8", },
+    {label: "Repetitions",key: "numReps",color: "#6366f1",},
   ];
 
   if (!Array.isArray(miscues)) {
@@ -81,13 +81,11 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
 
   return (
     <div className="radial-progress-card-container">
-  {/* Summary at the top */}
   <div className="story-summary top-block">
     <strong>Miscue Breakdown</strong>
     <p>{storyText}</p>
   </div>
 
-  {/* Radial bar grid in the center */}
   <div className="radial-metrics-grid">
     {progressData.map((metric) => {
       const value = miscues[0]?.[metric.key] || 0;
@@ -106,7 +104,6 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
     })}
   </div>
 
-  {/* Tip at the bottom */}
   <div className="tip-block">
     <strong>Tip:</strong> Use this view to quickly compare miscue types. High values may signal where a student struggles most—e.g., decoding (substitutions), fluency (repetitions), or attention (omissions).
   </div>

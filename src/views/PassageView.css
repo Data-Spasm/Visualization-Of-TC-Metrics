@@ -1,39 +1,13 @@
 .passage-view-container {
-    padding: 2rem;
-    overflow-y: auto; /* allow vertical scrolling */
-    max-height: 90vh;  /* limit height to viewport */
+    padding: 2rem 1rem;
+    overflow-y: auto;
+    max-height: 90vh;
     box-sizing: border-box;
   }
   
-  
-  .metric-summary {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 1rem;
+  .title {
+    font-size: 1.5rem;
   }
-  
-  .metric-box {
-    background: #f4f4f4;
-    padding: 1rem;
-    border-radius: 8px;
-    text-align: center;
-  }
-  
-  .chip {
-    display: inline-block;
-    margin: 2rem;
-    padding: 0.4rem 1.55rem;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: #fff;
-  }
-  
-  .red { background-color: #e74c3c; }
-  .yellow { background-color: #f1c40f; }
-  .green { background-color: #2ecc71; }
-  .blue { background-color: #3498db; }
-  .purple { background-color: #9b59b6; }
   
   .passage-box {
     background: #fff;
@@ -43,69 +17,23 @@
     border-radius: 8px;
   }
   
-  .audio-player-container {
-    margin: 2rem auto 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  }
-  
-
-  .audio-player-container audio {
-    width: 100%;
-    max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  
-  .omission {
-    background-color: yellow;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-  
-  .insertion {
-    background-color: lightblue;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-  
-  .repetition {
-    background-color: violet;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-  
-  .substitution {
-    background-color: lightgreen;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-  
-  .mispronunciation {
-    background-color: salmon;
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-
+  /* Responsive two-column layout for original vs attempt text */
   .side-by-side-layout {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 2rem;
     justify-content: space-between;
-    margin-top: 1rem;
-    flex-wrap: wrap;
   }
   
   .card-box {
-    flex: 1;
+    flex: 1 1 300px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 12px;
     padding: 1rem 1.5rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    min-width: 300px;
+    min-width: 280px;
   }
   
   .card-box h5 {
@@ -119,12 +47,53 @@
     white-space: pre-line;
   }
   
+  .audio-player-container {
+    margin: 2rem auto 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .audio-player-container audio {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Miscue chips */
+  .miscue-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  
+  .chip {
+    display: inline-block;
+    padding: 0.4rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .chip.red { background-color: #e74c3c; }       /* Substitutions */
+  .chip.orange { background-color: #f97316; }    /* Reversals */
+  .chip.yellow { background-color: #facc15; }    /* Omissions */
+  .chip.lightblue { background-color: #38bdf8; } /* Insertions */
+  .chip.indigo { background-color: #6366f1; }    /* Repetitions */
+  
+  /* Dropdowns */
   .attempt-selector {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-wrap: wrap;
     font-weight: 500;
     font-size: 1rem;
+    margin: 1rem 0;
   }
   
   .attempt-selector label {
@@ -141,6 +110,7 @@
     color: #333;
     transition: all 0.2s ease-in-out;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    min-width: 200px;
   }
   
   .attempt-selector select:hover {
@@ -152,7 +122,37 @@
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
   }
-    
+  
+  .substitution {
+    background-color: #e74c3c; /* Red */
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  
+  .reversal {
+    background-color: #f97316; /* Orange */
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  
+  .omission {
+    background-color: #facc15; /* Yellow */
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  
+  .insertion {
+    background-color: #38bdf8; /* Light Blue */
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  
+  .repetition {
+    background-color: #6366f1; /* Indigo */
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+
   .omission.ghost-word {
     background-color: #f1c40f;
     opacity: 0.7;
@@ -162,4 +162,30 @@
     border-radius: 4px;
   }
   
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .title {
+      font-size: 1.2rem;
+      text-align: center;
+    }
+  
+    .side-by-side-layout {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  
+    .card-box {
+      width: 100%;
+      padding: 1rem;
+    }
+  
+    .attempt-selector {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .audio-player-container audio {
+      max-width: 100%;
+    }
+  }
   

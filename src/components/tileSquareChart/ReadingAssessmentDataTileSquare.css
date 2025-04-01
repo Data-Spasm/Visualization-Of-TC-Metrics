@@ -1,88 +1,42 @@
-/* .chart-container {
-  padding: 20px;
-}
-
-.chart-title {
-  font-weight: bold;
-  font-size: 18px;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.tile-row {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-.tile-label {
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tile-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.tile {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-}
-
-.tile.completed {
-  background-color: #4CAF50;
-}
-
-.tile.quit {
-  background-color: #F44336;
-} */
-
 .chart-container {
-  padding: 10px; /* Reduced padding */
+  padding: 10px; 
 }
 
 .chart-title {
   font-weight: bold;
-  font-size: 16px; /* Slightly smaller title */
-  margin-bottom: 12px; /* Reduced margin */
+  font-size: 16px; 
+  margin-bottom: 12px; 
   text-align: center;
 }
 
 .tile-row {
   display: flex;
-  flex-direction: column; /* Stack title above tiles */
+  flex-direction: column; 
   align-items: center;
-  margin-bottom: 10px; /* Less space between rows */
+  margin-bottom: 10px; 
 }
 
 .tile-label {
-  font-size: 12px; /* Smaller font */
+  font-size: 12px; 
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 4px; /* Reduced space between passage title and tiles */
+  margin-bottom: 4px; 
   text-align: center;
 }
 
 .tile-grid {
   display: flex;
-  flex-wrap: wrap; /* Allow wrapping */
-  gap: 2px; /* Smaller gap */
+  flex-wrap: wrap; 
+  gap: 2px; 
   justify-content: center;
 }
 
 .tile {
-  width: 12px; /* Smaller tile */
+  width: 12px; 
   height: 12px;
-  border-radius: 2px; /* Slightly reduced rounded corners */
+  border-radius: 2px; 
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -103,12 +57,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px; /* Reduced spacing */
-  font-size: 12px; /* Smaller text */
-  margin-top: 2px; /* Less margin */
+  gap: 6px; 
+  font-size: 12px; 
+  margin-top: 2px; 
 }
 
 .legend-item .tile {
-  width: 12px; /* Match smaller tile size */
+  width: 12px; 
   height: 12px;
+}
+
+.scrollable-area {
+  scrollbar-width: thin;             
+  scrollbar-color: #ccc transparent; 
+  overflow-y: auto;
+}
+
+/* WebKit browsers (Chrome, Edge, Safari) */
+.scrollable-area::-webkit-scrollbar {
+  width: 4px; 
+}
+
+.scrollable-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-area::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 2px;
 }

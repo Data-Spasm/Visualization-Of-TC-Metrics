@@ -2,16 +2,27 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AvatarController from "../controllers/Avatar";
 import { generateAvatarUrl } from "../utils/avatarUrlGenerator";
-import useAnalyticsEvent from "../hooks/useAnalyticsEvent"; // added
+import useAnalyticsEvent from "../hooks/useAnalyticsEvent";
 import "./StudentList.css";
 
 const StudentList = ({ students }) => {
   const navigate = useNavigate();
   const [processingStudentId, setProcessingStudentId] = useState(null);
+  const [avatars, setAvatars] = useState([]);
   const trackEvent = useAnalyticsEvent("Student List");
   const hoverStartRef = useRef({});
 
   useEffect(() => {
+    const loadAvatars = async () => {
+      try {
+        const data = await AvatarController.getAllAvatars();
+        setAvatars(data);
+      } catch (err) {
+        console.error(" Failed to load avatars:", err);
+      }
+    };
+
+    loadAvatars();
     trackEvent("component_view", "Student List Page Loaded");
   }, [trackEvent]);
 
@@ -31,7 +42,7 @@ const StudentList = ({ students }) => {
 
   const handleClick = (student) => {
     const studentId = student._id?.$oid || student._id;
-    setProcessingStudentId(studentId); // trigger processing state
+    setProcessingStudentId(studentId);
     trackEvent("card_click", `Reading Progress Click - ${student.firstName} ${student.lastName}`);
     navigate(`/students/${studentId}`);
   };
@@ -52,6 +63,12 @@ const StudentList = ({ students }) => {
     if (value < 90) return "good";
     return "excellent";
   };
+
+  //  Early check: no student data yet
+  if (!Array.isArray(students)) {
+    console.warn("⚠️ StudentList received non-array or missing student data:", students);
+    return <div className="loading-message">Loading students...</div>;
+  }
 
   const groupedStudents = {
     Excellent: [],
@@ -99,9 +116,9 @@ const StudentList = ({ students }) => {
                     </tr>
                   )}
                   {groupedStudents[group].map((student, index) => {
-                    const studentId = student._id?.$oid;
-                    const avatarData = AvatarController.getAllAvatars().find(
-                      avatar => avatar._id?.$oid === studentId
+                    const studentId = student._id?.$oid || student._id;
+                    const avatarData = avatars.find(
+                      avatar => avatar._id?.$oid === studentId || avatar._id === studentId
                     );
                     const avatarUrl = avatarData ? generateAvatarUrl(avatarData) : null;
 

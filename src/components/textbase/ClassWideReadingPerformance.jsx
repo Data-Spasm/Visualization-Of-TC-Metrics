@@ -1,3 +1,5 @@
+// We decided not to use this card
+
 import React, { useState, useEffect } from "react";
 import {  ResponsiveContainer, RadialBarChart, RadialBar, PolarAngleAxis, Tooltip} from "recharts";
 import calculateReadingScore from "../../utils/readingScore";

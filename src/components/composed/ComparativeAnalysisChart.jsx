@@ -13,6 +13,7 @@ import {
 import { Typography, Select, MenuItem } from "@mui/material";
 import "./ComparativeAnalysisChart.css";
 
+// This component is used to compare the performance of a selected student against the class average
 const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [filteredData, setFilteredData] = useState([]);
@@ -42,6 +43,7 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
         return rateB - rateA;
       })[0];
 
+      // Find the student associated with the highest miscue
       const student = students.find(s => s.username === selectedStudent);
       if (highestMiscue && student) {
         const totalAttempts = highestMiscue.studentAttempts || 0;
@@ -59,6 +61,7 @@ const ComparativePerformanceChart = ({ miscues = [], students = [] }) => {
     }
   }, [filteredData, students, selectedStudent]);
 
+  // Merge the filtered data with the class average data
   const mergedData = filteredData.map((entry) => {
     const total = (entry.numCorrect || 0) + (entry.numDels || 0) + (entry.numSubs || 0);
     const miscueRate = total > 0

@@ -26,6 +26,7 @@ const Classroom = () => {
   const [expandedCard, setExpandedCard] = useState(null);
   const trackEvent = useAnalyticsEvent("Classroom Dashboard");
   const hoverStartRef = useRef({});
+  const classroomRef = useRef(null);
 
   useEffect(() => {
     if (!attemptsLoaded) {
@@ -109,10 +110,9 @@ const Classroom = () => {
   }, [students, readingAttempts, assessments, miscues, attemptsLoaded]);
 
   if (loading) return <h2>Loading classroom data...</h2>;
-  if (!attemptsLoaded) return <h2>Loading reading attempts...</h2>;
 
   return (
-    <div className="classroom">
+    <div className="classroom" ref={classroomRef}>
       {!expandedCard && (
         <div className="long-card">
           <Card className="long-card">
@@ -183,68 +183,50 @@ const Classroom = () => {
         </div>
       )}
 
-      {expandedCard === "accuracy" && (
-        <div className="fullscreen-card">
-          <button
-            className="close-btn"
-            onClick={() => {
-              trackEvent("fullscreen_close", "Overall Accuracy & Fluency");
-              setExpandedCard(null);
-            }}
-          >
-            ✖
-          </button>
-          <OverallAccuracyFluencyChart students={students} />
+      {expandedCard && (
+        <div className="expanded-card-overlay">
+          <div className="expanded-card">
+            <button
+              className="close-btn"
+              onClick={() => {
+                trackEvent("fullscreen_close", expandedCard);
+                setExpandedCard(null);
+              }}
+            >
+              ✖
+            </button>
+            {expandedCard === "accuracy" && (
+              <OverallAccuracyFluencyChart students={students} />
+            )}
+            {expandedCard === "engagement" && (
+              <ClassEngagementBubbleChart
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+              />
+            )}
+            {expandedCard === "tileview" && (
+              <ReadingAssessmentDataTileView
+                readingAttempts={readingAttempts}
+                assessments={assessments}
+                students={students}
+              />
+            )}
+          </div>
         </div>
       )}
 
-      {expandedCard === "engagement" && (
-        <div className="fullscreen-card">
-          <button
-            className="close-btn"
-            onClick={() => {
-              trackEvent("fullscreen_close", "Class Engagement Bubble Chart");
-              setExpandedCard(null);
-            }}
-          >
-            ✖
-          </button>
-          <ClassEngagementBubbleChart
-            readingAttempts={readingAttempts}
-            assessments={assessments}
-          />
+      {!expandedCard && (
+        <div className="long-card-2">
+          <Card className="long-card-2">
+            <CardContent style={{ height: "100%", width: "100%" }}>
+              <Typography variant="h5" gutterBottom>
+                Student vs Class Comparative Analysis
+              </Typography>
+              <ComparativePerformanceChart miscues={miscueData} students={students} />
+            </CardContent>
+          </Card>
         </div>
       )}
-
-      {expandedCard === "tileview" && (
-        <div className="fullscreen-card">
-          <button
-            className="close-btn"
-            onClick={() => {
-              trackEvent("fullscreen_close", "Assessment Data Tile View");
-              setExpandedCard(null);
-            }}
-          >
-            ✖
-          </button>
-          <ReadingAssessmentDataTileView
-            readingAttempts={readingAttempts}
-            assessments={assessments}
-            students={students}
-          />
-        </div>
-      )}
-
-      <div className="long-card-2">
-        <Card className="long-card-2">
-          <CardContent style={{ height: "100%", width: "100%" }}>
-            <Typography variant="h5" gutterBottom>
-              Student vs Class Comparative Analysis
-            </Typography>
-            <ComparativePerformanceChart miscues={miscueData} students={students} />
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 };

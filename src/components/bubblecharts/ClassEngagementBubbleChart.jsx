@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
+import { ResponsiveContainer } from "recharts";
 import "./ClassEngagementBubbleChart.css";
 
+// This component visualizes class engagement with reading passages using a bubble chart.
 const colorPalette = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
   "#6366f1", "#ec4899", "#22c55e", "#8b5cf6",
   "#14b8a6", "#f43f5e"
 ];
 
+// The ClassEngagementBubbleChart component takes in reading attempts and assessments as props and generates a bubble chart to visualize student engagement with reading passages.
 const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) => {
   const [seriesData, setSeriesData] = useState([]);
   const [storySummary, setStorySummary] = useState("");
@@ -81,7 +84,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
       zoom: { enabled: false }
     },
     xaxis: {
-      title: { text: "Passages" },
+      title: { text: "Passages", style: { fontWeight: "normal" } },
       tickAmount: 10,
       labels: {
         formatter: val => `P${Math.round(val)}`,
@@ -89,7 +92,7 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
       }
     },
     yaxis: {
-      title: { text: "Number of Attempts" },
+      title: { text: "Number of Attempts", style: { fontWeight: "normal" } },
       labels: { style: { fontSize: "12px" } }
     },
     tooltip: {
@@ -124,14 +127,16 @@ const ClassEngagementBubbleChart = ({ readingAttempts = [], assessments = [] }) 
   };
 
   return (
-    <div className="chart-card grey-background">
-      <div className="chart-title">Class Engagement with Reading Passages</div>
+    <div className="chart-container">
+      <h3 className="chart-title">Class Engagement with Reading Passages</h3>
 
       <div className="story-summary">
         <p>{storySummary}</p>
       </div>
 
-      <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+      <ResponsiveContainer width="100%" height={355}>
+        <Chart options={chartOptions} series={seriesData} type="bubble" height={500} />
+      </ResponsiveContainer>
 
       {seriesData.length > 0 && (
         <div className="callout-block">
