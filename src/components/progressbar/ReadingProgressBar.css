@@ -1,13 +1,12 @@
 .progress-reading-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Align everything to the left */
+  align-items: flex-start;
   width: 100%;
   padding: 16px;
   gap: 12px;
 }
 
-/* Title stays centered if you want, or align left */
 .reading-attempts-title-container {
   width: 100%;
 }
@@ -16,45 +15,53 @@
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 10px;
-  text-align: left; /* changed from center */
+  text-align: left;
 }
 
-/* Progress bars stack vertically */
 .progress-bar-section {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 10px;
-  width: 80%; /* slightly narrower to tuck it left */
+  width: 100%;
 }
 
-/* Each bar */
 .progress-bar {
   display: flex;
-  align-items: center;
-  height: 16px;
-  background-color: #e5e7eb;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #ccc;
-  width: 100%;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-bar-track {
   position: relative;
+  height: 24px;
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  transition: width 0.4s ease-in-out;
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.progress-percent-label {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  z-index: 2;
 }
 
 .progress-label {
   font-size: 13px;
   font-weight: 500;
-  margin-left: 8px;
-  white-space: nowrap;
-  position: absolute;
-  right: 5px;
-  top: 50%; 
-  transform: translateY(60%); 
+  color: #374151;
 }
 
 .legend-wrapper {
@@ -82,7 +89,6 @@
   background-color: #e0f2fe;
   border-left: 4px solid #0284c7;
   padding: 10px 16px;
-  margin-bottom: 10px;
   font-size: 0.95rem;
   color: #0f172a;
 }
