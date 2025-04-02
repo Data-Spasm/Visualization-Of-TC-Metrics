@@ -1,14 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ReadingProgressRadial.css";
 
-// This component visualizes reading progress and performance metrics for a single student.
 const CircularProgress = ({ percent = 0, color = "#3498db", label = "", value = 0, total = 0 }) => {
     const radius = 40;
     const stroke = 8;
     const normalizedRadius = radius - stroke / 2;
     const clampedPercent = Math.max(0, Math.min(percent, 100));
     const sweepAngle = (clampedPercent / 100) * 180;
+  
+    const [count, setCount] = useState(0);
+  
+    useEffect(() => {
+      let start = 0;
+      const duration = 1000; // 1 second
+      const stepTime = 20;
+      const steps = duration / stepTime;
+      const increment = value / steps;
+  
+      const interval = setInterval(() => {
+        start += increment;
+        if (start >= value) {
+          setCount(value);
+          clearInterval(interval);
+        } else {
+          setCount(Math.floor(start));
+        }
+      }, stepTime);
+  
+      return () => clearInterval(interval);
+    }, [value]);
   
     return (
       <div
@@ -31,13 +52,13 @@ const CircularProgress = ({ percent = 0, color = "#3498db", label = "", value = 
           />
         </svg>
   
-        <div className="progress-value">{value}</div>
-        <div className="progress-label">{label}</div>
+        <div className="radial-value">{count}</div>
+        <div className="radial-label">{label}</div>
       </div>
     );
   };
   
-// This function generates the SVG path for a circular arc based on the center coordinates, radius, and start/end angles.
+
 function describeArc(cx, cy, r, startAngle, endAngle) {
   const rad = angle => (Math.PI / 180) * angle;
   const x1 = cx + r * Math.cos(rad(startAngle));
@@ -52,11 +73,11 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
   const navigate = useNavigate();
 
   const progressData = [
-    {label: "Substitutions",key: "numSubs",color: "#e74c3c",},
-    {label: "Reversals",key: "numRevs",color: "#f97316",},
-    {label: "Omissions",key: "numDels",color: "#facc15",},
-    {label: "Insertions",key: "numIns",color: "#38bdf8", },
-    {label: "Repetitions",key: "numReps",color: "#6366f1",},
+    { label: "Substitutions", key: "numSubs", color: "#e74c3c" },
+    { label: "Reversals", key: "numRevs", color: "#f97316" },
+    { label: "Omissions", key: "numDels", color: "#facc15" },
+    { label: "Insertions", key: "numIns", color: "#38bdf8" },
+    { label: "Repetitions", key: "numReps", color: "#6366f1" },
   ];
 
   if (!Array.isArray(miscues)) {
@@ -81,34 +102,33 @@ const ReadingProgressRadialCard = ({ miscues = [], studentUsername }) => {
 
   return (
     <div className="radial-progress-card-container">
-  <div className="story-summary top-block">
-    <strong>Miscue Breakdown</strong>
-    <p>{storyText}</p>
-  </div>
+      <div className="story-summary top-block">
+        <strong>Miscue Breakdown</strong>
+        <p>{storyText}</p>
+      </div>
 
-  <div className="radial-metrics-grid">
-    {progressData.map((metric) => {
-      const value = miscues[0]?.[metric.key] || 0;
-      const percent = totalWords > 0 ? (value / totalWords) * 100 : 0;
+      <div className="radial-metrics-grid">
+        {progressData.map((metric) => {
+          const value = miscues[0]?.[metric.key] || 0;
+          const percent = totalWords > 0 ? (value / totalWords) * 100 : 0;
 
-      return (
-        <CircularProgress
-          key={metric.key}
-          percent={percent}
-          color={metric.color}
-          label={metric.label}
-          value={value}
-          total={totalWords}
-        />
-      );
-    })}
-  </div>
+          return (
+            <CircularProgress
+              key={metric.key}
+              percent={percent}
+              color={metric.color}
+              label={metric.label}
+              value={value}
+              total={totalWords}
+            />
+          );
+        })}
+      </div>
 
-  <div className="tip-block">
-    <strong>Tip:</strong> Use this view to quickly compare miscue types. High values may signal where a student struggles most—e.g., decoding (substitutions), fluency (repetitions), or attention (omissions).
-  </div>
-</div>
-
+      <div className="tip-block">
+        <strong>Tip:</strong> Use this view to quickly compare miscue types. High values may signal where a student struggles most—e.g., decoding (substitutions), fluency (repetitions), or attention (omissions).
+      </div>
+    </div>
   );
 };
 
