@@ -86,28 +86,37 @@ const ReadingProgressBar = ({ students = [], readingAttempts = [] }) => {
       </div>
 
       <div className="progress-bar-section">
-        {progressData.map((item, index) => {
-          const stats = performance[item.key] || {};
-          const percent = totalAvg ? (stats.avg / totalAvg) * 100 : 0;
+      {progressData.map((item, index) => {
+        const stats = performance[item.key] || {};
+        const percent = totalAvg ? (stats.avg / totalAvg) * 100 : 0;
 
-          const tooltipText = `${item.label}
-Average per student: ${stats.avg?.toFixed(2)}
-Highest: ${stats.max} (${stats.maxStudents?.join(", ")})
-Lowest: ${stats.min} (${stats.minStudents?.join(", ")})
-Contribution to total miscues: ${percent.toFixed(1)}%`;
+        const tooltipText = `${item.label}
+      Average per student: ${stats.avg?.toFixed(2)}
+      Highest: ${stats.max} (${stats.maxStudents?.join(", ")})
+      Lowest: ${stats.min} (${stats.minStudents?.join(", ")})
+      Contribution to total miscues: ${percent.toFixed(1)}%`;
 
-          return (
-            <div key={index} className="progress-bar" title={tooltipText}>
+        return (
+          <div key={index} className="progress-bar" title={tooltipText}>
+            <div className="progress-bar-track">
               <div
                 className="progress-fill"
-                style={{ width: `${percent}%`, backgroundColor: item.color }}
-              ></div>
-              <span className="progress-label">
-                {item.label} (avg: {stats.avg?.toFixed(2)})
-              </span>
+                style={{
+                  width: `${percent}%`,
+                  backgroundColor: item.color,
+                  borderTopRightRadius: percent > 98 ? "999px" : "0",
+                  borderBottomRightRadius: percent > 98 ? "999px" : "0",
+                }}
+              />
+              <span className="progress-percent-label">{percent.toFixed(1)}%</span>
             </div>
-          );
-        })}
+            <span className="progress-label">
+              {item.label} (avg: {stats.avg?.toFixed(2)})
+            </span>
+          </div>
+        );
+      })}
+
       </div>
 
       <div className="legend-wrapper">
