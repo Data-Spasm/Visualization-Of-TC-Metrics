@@ -167,14 +167,28 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
           Student: {student?.firstName} {student?.lastName || "Unnamed Student"}
         </h2>
         <button
-          onClick={() => {
+        onClick={() => {
             trackEvent("back_click", "Back to Student Dashboard");
             navigate(`/students/${student._id?.$oid || student._id}`);
-          }}
-          style={{ backgroundColor: "#f3f4f6", border: "1px solid #d1d5db", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
+        }}
+        style={{
+            backgroundColor: "#1f2937", // Slate-800
+            color: "#ffffff",
+            border: "none",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: "600",
+            cursor: "pointer",
+            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+            transition: "all 0.2s ease-in-out",
+        }}
+        onMouseEnter={(e) => (e.target.style.backgroundColor = "#374151")} // Hover: Slate-700
+        onMouseLeave={(e) => (e.target.style.backgroundColor = "#1f2937")}
         >
-          ← Back to Student Dashboard
+        Back to Student Dashboard
         </button>
+
       </div>
 
       <h4 style={{ marginTop: 0, color: "#0ea5e9" }}>
