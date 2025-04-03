@@ -25,24 +25,28 @@ const Student = ({ student }) => {
   const [expandedCard, setExpandedCard] = useState(null);
   const navigate = useNavigate();
   const trackEvent = useAnalyticsEvent("Student Dashboard");
-  const hoverStartRef = useRef({});
-  const classroomRef = useRef(null);
+  const hoverStartRef = useRef({}); // Hover tracking ref
+  const classroomRef = useRef(null); // Reference for the container
 
+  // Load data if needed
   useEffect(() => {
     if (!attemptsLoaded) loadAttemptsAndMiscues();
   }, [attemptsLoaded, loadAttemptsAndMiscues]);
 
+  // Track student dashboard load
   useEffect(() => {
     if (attemptsLoaded) {
-      trackEvent("component_view", `Student Dashboard: ${student.username}`);
+      trackEvent("component_view", `Student Dashboard Loaded: ${student.username}`);
     }
   }, [attemptsLoaded, trackEvent, student.username]);
 
+  // Hover start
   const handleMouseEnter = (label) => {
     hoverStartRef.current[label] = Date.now();
     trackEvent("hover_start", label);
   };
 
+  // Hover end with duration
   const handleMouseLeave = (label) => {
     const start = hoverStartRef.current[label];
     if (start) {
@@ -52,10 +56,12 @@ const Student = ({ student }) => {
     }
   };
 
+  // Student-specific attempts
   const studentAttempts = useMemo(() => {
     return readingAttempts.filter((a) => a.studentUsername === student.username);
   }, [readingAttempts, student.username]);
 
+  // Generate miscue metrics for each passage
   const miscueData = useMemo(() => {
     if (!assessments.length || !student || !attemptsLoaded) return [];
 
@@ -111,6 +117,7 @@ const Student = ({ student }) => {
 
   return (
     <div className="classroom" ref={classroomRef}>
+      {/* Summary Card */}
       {!expandedCard && (
         <div className="long-card">
           <Card className="long-card">
@@ -129,6 +136,7 @@ const Student = ({ student }) => {
         </div>
       )}
 
+      {/* Grid of Mini Cards */}
       {!expandedCard && (
         <div className="grid-container">
           <Card
@@ -177,13 +185,14 @@ const Student = ({ student }) => {
                 readingAttempts={studentAttempts}
                 assessments={assessments}
                 studentUsername={student.username}
-                studentDisplayName={`${student.firstName} ${student.lastName}`} 
+                studentDisplayName={`${student.firstName} ${student.lastName}`}
               />
             </CardContent>
           </Card>
         </div>
       )}
 
+      {/* Expanded Fullscreen View */}
       {expandedCard && (
         <div className="expanded-card-overlay">
           <div className="expanded-card">

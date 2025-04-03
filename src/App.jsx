@@ -23,6 +23,7 @@ const getSessionUserId = () => {
   return sessionUserId;
 };
 
+
 const App = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
   const { students, readingAttempts, assessments, miscues, loading } = useContext(DataContext);
@@ -33,13 +34,19 @@ const App = () => {
     trackEvent("toggle_sidebar", "Sidebar Toggled", isSidebarVisible ? 0 : 1);
   };
 
-  // Set the GA session user ID on first mount
   useEffect(() => {
     const userId = getSessionUserId();
+  
     if (window.gtag) {
-      window.gtag('set', { user_id: userId });
+      // Set up GA4 config with user_id on first load
+      window.gtag('js', new Date());
+      window.gtag('config', 'G-L9ZTB45XRY', {
+        user_id: userId,
+        anonymize_ip: true,
+      });
     }
   }, []);
+  
 
   return (
     <Router>

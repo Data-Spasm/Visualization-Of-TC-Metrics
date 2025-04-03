@@ -10,9 +10,10 @@ const StudentList = ({ students }) => {
   const [processingStudentId, setProcessingStudentId] = useState(null);
   const [avatars, setAvatars] = useState([]);
   const trackEvent = useAnalyticsEvent("Student List");
-  const hoverStartRef = useRef({});
+  const hoverStartRef = useRef({}); // For tracking hover duration
 
   useEffect(() => {
+    // Load avatars from backend
     const loadAvatars = async () => {
       try {
         const data = await AvatarController.getAllAvatars();
@@ -23,14 +24,17 @@ const StudentList = ({ students }) => {
     };
 
     loadAvatars();
+    // TRACK: Page load
     trackEvent("component_view", "Student List Page Loaded");
   }, [trackEvent]);
 
+  // TRACK: Start hover
   const handleMouseEnter = (label) => {
     hoverStartRef.current[label] = Date.now();
     trackEvent("hover_start", label);
   };
 
+  // TRACK: End hover and log duration
   const handleMouseLeave = (label) => {
     const start = hoverStartRef.current[label];
     if (start) {
@@ -43,7 +47,8 @@ const StudentList = ({ students }) => {
   const handleClick = (student) => {
     const studentId = student._id?.$oid || student._id;
     setProcessingStudentId(studentId);
-    trackEvent("card_click", `Reading Progress Click - ${student.firstName} ${student.lastName}`);
+    // TRACK: Reading progress clicked
+    trackEvent("card_click", `Reading Progress - ${student.firstName} ${student.lastName}`);
     navigate(`/students/${studentId}`);
   };
 
@@ -69,6 +74,7 @@ const StudentList = ({ students }) => {
     return <div className="loading-message">Loading students...</div>;
   }
 
+  // Group students based on accuracy thresholds
   const groupedStudents = {
     Excellent: [],
     Good: [],
@@ -121,16 +127,18 @@ const StudentList = ({ students }) => {
                     );
                     const gender = student.gender?.toLowerCase() === "female" ? "female" : "male";
 
-                    // Define fallback URL based on gender
                     const genderFallbackUrl = `https://avataaars.io/?avatarStyle=Circle&topType=${
                       gender === "female" ? "LongHairStraight" : "ShortHairShortFlat"
                     }&accessoriesType=Blank&hairColor=Black&facialHairType=Blank&clotheType=BlazerShirt&clotheColor=Black&eyeType=Default&eyebrowType=Default&mouthType=Smile&skinColor=Light`;
 
-                    // Only use avatarData if it is truly customized
                     const avatarUrl =
                       avatarData && avatarData.generatedUsername !== "Default_Name"
                         ? generateAvatarUrl(avatarData)
-                        : genderFallbackUrl;
+                        : (() => {
+                            // TRACK: Fallback avatar shown
+                            trackEvent("avatar_fallback_rendered", gender);
+                            return genderFallbackUrl;
+                          })();
 
                     const accuracyVal = getAccuracyValue(student);
                     const fluencyVal = getFluencyValue(student);
