@@ -113,7 +113,7 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
 
       <div className="callout-block">
         <p>
-          <strong>Tip:</strong> Click into individual students in the 0–49 band to explore skill-level challenges.
+          <strong>Tip:</strong> Hover over the 0–49 band to explore how many students are in that accuracy and fluency range.
         </p>
       </div>
     </div>
