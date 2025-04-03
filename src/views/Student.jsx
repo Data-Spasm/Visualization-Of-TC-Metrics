@@ -177,6 +177,7 @@ const Student = ({ student }) => {
                 readingAttempts={studentAttempts}
                 assessments={assessments}
                 studentUsername={student.username}
+                studentDisplayName={`${student.firstName} ${student.lastName}`} 
               />
             </CardContent>
           </Card>

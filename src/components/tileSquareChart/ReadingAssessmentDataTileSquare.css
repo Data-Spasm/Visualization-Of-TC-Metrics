@@ -57,7 +57,7 @@
 .legend-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px; 
   font-size: 12px; 
   margin-top: 2px; 

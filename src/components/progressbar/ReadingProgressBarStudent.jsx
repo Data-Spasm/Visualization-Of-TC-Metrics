@@ -98,13 +98,39 @@ const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
               <h4 className="progress-metric-title">{metric.label}</h4>
 
               <div className="mini-summary">
-                <p>{summary}</p>
-                {hotspot && (
-                  <p style={{ fontSize: "11px", color: "#6b7280", marginTop: "4px" }}>
+              <p
+              style={{
+                minHeight: "60px", 
+                lineHeight: "1.4",
+                marginBottom: "0.25rem"
+              }}
+            >
+              {summary}
+            </p>
+                <p
+                style={{
+                  fontSize: "11px",
+                  color: "#6b7280",
+                  marginTop: "4px",
+                  minHeight: "14px",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "160px",
+                }}
+                title={hotspot || ""}
+              >
+                {hotspot ? (
+                  <>
                     Most frequent in: <strong>{hotspot}</strong>
-                  </p>
+                  </>
+                ) : (
+                  <>No recorded {metric.label.toLowerCase()}.</>
                 )}
+              </p>
+
               </div>
+
 
               {filtered.length === 0 ? (
                 <p style={{ fontSize: "12px", color: "#888", fontStyle: "italic" }}>

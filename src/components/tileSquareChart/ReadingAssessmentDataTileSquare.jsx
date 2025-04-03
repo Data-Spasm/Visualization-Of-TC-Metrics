@@ -9,10 +9,19 @@ const ReadingAssessmentDataTileView = ({
   readingAttempts = [],
   assessments = [],
   studentUsername = null,
-  students = []
+  students = [],
+  studentDisplayName = null 
 }) => {
   const [data, setData] = useState([]);
   const [insight, setInsight] = useState("");
+
+  const getDisplayName = (username) => {
+    const match = students.find((s) => s.username === username);
+    return match ? `${match.firstName} ${match.lastName}` : username;
+  };
+
+  const nameToShow =
+    studentDisplayName || getDisplayName(studentUsername) || studentUsername;
 
   useEffect(() => {
     const titleMap = {};
@@ -61,15 +70,15 @@ const ReadingAssessmentDataTileView = ({
 
     setData(Object.values(titleMap));
 
-    // Insight generation
+    // Insight generation 
     if (studentUsername) {
       const total = filteredAttempts.length;
       const quits = studentQuitMap[studentUsername] || 0;
       const rate = ((quits / total) * 100).toFixed(0);
       setInsight(
         quits === 0
-          ? `${studentUsername} completed all assigned passages.`
-          : `${studentUsername} quit ${quits} of ${total} passages (${rate}%). Consider reviewing difficulty or engagement.`
+          ? `${nameToShow} completed all assigned passages.`
+          : `${nameToShow} quit ${quits} of ${total} passages (${rate}%). Consider reviewing difficulty or engagement.`
       );
     } else {
       const quitMax = Object.entries(quitCounts).sort((a, b) => b[1] - a[1])[0];
@@ -77,18 +86,13 @@ const ReadingAssessmentDataTileView = ({
 
       if (quitMax && completeMax) {
         setInsight(
-          `"${completeMax[0]}" had the highest completions (${completeMax[1]}), while "${quitMax[0]}" had the most quits (${quitMax[1]}). Use this to reassess passage selection or pacing.`
+          `${completeMax[0]} had the highest completions (${completeMax[1]}), while ${quitMax[0]} had the most quits (${quitMax[1]}). Use this to reassess passage selection or pacing.`
         );
       } else {
         setInsight("No passage completion data available.");
       }
     }
-  }, [readingAttempts, assessments, studentUsername]);
-
-  const getDisplayName = (username) => {
-    const match = students.find((s) => s.username === username);
-    return match ? `${match.firstName} ${match.lastName}` : username;
-  };
+  }, [readingAttempts, assessments, studentUsername, studentDisplayName]);
 
   return (
     <div className="chart-container">
@@ -171,8 +175,8 @@ const ReadingAssessmentDataTileView = ({
         <div className="callout-block">
           {studentUsername ? (
             <>
-              <strong>Tip:</strong> If {studentUsername} frequently quits passages, consider reviewing text difficulty,
-              engagement, or external factors like reading environment.
+              <strong>Tip:</strong> If {nameToShow} frequently quits passages, consider reviewing text
+              difficulty, engagement, or external factors like reading environment.
             </>
           ) : (
             <>

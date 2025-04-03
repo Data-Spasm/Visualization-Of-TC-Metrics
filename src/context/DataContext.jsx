@@ -21,8 +21,8 @@ export const DataProvider = ({ children }) => {
         const fetchedStudents = await UserController.getStudentsByTeacher(teacherUsername);
 
         const fakeNames = [
-          "Yophi Smith", "Akeilah McKenzie", "Josiah Mayers",
-          "Aaron Peters", "Bruno Mars", "Maia Paltoo"
+          "Bruno Mars", "Akeil McKenzie", "Josiah Mayers",
+          "Maia Paltoo", "Yophi Smith", "Aaron Peters"
         ];
 
         const renamed = fetchedStudents.map((s, i) => {

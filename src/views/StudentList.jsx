@@ -18,7 +18,7 @@ const StudentList = ({ students }) => {
         const data = await AvatarController.getAllAvatars();
         setAvatars(data);
       } catch (err) {
-        console.error(" Failed to load avatars:", err);
+        console.error("Failed to load avatars:", err);
       }
     };
 
@@ -119,7 +119,18 @@ const StudentList = ({ students }) => {
                     const avatarData = avatars.find(
                       avatar => avatar._id?.$oid === studentId || avatar._id === studentId
                     );
-                    const avatarUrl = avatarData ? generateAvatarUrl(avatarData) : null;
+                    const gender = student.gender?.toLowerCase() === "female" ? "female" : "male";
+
+                    // Define fallback URL based on gender
+                    const genderFallbackUrl = `https://avataaars.io/?avatarStyle=Circle&topType=${
+                      gender === "female" ? "LongHairStraight" : "ShortHairShortFlat"
+                    }&accessoriesType=Blank&hairColor=Black&facialHairType=Blank&clotheType=BlazerShirt&clotheColor=Black&eyeType=Default&eyebrowType=Default&mouthType=Smile&skinColor=Light`;
+
+                    // Only use avatarData if it is truly customized
+                    const avatarUrl =
+                      avatarData && avatarData.generatedUsername !== "Default_Name"
+                        ? generateAvatarUrl(avatarData)
+                        : genderFallbackUrl;
 
                     const accuracyVal = getAccuracyValue(student);
                     const fluencyVal = getFluencyValue(student);
@@ -136,11 +147,7 @@ const StudentList = ({ students }) => {
                         onMouseLeave={() => handleMouseLeave(rowLabel)}
                       >
                         <td>
-                          {avatarUrl ? (
-                            <img src={avatarUrl} alt="Avatar" className="avatar-image" />
-                          ) : (
-                            <div className="avatar-placeholder">👤</div>
-                          )}
+                          <img src={avatarUrl} alt="Avatar" className="avatar-image" />
                         </td>
                         <td>{`${student.firstName} ${student.lastName}`}</td>
                         <td>{`Stu-${studentId?.slice(-6) || index + 1}`}</td>
