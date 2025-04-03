@@ -43,11 +43,21 @@
   color: #14532d;
 }
 
-.legend-block {
+.legend-block.stuti-style {
+  font-size: 12px;
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 10px;
+  line-height: 1.2;
+}
+
+.legend-square {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  margin-right: 6px;
+  border-radius: 3px;
 }
 
 .legend-item {
@@ -57,12 +67,6 @@
   gap: 6px;
 }
 
-.legend-square {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  display: inline-block;
-}
 
 .left-aligned {
   justify-content: flex-start;

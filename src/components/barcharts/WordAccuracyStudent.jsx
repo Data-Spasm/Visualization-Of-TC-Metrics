@@ -126,15 +126,28 @@ const WordAccuracyDistributionChart = ({ student, students, miscues = [] }) => {
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
-            dataKey="passage"
-            label={{ value: "Passages", position: "insideBottom", offset: -5 }}
-            interval={0}
-          />
-          <YAxis
-            label={{ value: "Correct Words", angle: -90, position: "insideLeft" }}
-            allowDecimals={false}
-            domain={[0, "auto"]}
-          />
+          dataKey="passage"
+          label={{
+            value: "Passages",
+            position: "insideBottom",
+            offset: -5,
+            style: { fontSize: 12 } 
+          }}
+          interval={0}
+          tick={{ fontSize: 12 }} 
+        />
+        <YAxis
+          label={{
+            value: "Correct Words",
+            angle: -90,
+            position: "insideLeft",
+            style: { fontSize: 12 }
+          }}
+          allowDecimals={false}
+          domain={[0, "auto"]}
+          tick={{ fontSize: 12 }}
+        />
+
           <Tooltip
             content={<CustomTooltip />}
             cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
