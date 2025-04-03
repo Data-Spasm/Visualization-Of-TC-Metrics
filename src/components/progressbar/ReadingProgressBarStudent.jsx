@@ -63,7 +63,6 @@ const ReadingProgressBarCard = ({ miscues = [], studentUsername }) => {
 
   return (
     <div className="progress-card-container">
-      <h3 className="progress-title">Progress Overview by Skill</h3>
 
       {storyInsight && (
         <div className="story-summary">
