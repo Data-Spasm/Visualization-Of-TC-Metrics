@@ -30,6 +30,10 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
     if (!attemptsLoaded) loadAttemptsAndMiscues();
   }, [attemptsLoaded, loadAttemptsAndMiscues]);
 
+  useEffect(() => {
+    trackEvent("component_view", `Passage View Loaded for ${student.username}`);
+  }, [trackEvent, student.username]);
+
   const handleMouseEnter = (label) => {
     hoverStartRef.current[label] = Date.now();
     trackEvent("hover_start", label);
@@ -128,8 +132,6 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
     trackEvent("attempt_loaded", `Attempt ${selectedAttemptIndex + 1}`);
   }, [selectedAttemptIndex, filteredAttempts, assessments, initialPassageId, trackEvent]);
 
-  if (!attemptsLoaded) return <h2>Loading passage data...</h2>;
-
   const attempt = filteredAttempts[selectedAttemptIndex];
   const combinedResult = attempt?.readingAttempts?.reduce(
     (acc, segment) => {
@@ -167,12 +169,12 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
           Student: {student?.firstName} {student?.lastName || "Unnamed Student"}
         </h2>
         <button
-        onClick={() => {
+          onClick={() => {
             trackEvent("back_click", "Back to Student Dashboard");
             navigate(`/students/${student._id?.$oid || student._id}`);
-        }}
-        style={{
-            backgroundColor: "#1f2937", // Slate-800
+          }}
+          style={{
+            backgroundColor: "#1f2937",
             color: "#ffffff",
             border: "none",
             padding: "8px 16px",
@@ -182,13 +184,12 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
             cursor: "pointer",
             boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
             transition: "all 0.2s ease-in-out",
-        }}
-        onMouseEnter={(e) => (e.target.style.backgroundColor = "#374151")} // Hover: Slate-700
-        onMouseLeave={(e) => (e.target.style.backgroundColor = "#1f2937")}
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#374151")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#1f2937")}
         >
-        Back to Student Dashboard
+          Back to Student Dashboard
         </button>
-
       </div>
 
       <h4 style={{ marginTop: 0, color: "#0ea5e9" }}>
@@ -196,27 +197,21 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
       </h4>
 
       <ReadingProgressRadialCard
-        miscues={[
-          {
-            passageTitle: "All Passages",
-            ...totalSummary,
-          },
-        ]}
+        miscues={[{ passageTitle: "All Passages", ...totalSummary }]}
       />
 
       <div className="passage-box">
-        <div className="passage-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-          <h2 style={{ margin: 0 }}>
-            <strong>
-              Passage: "{assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}”
-            </strong>
-          </h2>
+        <div className="passage-header" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+          <h2><strong>Passage: "{assessment?.readingContent?.readingMaterial?.passageTitle || "Untitled Passage"}”</strong></h2>
           <div className="attempt-selector">
             <label htmlFor="passageSelect">Change Passage:</label>
             <select
               id="passageSelect"
               value={initialPassageId}
-              onChange={(e) => navigate(`/passages/${student.username}/${e.target.value}`)}
+              onChange={(e) => {
+                trackEvent("dropdown_select", `Passage Changed To ${e.target.value}`);
+                navigate(`/passages/${student.username}/${e.target.value}`);
+              }}
             >
               {assessments
                 .filter((a) => studentAllAttempts.some((att) => att.readingAssessmentId === (a._id?.$oid || a._id)))
@@ -252,7 +247,10 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
           <select
             id="attemptSelect"
             value={selectedAttemptIndex}
-            onChange={(e) => setSelectedAttemptIndex(Number(e.target.value))}
+            onChange={(e) => {
+              trackEvent("dropdown_select", `Changed Attempt To ${e.target.value}`);
+              setSelectedAttemptIndex(Number(e.target.value));
+            }}
           >
             {filteredAttempts.map((_, idx) => (
               <option key={`attempt-${idx}`} value={idx}>
@@ -268,13 +266,21 @@ const PassageView = ({ student, passageId: initialPassageId }) => {
           </div>
           <div className="card-box" onMouseEnter={() => handleMouseEnter("Student Attempt")} onMouseLeave={() => handleMouseLeave("Student Attempt")}>
             <h5>Student Attempt</h5>
-            {highlightedContent ? <p dangerouslySetInnerHTML={{ __html: highlightedContent }} /> : rawAttempt ? <p>{rawAttempt}</p> : <p>No attempt recorded.</p>}
+            {highlightedContent ? (
+              <p dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+            ) : rawAttempt ? (
+              <p>{rawAttempt}</p>
+            ) : (
+              <p>No attempt recorded.</p>
+            )}
           </div>
         </div>
 
         <div className="audio-player-container" onMouseEnter={() => handleMouseEnter("Audio Player")} onMouseLeave={() => handleMouseLeave("Audio Player")}>
           {audioUrl ? (
-            <audio controls src={audioUrl} onPlay={() => trackEvent("audio_play", "Audio Started")}>Your browser does not support audio.</audio>
+            <audio controls src={audioUrl} onPlay={() => trackEvent("audio_play", "Audio Started")}>
+              Your browser does not support audio.
+            </audio>
           ) : (
             <p>No audio available.</p>
           )}

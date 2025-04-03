@@ -39,6 +39,10 @@
   display: none; 
 }
 
+.apexcharts-legend {
+  justify-content: flex-start !important;
+}
+
 .story-summary {
   background-color: #fef3c7;
   border-left: 0.4rem solid #f59e0b;

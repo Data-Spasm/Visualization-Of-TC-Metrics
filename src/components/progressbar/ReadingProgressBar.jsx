@@ -116,7 +116,7 @@ Contribution to total miscues: ${percent.toFixed(1)}%`;
 
       {mostCommon && (
         <div className="callout-block">
-          <strong>Tip:</strong> If <strong>{mostCommon.label}</strong> continues to dominate class miscues,
+          <strong>Tip:</strong> If <strong>{mostCommon.label}</strong> continue to dominate class miscues,
           consider building targeted mini-lessons or practice passages to address this skill gap.
         </div>
       )}

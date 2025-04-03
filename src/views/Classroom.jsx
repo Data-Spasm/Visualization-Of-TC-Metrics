@@ -28,10 +28,12 @@ const Classroom = () => {
   const hoverStartRef = useRef({});
   const classroomRef = useRef(null);
 
+  // Load data if not already loaded
   useEffect(() => {
     if (!attemptsLoaded) loadAttemptsAndMiscues();
   }, [attemptsLoaded, loadAttemptsAndMiscues]);
 
+  // Fire analytics once loaded
   useEffect(() => {
     if (attemptsLoaded) {
       trackEvent("component_view", "Classroom Page Loaded");
@@ -52,21 +54,24 @@ const Classroom = () => {
     }
   };
 
+  // Aggregate miscue performance data by student and passage
   const miscueData = useMemo(() => {
     if (!students.length || !assessments.length || !attemptsLoaded) return [];
-  
+
     return assessments.flatMap((assessment, idx) => {
       const passageId = assessment._id?.$oid || assessment._id;
-      const passageTitle = assessment.readingContent?.readingMaterial?.passageTitle || `Passage ${idx + 1}`;
-  
+      const passageTitle =
+        assessment.readingContent?.readingMaterial?.passageTitle ||
+        `Passage ${idx + 1}`;
+
       return students.map((student) => {
         const key = `${student.username}_${passageId}`;
         const entries = miscues.byStudentPassage.get(key) || [];
-  
+
         let numCorrect = 0,
           numDels = 0,
           numSubs = 0;
-  
+
         // Aggregate student's total correct, deletions, and substitutions
         entries.forEach((e) => {
           const result = e.result;
@@ -74,15 +79,19 @@ const Classroom = () => {
           numDels += result.numDels || 0;
           numSubs += result.numSubs || 0;
         });
-  
+
         // Student full attempt count = number of full ReadingAssessmentAttempts for this assessment
         const studentAttempts = readingAttempts.filter(
-          (a) => a.studentUsername === student.username && a.readingAssessmentId === passageId
+          (a) =>
+            a.studentUsername === student.username &&
+            a.readingAssessmentId === passageId
         ).length;
-  
+
         // Class full attempt count = number of unique ReadingAssessmentAttempts for this passage
-        const classAttempts = readingAttempts.filter((a) => a.readingAssessmentId === passageId).length;
-  
+        const classAttempts = readingAttempts.filter(
+          (a) => a.readingAssessmentId === passageId
+        ).length;
+
         // Class total correct for this passage (aggregate from all readingAttempts inside each assessment attempt)
         const totalClassCorrect = readingAttempts.reduce((acc, a) => {
           if (a.readingAssessmentId === passageId) {
@@ -97,9 +106,10 @@ const Classroom = () => {
           }
           return acc;
         }, 0);
-  
-        const avgCorrect = classAttempts > 0 ? totalClassCorrect / classAttempts : 0;
-  
+
+        const avgCorrect =
+          classAttempts > 0 ? totalClassCorrect / classAttempts : 0;
+
         return {
           passageId,
           passage: passageTitle,
@@ -114,12 +124,12 @@ const Classroom = () => {
       });
     });
   }, [students, readingAttempts, assessments, miscues, attemptsLoaded]);
-  
 
   if (loading) return <h2>Loading classroom data...</h2>;
 
   return (
     <div className="classroom" ref={classroomRef}>
+      {/* Summary long card block */}
       {!expandedCard && (
         <div className="long-card">
           <Card className="long-card">
@@ -129,7 +139,10 @@ const Classroom = () => {
               </Typography>
               <div className="overview-flex-container">
                 <div className="overview-progress">
-                  <ReadingProgressBar readingAttempts={readingAttempts} students={students} />
+                  <ReadingProgressBar
+                    readingAttempts={readingAttempts}
+                    students={students}
+                  />
                 </div>
                 <div className="overview-performance">
                   <ClassWideReadingPerformance students={students} />
@@ -140,6 +153,7 @@ const Classroom = () => {
         </div>
       )}
 
+      {/* Card grid container for visualizations */}
       {!expandedCard && (
         <div className="grid-container">
           <Card
@@ -194,6 +208,7 @@ const Classroom = () => {
         </div>
       )}
 
+      {/* Fullscreen card overlay */}
       {expandedCard && (
         <div className="expanded-card-overlay">
           <div className="expanded-card">
@@ -206,7 +221,10 @@ const Classroom = () => {
             >
               ✖
             </button>
-            {expandedCard === "accuracy" && <OverallAccuracyFluencyChart students={students} />}
+
+            {expandedCard === "accuracy" && (
+              <OverallAccuracyFluencyChart students={students} />
+            )}
             {expandedCard === "engagement" && (
               <ClassEngagementBubbleChart
                 readingAttempts={readingAttempts}
@@ -225,6 +243,7 @@ const Classroom = () => {
         </div>
       )}
 
+      {/* Long card 2 - comparative chart */}
       {!expandedCard && (
         <div className="long-card-2">
           <Card className="long-card-2">
@@ -232,7 +251,10 @@ const Classroom = () => {
               <Typography variant="h5" gutterBottom>
                 Student vs Class Comparative Analysis
               </Typography>
-              <ComparativePerformanceChart miscues={miscueData} students={students} />
+              <ComparativePerformanceChart
+                miscues={miscueData}
+                students={students}
+              />
             </CardContent>
           </Card>
         </div>

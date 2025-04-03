@@ -165,7 +165,7 @@ const ClassEngagementBubbleChart = ({
         <p>{storySummary}</p>
       </div>
 
-      <div style={{ width: "100%", height: 390 }}>
+      <div style={{ width: "100%", height: 430 }}>
         <Chart options={chartOptions} series={seriesData} type="bubble" height="100%" />
       </div>
 

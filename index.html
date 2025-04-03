@@ -4,12 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teacher-Dashboard</title>
+
+  <!-- Google Analytics: load gtag.js -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-L9ZTB45XRY"></script>
+
+  <!-- Initialize GA with placeholder config -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
+    
+    // Base initialization (without user_id)
     gtag('js', new Date());
-    gtag('config', 'G-L9ZTB45XRY');
+
+    // Initial config – actual user_id will be injected from React later
+    gtag('config', 'G-L9ZTB45XRY', {
+      anonymize_ip: true
+    });
   </script>
 </head>
 <body>

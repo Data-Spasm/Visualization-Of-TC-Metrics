@@ -70,7 +70,7 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
         <p>{storySummary}</p>
       </div>
 
-      <ResponsiveContainer width="100%" height={390}>
+      <ResponsiveContainer width="100%" height={355}>
       <BarChart
         data={binnedData}
         margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
@@ -84,7 +84,6 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
           label={{ value: "Number of Students", angle: -90, position: "insideLeft", offset: 10 }}
         />
         <Tooltip content={<CustomTooltip />} />
-        <Legend verticalAlign="top" height={36} />
         <Bar dataKey="Accuracy" fill="#8884d8">
           <LabelList dataKey="Accuracy" position="top" />
         </Bar>
@@ -94,6 +93,23 @@ const OverallAccuracyFluencyChart = ({ students = [] }) => {
       </BarChart>
     </ResponsiveContainer>
 
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        marginTop: "1rem",
+        fontSize: "0.9vw",
+        lineHeight: "1.6em",
+      }}
+    >
+      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <span style={{ width: "12px", height: "12px", background: "#8884d8" }}></span> Accuracy
+      </span>
+      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <span style={{ width: "12px", height: "12px", background: "#82ca9d" }}></span> Fluency
+      </span>
+    </div>
 
       <div className="callout-block">
         <p>
